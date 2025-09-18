@@ -1,10 +1,23 @@
 // Variables globales de configuración
 const CONFIG = {
-    distNode: 400,          // Distancia entre nodos
+    rootNodeSize: 200,      // Tamaño del nodo raíz central
     primaryNodeSize: 150,   // Tamaño de los nodos primarios (categorías)
     secondaryNodeSize: 120, // Tamaño de los nodos secundarios
     nodeFontSize: 16,       // Tamaño de fuente para nodos secundarios
-    categoryFontSize: 18    // Tamaño de fuente para categorías
+    categoryFontSize: 18,   // Tamaño de fuente para categorías
+    rootFontSize: 20,       // Tamaño de fuente para el nodo raíz
+    primaryDistance: 200,   // Distancia de nodo central a categorías principales
+    
+    // Distancias variables entre categorías y sus herramientas
+    categoryDistances: {
+        'engines': 600,      // Distancia de Motores Gráficos a sus herramientas
+        'frameworks': 800,   // Distancia de Frameworks Web a sus herramientas
+        'ia': 800,           // Distancia de Herramientas IA a sus herramientas
+        'shaders': 1200,      // Distancia de Shaders a sus herramientas
+        'db': 800,           // Distancia de Bases de Datos a sus herramientas
+        'ides': 1000,         // Distancia de IDEs a sus herramientas
+        'languages': 1200     // Distancia de Lenguajes de Programación a sus herramientas
+    }
 };
 
 // Descripciones de los nodos para mostrar en hover
@@ -12,6 +25,7 @@ const NODE_INFO = {
     'unity': 'Motor de juegos multiplataforma con potentes capacidades gráficas y físicas.',
     'unreal': 'Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas.',
     'godot': 'Motor de código abierto con soporte para 2D y 3D, ideal para desarrolladores independientes.',
+    'csharp': 'Lenguaje de programación orientado a objetos desarrollado por Microsoft, muy utilizado en Unity.',
     'p5': 'Biblioteca JavaScript para programación creativa con enfoque en artes visuales y web.',
     'three': 'Biblioteca JavaScript para crear y mostrar gráficos 3D animados en navegadores web.',
     'babylon': 'Framework de JavaScript para crear juegos y experiencias 3D en navegadores web.',
@@ -90,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Lenguajes de Programación
             { data: { id: 'cpp', label: 'C++', url: 'https://isocpp.org/' } },
+            { data: { id: 'csharp', label: 'C#', url: 'https://docs.microsoft.com/en-us/dotnet/csharp/' } },
             { data: { id: 'php', label: 'PHP', url: 'https://www.php.net/' } },
             { data: { id: 'javascript', label: 'JavaScript', url: 'https://developer.mozilla.org/es/docs/Web/JavaScript' } },
             { data: { id: 'python', label: 'Python', url: 'https://www.python.org/' } },
@@ -140,17 +155,19 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Lenguajes de Programación
             { data: { id: 'languages-cpp', source: 'languages', target: 'cpp' } },
+            { data: { id: 'languages-csharp', source: 'languages', target: 'csharp' } },
             { data: { id: 'languages-php', source: 'languages', target: 'php' } },
             { data: { id: 'languages-javascript', source: 'languages', target: 'javascript' } },
             { data: { id: 'languages-python', source: 'languages', target: 'python' } },
             { data: { id: 'languages-typescript', source: 'languages', target: 'typescript' } },
             { data: { id: 'languages-java', source: 'languages', target: 'java' } },
             
-            // Algunas conexiones adicionales entre nodos relacionados
-            { data: { id: 'three-glsl', source: 'three', target: 'glsl' } },
-            { data: { id: 'javascript-typescript', source: 'javascript', target: 'typescript' } },
-            { data: { id: 'unity-cpp', source: 'unity', target: 'cpp' } },
-            { data: { id: 'p5-javascript', source: 'p5', target: 'javascript' } },
+            // Algunas conexiones adicionales entre nodos relacionados (con clase 'secondary')
+            { data: { id: 'three-glsl', source: 'three', target: 'glsl', type: 'secondary' } },
+            { data: { id: 'javascript-typescript', source: 'javascript', target: 'typescript', type: 'secondary' } },
+            { data: { id: 'unity-cpp', source: 'unity', target: 'cpp', type: 'secondary' } },
+            { data: { id: 'unity-csharp', source: 'unity', target: 'csharp', type: 'secondary' } },
+            { data: { id: 'p5-javascript', source: 'p5', target: 'javascript', type: 'secondary' } },
         ],
         style: [
             {
@@ -169,7 +186,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     'text-max-width': '100px',
                     'width': CONFIG.secondaryNodeSize + 'px',
                     'height': CONFIG.secondaryNodeSize + 'px',
-                    'padding': '15px'
+                    'padding': '15px',
+                    'transition-property': 'background-color, border-color, border-width, width, height',
+                    'transition-duration': '0.3s',
+                    'transition-timing-function': 'ease-in-out'
                 }
             },
             {
@@ -185,6 +205,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             {
+                selector: 'node[id="root"]',
+                style: {
+                    'background-color': '#9400d3',
+                    'border-color': '#ff1493',
+                    'border-width': 4,
+                    'font-size': CONFIG.rootFontSize + 'px',
+                    'width': CONFIG.rootNodeSize + 'px',
+                    'height': CONFIG.rootNodeSize + 'px',
+                    'padding': '25px'
+                }
+            },
+            {
                 selector: 'edge',
                 style: {
                     'width': 2,
@@ -193,6 +225,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     'target-arrow-color': '#ff69b4',
                     'target-arrow-shape': 'triangle',
                     'arrow-scale': 0.8
+                }
+            },
+            {
+                selector: 'edge[type="secondary"]',
+                style: {
+                    'line-style': 'dashed',
+                    'line-dash-pattern': [6, 3],
+                    'line-color': 'rgba(138, 43, 226, 0.6)',
+                    'target-arrow-color': '#8a2be2',
+                    'transition-property': 'line-color, target-arrow-color, width, opacity',
+                    'transition-duration': '0.3s'
                 }
             },
             {
@@ -256,7 +299,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (categoryIndex !== -1 && siblingIndex !== -1) {
                         const categoryAngle = (2 * Math.PI * categoryIndex) / categories.length;
                         const siblingOffset = (siblingIndex - (siblings.length - 1) / 2) * (Math.PI / 12);
-                        const radius = 600;
+                        // Usar distancia variable según la categoría
+                        const radius = CONFIG.categoryDistances[parentCategory] || 500;
                         
                         return {
                             x: radius * Math.cos(categoryAngle + siblingOffset),
@@ -291,7 +335,23 @@ document.addEventListener('DOMContentLoaded', function() {
     infoBox.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
     infoBox.style.zIndex = '1000';
     infoBox.style.pointerEvents = 'none';
+    infoBox.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    infoBox.style.opacity = 0;
+    infoBox.style.transform = 'translateY(10px)';
     document.getElementById('cy').appendChild(infoBox);
+    
+    // Iniciar animación para líneas discontinuas
+    setInterval(function() {
+        // Animar líneas discontinuas cambiando el patrón
+        cy.style()
+            .selector('edge[type="secondary"]')
+            .style({
+                'line-dash-offset': function(ele) {
+                    return (parseFloat(ele.style('line-dash-offset') || 0) + 1) % 12;
+                }
+            })
+            .update();
+    }, 100);
     
     // Función para resaltar nodos conectados
     function highlightConnectedNodes(node) {
@@ -334,24 +394,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Mostrar información al hacer hover sobre un nodo
+    // Mostrar información al hacer hover sobre un nodo y resaltar conexiones
     cy.on('mouseover', 'node', function(evt){
         var node = evt.target;
         var nodeId = node.id();
         var nodeInfo = NODE_INFO[nodeId];
         
+        // Resaltar el nodo y sus conexiones
+        node.addClass('hover');
+        var connectedEdges = node.connectedEdges();
+        connectedEdges.addClass('hover');
+        var connectedNodes = node.neighborhood('node');
+        connectedNodes.addClass('hover-connected');
+        
         if (nodeInfo && !node.data('type')) { // Solo para nodos que no son categorías
             infoBox.textContent = nodeInfo;
             infoBox.style.display = 'block';
+            infoBox.style.opacity = 0;
             
             // Posicionar cerca del cursor
             infoBox.style.left = (evt.renderedPosition.x + 20) + 'px';
             infoBox.style.top = (evt.renderedPosition.y + 20) + 'px';
+            
+            // Animar la aparición del infoBox
+            setTimeout(function() {
+                infoBox.style.opacity = 1;
+                infoBox.style.transform = 'translateY(0)';
+            }, 10);
         }
     });
     
-    cy.on('mouseout', 'node', function(){
-        infoBox.style.display = 'none';
+    cy.on('mouseout', 'node', function(evt){
+        var node = evt.target;
+        
+        // Quitar resaltado
+        node.removeClass('hover');
+        cy.edges().removeClass('hover');
+        cy.nodes().removeClass('hover-connected');
+        
+        // Ocultar infoBox con animación
+        infoBox.style.opacity = 0;
+        infoBox.style.transform = 'translateY(10px)';
+        setTimeout(function() {
+            if (infoBox.style.opacity === '0') {
+                infoBox.style.display = 'none';
+            }
+        }, 300);
     });
     
     // Actualizar posición del infoBox al mover el mouse

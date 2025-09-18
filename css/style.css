@@ -495,6 +495,51 @@ li::before {
     opacity: 0.25 !important;
 }
 
+/* Estilos para hover */
+.hover {
+    border-width: 5px !important;
+    border-color: #00ffff !important;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.7) !important;
+    transform: scale(1.1) !important;
+    z-index: 1000 !important;
+}
+
+.hover-connected {
+    border-color: #00ccff !important;
+    box-shadow: 0 0 10px rgba(0, 204, 255, 0.5) !important;
+    z-index: 999 !important;
+}
+
+/* Estilos para bordes en hover - aplicados por JavaScript */
+.cy-edge.hover {
+    width: 4px !important;
+    z-index: 999 !important;
+    opacity: 1 !important;
+}
+
+/* Animaciones para el infoBox */
+#node-hover-info {
+    animation-duration: 0.3s;
+    animation-timing-function: ease-in-out;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    border: 1px solid #00ffff;
+}
+
+/* Estilos para el botón de fullscreen */
+#fullscreen {
+    background-color: var(--button-bg) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border: 2px solid var(--primary-color) !important;
+    z-index: 1000;
+    position: relative;
+}
+
+#fullscreen:hover {
+    background-color: var(--secondary-color) !important;
+    transform: scale(1.05) !important;
+}
+
 @media (max-width: 768px) {
     .tool-category {
         padding: 1rem;
