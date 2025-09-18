@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Herramientas - Arte Generativo y Código con IA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="js/menu.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Mapa de Herramientas</h1>
+            <p>Módulo 5: Programación Creativa y Arte Digital</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="mermaid">
+                graph TB
+                    root[Arte Generativo y Código con IA]
+                    
+                    %% Principales categorías
+                    root --> engines[Motores Gráficos]
+                    root --> frameworks[Frameworks Web]
+                    root --> ia[Herramientas IA]
+                    root --> shaders[Shaders]
+                    root --> db[Bases de Datos]
+                    
+                    %% Motores Gráficos
+                    engines --> unity[Unity]
+                    engines --> unreal[Unreal Engine]
+                    engines --> godot[Godot]
+                    
+                    %% Frameworks Web
+                    frameworks --> p5[P5.js]
+                    frameworks --> three[Three.js]
+                    frameworks --> babylon[Babylon.js]
+                    frameworks --> tone[Tone.js]
+                    
+                    %% Herramientas IA
+                    ia --> cursor[Cursor Editor]
+                    ia --> trae[Trae AI]
+                    ia --> v0[v0.dev]
+                    ia --> comfy[ComfyUI]
+                    ia --> n8n[n8n]
+                    
+                    %% Shaders
+                    shaders --> shadertoy[Shadertoy]
+                    shaders --> glsl[GLSL]
+                    shaders --> bookofshaders[Book of Shaders]
+                    
+                    %% Bases de Datos
+                    db --> firebase[Firebase]
+                    db --> mongodb[MongoDB]
+                    
+                    %% Estilos
+                    classDef default fill:#1a1a1a,stroke:#ff69b4,color:#fff
+                    classDef category fill:#8a2be2,stroke:#ff69b4,color:#fff
+                    class root,engines,frameworks,ia,shaders,db category
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Descripción de las Herramientas</h2>
+            
+            <section class="tool-category">
+                <h3>Motores Gráficos</h3>
+                <ul>
+                    <li><strong>Unity:</strong> Motor multiplataforma para desarrollo de videojuegos y experiencias interactivas</li>
+                    <li><strong>Unreal Engine:</strong> Motor de juegos con capacidades avanzadas de renderizado y física</li>
+                    <li><strong>Godot:</strong> Motor de código abierto con soporte para 2D y 3D</li>
+                </ul>
+            </section>
+
+            <section class="tool-category">
+                <h3>Frameworks Web</h3>
+                <ul>
+                    <li><strong>P5.js:</strong> Biblioteca JavaScript para arte creativo y visualización de datos</li>
+                    <li><strong>Three.js:</strong> Biblioteca 3D para web con amplio soporte para gráficos WebGL</li>
+                    <li><strong>Babylon.js:</strong> Motor 3D completo para desarrollo web</li>
+                    <li><strong>Tone.js:</strong> Framework para creación y manipulación de audio en web</li>
+                </ul>
+            </section>
+
+            <section class="tool-category">
+                <h3>Herramientas IA</h3>
+                <ul>
+                    <li><strong>Cursor Editor:</strong> Editor de código con IA integrada</li>
+                    <li><strong>Trae AI:</strong> Asistente de programación basado en IA</li>
+                    <li><strong>v0.dev:</strong> Herramienta para generación de interfaces con IA</li>
+                    <li><strong>ComfyUI:</strong> Interfaz gráfica para modelos de IA</li>
+                    <li><strong>n8n:</strong> Plataforma para automatización y creación de flujos de trabajo con IA</li>
+                </ul>
+            </section>
+
+            <section class="tool-category">
+                <h3>Shaders</h3>
+                <ul>
+                    <li><strong>Shadertoy:</strong> Plataforma web para crear y compartir shaders</li>
+                    <li><strong>GLSL:</strong> Lenguaje de shading para gráficos OpenGL</li>
+                    <li><strong>Book of Shaders:</strong> Guía completa para aprender programación de shaders</li>
+                </ul>
+            </section>
+
+            <section class="tool-category">
+                <h3>Bases de Datos</h3>
+                <ul>
+                    <li><strong>Firebase:</strong> Plataforma de desarrollo con base de datos en tiempo real</li>
+                    <li><strong>MongoDB:</strong> Base de datos NoSQL flexible y escalable</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                fontFamily: 'Poppins',
+                fontSize: '16px'
+            }
+        });
+    </script>
+</body>
+</html>

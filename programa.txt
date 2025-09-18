@@ -16,6 +16,7 @@ Del prompt al código y del código a la obra: creación de piezas interactivas 
 Algoritmos para trackeo con IA , trackeo de manos, cuerpo, cara, clasificación de imágenes y estimación de poses.
 Introducción a la realización de proyectos de softwares que utilicen IA como módulo central
 Modelos de lenguaje aplicados a programación: DeepSeek, Qwen2.0, Chat GPT, Claude, Gemini, Code LLAMA, entre otros.
+
 Contenidos opcionales : 
 Frameworks avanzados como n8n para la creación de multiagentes
 Api de comfyUI para generar una interfaz personalizada para nuestro workflow.  
