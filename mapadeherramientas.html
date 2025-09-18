@@ -5,8 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa de Herramientas - Arte Generativo y Código con IA</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.25.0/dist/cytoscape.min.js"></script>
     <script src="js/menu.js"></script>
+    <style>
+        #cy {
+            width: 100%;
+            height: 700px;
+            background-color: rgba(18, 18, 18, 0.6);
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+        .map-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .map-controls button {
+            background: var(--menu-button-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .map-controls button:hover {
+            background: var(--menu-button-hover);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        #cy.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            border-radius: 0;
+        }
+        .node-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -18,50 +64,21 @@
 
     <main class="container">
         <div class="card">
-            <div class="mermaid">
-                graph TB
-                    root[Arte Generativo y Código con IA]
-                    
-                    %% Principales categorías
-                    root --> engines[Motores Gráficos]
-                    root --> frameworks[Frameworks Web]
-                    root --> ia[Herramientas IA]
-                    root --> shaders[Shaders]
-                    root --> db[Bases de Datos]
-                    
-                    %% Motores Gráficos
-                    engines --> unity[Unity]
-                    engines --> unreal[Unreal Engine]
-                    engines --> godot[Godot]
-                    
-                    %% Frameworks Web
-                    frameworks --> p5[P5.js]
-                    frameworks --> three[Three.js]
-                    frameworks --> babylon[Babylon.js]
-                    frameworks --> tone[Tone.js]
-                    
-                    %% Herramientas IA
-                    ia --> cursor[Cursor Editor]
-                    ia --> trae[Trae AI]
-                    ia --> v0[v0.dev]
-                    ia --> comfy[ComfyUI]
-                    ia --> n8n[n8n]
-                    
-                    %% Shaders
-                    shaders --> shadertoy[Shadertoy]
-                    shaders --> glsl[GLSL]
-                    shaders --> bookofshaders[Book of Shaders]
-                    
-                    %% Bases de Datos
-                    db --> firebase[Firebase]
-                    db --> mongodb[MongoDB]
-                    
-                    %% Estilos
-                    classDef default fill:#1a1a1a,stroke:#ff69b4,color:#fff
-                    classDef category fill:#8a2be2,stroke:#ff69b4,color:#fff
-                    class root,engines,frameworks,ia,shaders,db category
+            <div class="map-controls">
+                <button id="zoom-in">Zoom In</button>
+                <button id="zoom-out">Zoom Out</button>
+                <button id="reset">Reset</button>
+                <button id="fit">Ajustar</button>
+                <button id="fullscreen">Pantalla Completa</button>
+            </div>
+            <div id="cy"></div>
+            <div class="node-info" id="node-info">
+                <h3 id="node-title">Información</h3>
+                <p id="node-description">Haz clic en un nodo para ver su información y visitar su sitio web.</p>
             </div>
         </div>
+        
+        <script src="js/mapa.js"></script>
 
         <div class="card">
             <h2>Descripción de las Herramientas</h2>
@@ -115,15 +132,5 @@
         </div>
     </main>
 
-    <script>
-        mermaid.initialize({
-            startOnLoad: true,
-            theme: 'dark',
-            themeVariables: {
-                fontFamily: 'Poppins',
-                fontSize: '16px'
-            }
-        });
-    </script>
 </body>
 </html>
