@@ -8,18 +8,46 @@
     <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.25.0/dist/cytoscape.min.js"></script>
     <script src="js/menu.js"></script>
     <style>
+        body, html {
+            overflow: hidden;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        main {
+            height: calc(100vh - 100px);
+            padding: 0;
+            margin: 0;
+            max-width: 100%;
+        }
+        .container {
+            max-width: 100%;
+            padding: 0 20px;
+        }
+        .map-container {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
         #cy {
             width: 100%;
-            height: 700px;
+            height: calc(100vh - 160px);
             background-color: rgba(18, 18, 18, 0.6);
-            border-radius: 16px;
-            margin-bottom: 2rem;
+            border-radius: 0;
+            margin: 0;
         }
         .map-controls {
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin-bottom: 1rem;
+            padding: 10px 0;
+            background-color: rgba(18, 18, 18, 0.8);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
         }
         .map-controls button {
             background: var(--menu-button-bg);
@@ -46,11 +74,15 @@
             border-radius: 0;
         }
         .node-info {
-            margin-top: 1rem;
+            position: fixed;
+            bottom: 60px;
+            left: 20px;
             padding: 1rem;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.8);
             border-radius: 8px;
             display: none;
+            z-index: 200;
+            max-width: 400px;
         }
     </style>
 </head>
@@ -62,15 +94,15 @@
         </div>
     </header>
 
-    <main class="container">
-        <div class="card">
+    <main>
+        <div class="map-container">
+            <div id="cy"></div>
             <div class="map-controls">
                 <button id="zoom-in">Zoom In</button>
                 <button id="zoom-out">Zoom Out</button>
                 <button id="reset">Reset</button>
                 <button id="fullscreen">Pantalla Completa</button>
             </div>
-            <div id="cy"></div>
             <div class="node-info" id="node-info">
                 <h3 id="node-title">Información</h3>
                 <p id="node-description">Haz clic en un nodo para ver su información y visitar su sitio web.</p>
@@ -78,57 +110,6 @@
         </div>
         
         <script src="js/mapa.js"></script>
-
-        <div class="card">
-            <h2>Descripción de las Herramientas</h2>
-            
-            <section class="tool-category">
-                <h3>Motores Gráficos</h3>
-                <ul>
-                    <li><strong>Unity:</strong> Motor multiplataforma para desarrollo de videojuegos y experiencias interactivas</li>
-                    <li><strong>Unreal Engine:</strong> Motor de juegos con capacidades avanzadas de renderizado y física</li>
-                    <li><strong>Godot:</strong> Motor de código abierto con soporte para 2D y 3D</li>
-                </ul>
-            </section>
-
-            <section class="tool-category">
-                <h3>Frameworks Web</h3>
-                <ul>
-                    <li><strong>P5.js:</strong> Biblioteca JavaScript para arte creativo y visualización de datos</li>
-                    <li><strong>Three.js:</strong> Biblioteca 3D para web con amplio soporte para gráficos WebGL</li>
-                    <li><strong>Babylon.js:</strong> Motor 3D completo para desarrollo web</li>
-                    <li><strong>Tone.js:</strong> Framework para creación y manipulación de audio en web</li>
-                </ul>
-            </section>
-
-            <section class="tool-category">
-                <h3>Herramientas IA</h3>
-                <ul>
-                    <li><strong>Cursor Editor:</strong> Editor de código con IA integrada</li>
-                    <li><strong>Trae AI:</strong> Asistente de programación basado en IA</li>
-                    <li><strong>v0.dev:</strong> Herramienta para generación de interfaces con IA</li>
-                    <li><strong>ComfyUI:</strong> Interfaz gráfica para modelos de IA</li>
-                    <li><strong>n8n:</strong> Plataforma para automatización y creación de flujos de trabajo con IA</li>
-                </ul>
-            </section>
-
-            <section class="tool-category">
-                <h3>Shaders</h3>
-                <ul>
-                    <li><strong>Shadertoy:</strong> Plataforma web para crear y compartir shaders</li>
-                    <li><strong>GLSL:</strong> Lenguaje de shading para gráficos OpenGL</li>
-                    <li><strong>Book of Shaders:</strong> Guía completa para aprender programación de shaders</li>
-                </ul>
-            </section>
-
-            <section class="tool-category">
-                <h3>Bases de Datos</h3>
-                <ul>
-                    <li><strong>Firebase:</strong> Plataforma de desarrollo con base de datos en tiempo real</li>
-                    <li><strong>MongoDB:</strong> Base de datos NoSQL flexible y escalable</li>
-                </ul>
-            </section>
-        </div>
     </main>
 
 </body>
