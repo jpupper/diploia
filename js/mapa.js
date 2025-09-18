@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'ia', label: 'Herramientas IA', type: 'category' } },
             { data: { id: 'shaders', label: 'Shaders', type: 'category' } },
             { data: { id: 'db', label: 'Bases de Datos', type: 'category' } },
+            { data: { id: 'ides', label: 'IDEs', type: 'category' } },
+            { data: { id: 'languages', label: 'Lenguajes de Programación', type: 'category' } },
             
             // Motores Gráficos
             { data: { id: 'unity', label: 'Unity', url: 'https://unity.com/' } },
@@ -23,31 +25,83 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'tone', label: 'Tone.js', url: 'https://tonejs.github.io/' } },
             
             // Herramientas IA
+            { data: { id: 'comfy', label: 'ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI' } },
+            { data: { id: 'n8n', label: 'n8n', url: 'https://n8n.io/' } },
+            
+            // IDEs
             { data: { id: 'cursor', label: 'Cursor Editor', url: 'https://cursor.sh/' } },
             { data: { id: 'trae', label: 'Trae AI', url: 'https://www.trae.ai/' } },
             { data: { id: 'v0', label: 'v0.dev', url: 'https://v0.dev/' } },
-            { data: { id: 'comfy', label: 'ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI' } },
-            { data: { id: 'n8n', label: 'n8n', url: 'https://n8n.io/' } },
+            { data: { id: 'windsurf', label: 'Windsurf', url: 'https://www.windsurf.io/' } },
             
             // Shaders
             { data: { id: 'shadertoy', label: 'Shadertoy', url: 'https://www.shadertoy.com/' } },
             { data: { id: 'glsl', label: 'GLSL', url: 'https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)' } },
+            { data: { id: 'hlsl', label: 'HLSL', url: 'https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl' } },
             { data: { id: 'bookofshaders', label: 'Book of Shaders', url: 'https://thebookofshaders.com/?lan=es' } },
             
             // Bases de Datos
             { data: { id: 'firebase', label: 'Firebase', url: 'https://firebase.google.com/' } },
             { data: { id: 'mongodb', label: 'MongoDB', url: 'https://www.mongodb.com/' } },
+            { data: { id: 'sql', label: 'SQL', url: 'https://www.w3schools.com/sql/' } },
             
-            // Conexiones no jerárquicas
-            { data: { id: 'unity-three', source: 'unity', target: 'three' } },
-            { data: { id: 'p5-tone', source: 'p5', target: 'tone' } },
-            { data: { id: 'comfy-n8n', source: 'comfy', target: 'n8n' } },
-            { data: { id: 'shadertoy-glsl', source: 'shadertoy', target: 'glsl' } },
-            { data: { id: 'three-glsl', source: 'three', target: 'glsl' } },
-            { data: { id: 'babylon-three', source: 'babylon', target: 'three' } },
-            { data: { id: 'cursor-v0', source: 'cursor', target: 'v0' } },
-            { data: { id: 'firebase-n8n', source: 'firebase', target: 'n8n' } },
-            { data: { id: 'p5-shadertoy', source: 'p5', target: 'shadertoy' } },
+            // Lenguajes de Programación
+            { data: { id: 'cpp', label: 'C++', url: 'https://isocpp.org/' } },
+            { data: { id: 'php', label: 'PHP', url: 'https://www.php.net/' } },
+            { data: { id: 'javascript', label: 'JavaScript', url: 'https://developer.mozilla.org/es/docs/Web/JavaScript' } },
+            { data: { id: 'python', label: 'Python', url: 'https://www.python.org/' } },
+            { data: { id: 'typescript', label: 'TypeScript', url: 'https://www.typescriptlang.org/' } },
+            { data: { id: 'java', label: 'Java', url: 'https://www.java.com/' } },
+            
+            // Conexiones principales con el nodo raíz
+            { data: { id: 'root-engines', source: 'root', target: 'engines' } },
+            { data: { id: 'root-frameworks', source: 'root', target: 'frameworks' } },
+            { data: { id: 'root-ia', source: 'root', target: 'ia' } },
+            { data: { id: 'root-shaders', source: 'root', target: 'shaders' } },
+            { data: { id: 'root-db', source: 'root', target: 'db' } },
+            { data: { id: 'root-ides', source: 'root', target: 'ides' } },
+            { data: { id: 'root-languages', source: 'root', target: 'languages' } },
+            
+            // Conexiones de categorías a sus elementos
+            // Motores Gráficos
+            { data: { id: 'engines-unity', source: 'engines', target: 'unity' } },
+            { data: { id: 'engines-unreal', source: 'engines', target: 'unreal' } },
+            { data: { id: 'engines-godot', source: 'engines', target: 'godot' } },
+            
+            // Frameworks Web
+            { data: { id: 'frameworks-p5', source: 'frameworks', target: 'p5' } },
+            { data: { id: 'frameworks-three', source: 'frameworks', target: 'three' } },
+            { data: { id: 'frameworks-babylon', source: 'frameworks', target: 'babylon' } },
+            { data: { id: 'frameworks-tone', source: 'frameworks', target: 'tone' } },
+            
+            // Herramientas IA
+            { data: { id: 'ia-comfy', source: 'ia', target: 'comfy' } },
+            { data: { id: 'ia-n8n', source: 'ia', target: 'n8n' } },
+            
+            // IDEs
+            { data: { id: 'ides-cursor', source: 'ides', target: 'cursor' } },
+            { data: { id: 'ides-trae', source: 'ides', target: 'trae' } },
+            { data: { id: 'ides-v0', source: 'ides', target: 'v0' } },
+            { data: { id: 'ides-windsurf', source: 'ides', target: 'windsurf' } },
+            
+            // Shaders
+            { data: { id: 'shaders-shadertoy', source: 'shaders', target: 'shadertoy' } },
+            { data: { id: 'shaders-glsl', source: 'shaders', target: 'glsl' } },
+            { data: { id: 'shaders-hlsl', source: 'shaders', target: 'hlsl' } },
+            { data: { id: 'shaders-bookofshaders', source: 'shaders', target: 'bookofshaders' } },
+            
+            // Bases de Datos
+            { data: { id: 'db-firebase', source: 'db', target: 'firebase' } },
+            { data: { id: 'db-mongodb', source: 'db', target: 'mongodb' } },
+            { data: { id: 'db-sql', source: 'db', target: 'sql' } },
+            
+            // Lenguajes de Programación
+            { data: { id: 'languages-cpp', source: 'languages', target: 'cpp' } },
+            { data: { id: 'languages-php', source: 'languages', target: 'php' } },
+            { data: { id: 'languages-javascript', source: 'languages', target: 'javascript' } },
+            { data: { id: 'languages-python', source: 'languages', target: 'python' } },
+            { data: { id: 'languages-typescript', source: 'languages', target: 'typescript' } },
+            { data: { id: 'languages-java', source: 'languages', target: 'java' } },
         ],
         style: [
             {
@@ -104,13 +158,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         ],
         layout: {
-            name: 'cose',
-            padding: 50,
-            nodeRepulsion: 8000,
-            idealEdgeLength: 150,
-            nodeOverlap: 30,
-            animate: true,
-            randomize: false
+            name: 'concentric',
+            padding: 80,
+            startAngle: 3/2 * Math.PI,
+            sweep: 2 * Math.PI,
+            equidistant: true,
+            minNodeSpacing: 100,
+            concentric: function(node) {
+                if (node.id() === 'root') return 10;
+                if (node.data('type') === 'category') return 8;
+                return 1;
+            },
+            levelWidth: function() { return 1; },
+            animate: true
         },
         minZoom: 0.2,
         maxZoom: 3,
@@ -148,13 +208,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Corregir la función de reset
     document.getElementById('reset').addEventListener('click', function() {
         cy.elements().layout({
-            name: 'cose',
-            padding: 50,
-            nodeRepulsion: 8000,
-            idealEdgeLength: 150,
-            nodeOverlap: 30,
-            animate: true,
-            randomize: false
+            name: 'concentric',
+            padding: 80,
+            startAngle: 3/2 * Math.PI,
+            sweep: 2 * Math.PI,
+            equidistant: true,
+            minNodeSpacing: 100,
+            concentric: function(node) {
+                if (node.id() === 'root') return 10;
+                if (node.data('type') === 'category') return 8;
+                return 1;
+            },
+            levelWidth: function() { return 1; },
+            animate: true
         }).run();
         cy.fit();
         cy.center();
