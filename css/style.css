@@ -473,6 +473,28 @@ li::before {
     margin-bottom: 2rem;
 }
 
+/* Estilos para el mapa de herramientas */
+.highlighted {
+    opacity: 1 !important;
+    z-index: 999 !important;
+}
+
+.highlighted.node {
+    border-width: 4px !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5) !important;
+}
+
+.highlighted.edge {
+    width: 4px !important;
+    opacity: 1 !important;
+    z-index: 900 !important;
+}
+
+.faded {
+    opacity: 0.25 !important;
+}
+
 @media (max-width: 768px) {
     .tool-category {
         padding: 1rem;
