@@ -19,7 +19,9 @@ const CONFIG = {
         'llm': 1000,             // Distancia de LLM Models al nodo central
         'frontend': 500,        // Distancia de frameworks frontend al nodo central
         'os': 1000,              // Distancia de Sistemas Operativos al nodo central
-        'soportes': 500         // Distancia de Soportes al nodo central
+        'soportes': 650,        // Distancia de Soportes al nodo central
+        'protocolos': 1200,      // Distancia de Protocolos de Comunicación al nodo central
+        'software-multimedia': 900 // Distancia de Software Multimediales al nodo central
     },
     categoryDistances: {         // Distancias personalizadas para cada categoríaf
         'engines': 200,         // Distancia de Motores Gráficos a sus herramientas
@@ -32,7 +34,9 @@ const CONFIG = {
         'llm': 200,             // Distancia de LLM Models a sus herramientas
         'frontend': 200,        // Distancia de frameworks frontend a sus herramientas
         'os': 200,              // Distancia de Sistemas Operativos a sus elementos
-        'soportes': 200         // Distancia de Soportes a sus elementos
+        'soportes': 200,        // Distancia de Soportes a sus elementos
+        'protocolos': 200,      // Distancia de Protocolos de Comunicación a sus elementos
+        'software-multimedia': 200 // Distancia de Software Multimediales a sus elementos
     }
 };
 
@@ -50,9 +54,6 @@ const NODE_INFO = {
     'react': 'Biblioteca de JavaScript para construir interfaces de usuario interactivas. Open source (MIT). Se usa para aplicaciones web, interfaces de usuario, SPAs.',
     'vue': 'Framework progresivo para construir interfaces de usuario. Open source (MIT). Se usa para aplicaciones web, interfaces de usuario, integración progresiva.',
     'svelte': 'Framework que compila código en JavaScript optimizado en tiempo de compilación. Open source (MIT). Se usa para aplicaciones web ligeras, componentes interactivos, visualizaciones.',
-    'pytorch': 'Biblioteca de aprendizaje profundo para Python con aceleración GPU. Open source (BSD). Se usa para investigación en IA, visión por computadora, procesamiento de lenguaje natural.',
-    'pyaudio': 'Biblioteca de Python para trabajar con audio y procesamiento de señales. Open source (MIT). Se usa para procesamiento de audio, reconocimiento de voz, música generativa.',
-    'pyvision': 'Conjunto de herramientas para visión por computadora en Python. Open source. Se usa para procesamiento de imágenes, reconocimiento de objetos, análisis visual.',
     'chatgpt': 'Modelo de lenguaje de OpenAI para conversaciones y generación de texto. No es open source (servicio de pago con API). Se usa para asistentes virtuales, generación de contenido, respuesta a preguntas.',
     'deepseek': 'Modelo de lenguaje con capacidades avanzadas de razonamiento. Open source. Se usa para generación de código, asistencia en programación, razonamiento lógico.',
     'gemini': 'Modelo multimodal de Google que procesa texto, imágenes y otros formatos. No es open source (servicio de pago con versión gratuita). Se usa para asistentes virtuales, análisis multimodal, generación de contenido.',
@@ -93,8 +94,8 @@ const NODE_INFO = {
     'windows': 'Sistema operativo de Microsoft para computadoras personales. No es open source (producto comercial). Se usa para entornos de escritorio, juegos, desarrollo de software.',
     'linux': 'Sistema operativo de código abierto basado en Unix. Open source (GPL y otras). Se usa para servidores, desarrollo, sistemas embebidos, supercomputación.',
     'mac': 'Sistema operativo de Apple para computadoras Mac. No es open source (producto comercial). Se usa para diseño gráfico, desarrollo, producción multimedia.',
-    'android': 'Sistema operativo móvil basado en Linux desarrollado por Google. Parcialmente open source (Apache 2.0). Se usa en dispositivos móviles, pantallas y otros dispositivos electrónicos.',
-    'ios': 'Sistema operativo móvil de Apple para iPhone y iPad. No es open source (producto comercial). Se usa en dispositivos móviles de Apple.',
+    'android': 'Sistema operativo móvil basado en Linux desarrollado por Google. Parcialmente open source (Apache 2.0). Android admite .apk que no sean de origen del Google Play si habilitamos los permisos, pero para comercializar oficialmente una aplicación se requiere subirla al Google Play. Se usa en dispositivos móviles, pantallas y otros dispositivos electrónicos.',
+    'ios': 'Sistema operativo móvil de Apple para iPhone y iPad. No es open source (producto comercial). Para correr y compilar una aplicación en iOS se requiere una cuenta PAGA de iOS developer, subir la aplicación y pasar por una frustrante burocracia de aplicaciones, es la plataforma para desarrollar más complicada. Se usa en dispositivos móviles de Apple.',
     'pantalla-touch': 'Interfaz de entrada basada en contacto directo con la pantalla. Existen 2 tipos de pantallas touch, los marcos touch con salida HDMI o los dispositivos touch KIOSK que vienen con un android incluido, los dispositivos KIOSK admiten compilados de .apk o se puede acceder a travez de una red local. Se usa en dispositivos móviles, quioscos interactivos, instalaciones artísticas.',
     'instalaciones-fisicas': 'Espacios físicos con componentes electrónicos interactivos. Se usa para arte interactivo, museos, exposiciones, eventos.',
     'raspberry-pi': 'Computadora de placa única de bajo costo y tamaño reducido. Open source (hardware). Se usa para proyectos DIY, instalaciones interactivas, Internet de las Cosas, educación.',
@@ -102,31 +103,34 @@ const NODE_INFO = {
     'proyector': 'Dispositivo óptico que proyecta imágenes en una superficie. Se usa para videomapping, instalaciones inmersivas, proyecciones arquitectónicas, arte digital.',
     'sitio-web': 'Conjunto de páginas web interconectadas accesibles a través de internet. Se usa para portfolios digitales, documentación de proyectos, galerías virtuales, arte web.',
     'compilado-apk': 'Archivo de aplicación empaquetado para el sistema operativo Android. Se usa para distribuir aplicaciones móviles, instalaciones interactivas en dispositivos KIOSK, experiencias inmersivas.',
-    'xampp': 'Paquete de software libre que incluye el servidor web Apache, la base de datos MySQL/MariaDB y los intérpretes para scripts PHP y Perl. Se usa para desarrollo web local, pruebas de aplicaciones, entornos de desarrollo.'
+    'xampp': 'Paquete de software libre que incluye el servidor web Apache, la base de datos MySQL/MariaDB y los intérpretes para scripts PHP y Perl. Se usa para desarrollo web local, pruebas de aplicaciones, entornos de desarrollo.',
+    'spout': 'Protocolo de intercambio de texturas en tiempo real para Windows. Open source (BSD). Se usa para compartir texturas entre aplicaciones en tiempo real, VJ, instalaciones interactivas.',
+    'syphon': 'Protocolo de intercambio de texturas en tiempo real para macOS. Open source (MIT). Se usa para compartir texturas entre aplicaciones en tiempo real, VJ, instalaciones interactivas.',
+    'ndi': 'Protocolo de vídeo en red de NewTek. Parcialmente open source. Se usa para transmisión de vídeo de alta calidad por red, producción en vivo, instalaciones interactivas.',
+    'webrtc': 'Tecnología web para comunicación en tiempo real. Open source. Se usa para videollamadas, transmisión de datos peer-to-peer, aplicaciones colaborativas.',
+    'osc': 'Protocolo de comunicación para instrumentos musicales y multimedia. Open source. Se usa para control de software multimedia, mapeo de datos, instalaciones interactivas.',
+    'resolume': 'Software para mezcla de vídeo en tiempo real y mapping. No es open source (software comercial). Se usa para VJ, mapping arquitectónico, instalaciones audiovisuales, eventos en vivo.',
+    'blender': 'Software de modelado 3D, animación, composición y renderizado. Open source (GPL). Se usa para modelado 3D, animación, efectos visuales, videojuegos.',
+    'paquete-adobe': 'Conjunto de aplicaciones para diseño gráfico, edición de video y desarrollo web. No es open source (software comercial). Incluye After Effects, Premiere, Photoshop, Illustrator, XD, entre otros. Se usa para diseño gráfico, edición de video, animación, desarrollo web.',
+    'obs': 'Software para grabación y transmisión de video en vivo. Open source (GPL). Se usa para streaming, grabación de pantalla, producción de video en vivo.',
+    'cinema4d': 'Software de modelado 3D, animación y renderizado. No es open source (software comercial). Se usa para modelado 3D, animación, efectos visuales, diseño gráfico.',
+    'angular': 'Framework de JavaScript para desarrollo de aplicaciones web. Open source (MIT). Se usa para aplicaciones web empresariales, SPAs, aplicaciones móviles híbridas.',
+    'nextjs': 'Framework de React para aplicaciones web con renderizado del lado del servidor. Open source (MIT). Se usa para sitios web con alto rendimiento SEO, aplicaciones web, e-commerce.',
+    'virtual-production': 'Técnica que combina filmación en vivo con entornos virtuales en tiempo real, especialmente utilizando Unreal Engine como plataforma principal. Se usa para producción cinematográfica, televisión, eventos en vivo, instalaciones artísticas y creación de contenido digital avanzado.',
+    'vr': 'Tecnología que permite la inmersión en entornos virtuales mediante dispositivos como Oculus Quest, HTC Vive, Valve Index y otros visores. Se usa para videojuegos inmersivos, entrenamiento, educación, arte interactivo.',
+    'ar': 'Tecnología que superpone elementos virtuales en el mundo real. Se usa principalmente en dispositivos móviles Android e iOS para aplicaciones interactivas, educación, marketing, navegación y experiencias artísticas.',
+    'api': 'Interfaz de Programación de Aplicaciones. Conjunto de reglas y protocolos que permiten la comunicación entre diferentes aplicaciones de software. Se usa para integración de servicios, acceso a datos externos, automatización de procesos.',
+    'midi': 'Protocolo estándar para la comunicación entre instrumentos musicales electrónicos y computadoras. Se usa para composición musical, control de sintetizadores, automatización de audio, instalaciones interactivas.',
+    'sonido': 'Medio de expresión artística y comunicación basado en ondas acústicas. Se usa en instalaciones sonoras, música generativa, arte interactivo, diseño de experiencias inmersivas.',
+    'videojuegos': 'Medio interactivo que combina narrativa, arte visual y programación. Se usa para entretenimiento, educación, arte interactivo, simulaciones, experiencias inmersivas.',
+    'ableton': 'Software de producción musical y actuación en vivo. No es open source (software comercial). Se usa para producción musical, actuaciones en vivo, instalaciones sonoras, arte interactivo.',
+    'puredata': 'Entorno de programación visual para audio, video y procesamiento gráfico. Open source (BSD). Se usa para arte sonoro, instalaciones interactivas, procesamiento de señales en tiempo real, música generativa.',
+    'guipper': 'Software de programación visual para la creación de gráficos generativos en tiempo real. Open source. Se usa para visuales en vivo, VJ, instalaciones interactivas, arte generativo.'
 };
 
-// Función para posicionar las bibliotecas de Python alrededor del nodo Python
-function positionPythonLibraries(cy) {
-    const pythonLibs = ['pytorch', 'pyaudio', 'pyvision'];
-    const pythonNode = cy.getElementById('python');
-    
-    if (pythonNode.length > 0) {
-        const pythonPos = pythonNode.position();
-        
-        pythonLibs.forEach((libId, index) => {
-            const libNode = cy.getElementById(libId);
-            if (libNode.length > 0) {
-                // Calcular posición relativa alrededor de Python
-                const angle = ((index + 1) / (pythonLibs.length + 1)) * 2 * Math.PI;
-                const radius = 150; // Radio cercano alrededor de Python
-                
-                libNode.position({
-                    x: pythonPos.x + radius * Math.cos(angle),
-                    y: pythonPos.y + radius * Math.sin(angle)
-                });
-            }
-        });
-    }
+// Función para inicializar el mapa
+function initMap() {
+    // Aquí puedes poner código de inicialización adicional si es necesario
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -151,6 +155,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'frontend', label: 'Frontend Frameworks', type: 'category' } },
             { data: { id: 'os', label: 'Sistemas Operativos', type: 'category' } },
             { data: { id: 'soportes', label: 'Soportes', type: 'category' } },
+            { data: { id: 'protocolos', label: 'Protocolos de Comunicación', type: 'category' } },
+            { data: { id: 'software-multimedia', label: 'Software Multimediales', type: 'category' } },
             
             // Motores Gráficos
             { data: { id: 'unity', label: 'Unity', url: 'https://unity.com/' } },
@@ -165,7 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'babylon', label: 'Babylon.js', url: 'https://www.babylonjs.com/' } },
             { data: { id: 'tone', label: 'Tone.js', url: 'https://tonejs.github.io/' } },
             { data: { id: 'nodejs', label: 'Node.js', url: 'https://nodejs.org/' } },
-            { data: { id: 'websockets', label: 'WebSockets', url: 'https://developer.mozilla.org/es/docs/Web/API/WebSockets_API' } },
             { data: { id: 'openframeworks', label: 'OpenFrameworks', url: 'https://openframeworks.cc/' } },
             { data: { id: 'ml5', label: 'ML5.js', url: 'https://ml5js.org/' } },
             { data: { id: 'hydra', label: 'Hydra', url: 'https://hydra.ojack.xyz/' } },
@@ -212,11 +217,9 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'react', label: 'React', url: 'https://reactjs.org/' } },
             { data: { id: 'vue', label: 'Vue.js', url: 'https://vuejs.org/' } },
             { data: { id: 'svelte', label: 'Svelte', url: 'https://svelte.dev/' } },
+            { data: { id: 'angular', label: 'Angular', url: 'https://angular.io/' } },
+            { data: { id: 'nextjs', label: 'Next.js', url: 'https://nextjs.org/' } },
             
-            // Python Libraries
-            { data: { id: 'pytorch', label: 'PyTorch', url: 'https://pytorch.org/' } },
-            { data: { id: 'pyaudio', label: 'PyAudio', url: 'https://pypi.org/project/PyAudio/' } },
-            { data: { id: 'pyvision', label: 'PyVision', url: 'https://pypi.org/project/pyvision/' } },
             
             // LLM Models
             { data: { id: 'chatgpt', label: 'ChatGPT', url: 'https://openai.com/chatgpt' } },
@@ -240,6 +243,31 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'proyector', label: 'Proyector', url: '#' } },
             { data: { id: 'sitio-web', label: 'Sitio Web', url: '#' } },
             { data: { id: 'compilado-apk', label: 'Compilado .apk', url: '#' } },
+            { data: { id: 'virtual-production', label: 'Virtual Production', url: '#' } },
+            { data: { id: 'vr', label: 'VR', url: '#' } },
+            { data: { id: 'ar', label: 'AR', url: '#' } },
+            { data: { id: 'sonido', label: 'Sonido', url: '#' } },
+            { data: { id: 'videojuegos', label: 'Videojuegos', url: '#' } },
+
+            // Protocolos de Comunicación
+            { data: { id: 'websockets', label: 'WebSockets', url: 'https://developer.mozilla.org/es/docs/Web/API/WebSockets_API' } },
+            { data: { id: 'spout', label: 'Spout', url: 'https://spout.zeal.co/' } },
+            { data: { id: 'syphon', label: 'Syphon', url: 'http://syphon.v002.info/' } },
+            { data: { id: 'ndi', label: 'NDI', url: 'https://www.ndi.tv/' } },
+            { data: { id: 'webrtc', label: 'WebRTC', url: 'https://webrtc.org/' } },
+            { data: { id: 'osc', label: 'OSC', url: 'https://opensoundcontrol.stanford.edu/' } },
+            { data: { id: 'api', label: 'API', url: 'https://developer.mozilla.org/es/docs/Glossary/API' } },
+            { data: { id: 'midi', label: 'MIDI', url: 'https://www.midi.org/' } },
+
+            // Software Multimediales
+            { data: { id: 'resolume', label: 'Resolume', url: 'https://resolume.com/' } },
+            { data: { id: 'blender', label: 'Blender', url: 'https://www.blender.org/' } },
+            { data: { id: 'paquete-adobe', label: 'Paquete Adobe', url: 'https://www.adobe.com/' } },
+            { data: { id: 'obs', label: 'OBS', url: 'https://obsproject.com/' } },
+            { data: { id: 'cinema4d', label: 'Cinema 4D', url: 'https://www.maxon.net/cinema-4d' } },
+            { data: { id: 'ableton', label: 'Ableton Live', url: 'https://www.ableton.com/' } },
+            { data: { id: 'puredata', label: 'Pure Data', url: 'https://puredata.info/' } },
+            { data: { id: 'guipper', label: 'Guipper', url: 'https://jeyder.com.ar/guipper/' } },
             
             // Conexiones principales con el nodo raíz
             { data: { id: 'root-engines', source: 'root', target: 'engines' } },
@@ -253,6 +281,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'root-frontend', source: 'root', target: 'frontend' } },
             { data: { id: 'root-os', source: 'root', target: 'os' } },
             { data: { id: 'root-soportes', source: 'root', target: 'soportes' } },
+            { data: { id: 'root-protocolos', source: 'root', target: 'protocolos' } },
+            { data: { id: 'root-software-multimedia', source: 'root', target: 'software-multimedia' } },
             
             // Conexiones de categorías a sus elementos
             // Motores Gráficos
@@ -315,11 +345,9 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'frontend-react', source: 'frontend', target: 'react' } },
             { data: { id: 'frontend-vue', source: 'frontend', target: 'vue' } },
             { data: { id: 'frontend-svelte', source: 'frontend', target: 'svelte' } },
+            { data: { id: 'frontend-angular', source: 'frontend', target: 'angular' } },
+            { data: { id: 'frontend-nextjs', source: 'frontend', target: 'nextjs' } },
             
-            // Python Libraries
-            { data: { id: 'python-pytorch', source: 'python', target: 'pytorch', type: 'secondary' } },
-            { data: { id: 'python-pyaudio', source: 'python', target: 'pyaudio', type: 'secondary' } },
-            { data: { id: 'python-pyvision', source: 'python', target: 'pyvision', type: 'secondary' } },
             
             // LLM Models
             { data: { id: 'llm-chatgpt', source: 'llm', target: 'chatgpt' } },
@@ -343,6 +371,31 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'soportes-proyector', source: 'soportes', target: 'proyector' } },
             { data: { id: 'soportes-sitio-web', source: 'soportes', target: 'sitio-web' } },
             { data: { id: 'soportes-compilado-apk', source: 'soportes', target: 'compilado-apk' } },
+            { data: { id: 'soportes-virtual-production', source: 'soportes', target: 'virtual-production' } },
+            { data: { id: 'soportes-vr', source: 'soportes', target: 'vr' } },
+            { data: { id: 'soportes-ar', source: 'soportes', target: 'ar' } },
+            { data: { id: 'soportes-sonido', source: 'soportes', target: 'sonido' } },
+            { data: { id: 'soportes-videojuegos', source: 'soportes', target: 'videojuegos' } },
+
+            // Protocolos de Comunicación
+            { data: { id: 'protocolos-websockets', source: 'protocolos', target: 'websockets' } },
+            { data: { id: 'protocolos-spout', source: 'protocolos', target: 'spout' } },
+            { data: { id: 'protocolos-syphon', source: 'protocolos', target: 'syphon' } },
+            { data: { id: 'protocolos-ndi', source: 'protocolos', target: 'ndi' } },
+            { data: { id: 'protocolos-webrtc', source: 'protocolos', target: 'webrtc' } },
+            { data: { id: 'protocolos-osc', source: 'protocolos', target: 'osc' } },
+            { data: { id: 'protocolos-api', source: 'protocolos', target: 'api' } },
+            { data: { id: 'protocolos-midi', source: 'protocolos', target: 'midi' } },
+
+            // Software Multimediales
+            { data: { id: 'software-multimedia-resolume', source: 'software-multimedia', target: 'resolume' } },
+            { data: { id: 'software-multimedia-blender', source: 'software-multimedia', target: 'blender' } },
+            { data: { id: 'software-multimedia-paquete-adobe', source: 'software-multimedia', target: 'paquete-adobe' } },
+            { data: { id: 'software-multimedia-obs', source: 'software-multimedia', target: 'obs' } },
+            { data: { id: 'software-multimedia-cinema4d', source: 'software-multimedia', target: 'cinema4d' } },
+            { data: { id: 'software-multimedia-ableton', source: 'software-multimedia', target: 'ableton' } },
+            { data: { id: 'software-multimedia-puredata', source: 'software-multimedia', target: 'puredata' } },
+            { data: { id: 'software-multimedia-guipper', source: 'software-multimedia', target: 'guipper' } },
             
             // Algunas conexiones adicionales entre nodos relacionados (con clase 'secondary')
             { data: { id: 'three-glsl', source: 'three', target: 'glsl', type: 'secondary' } },
@@ -352,6 +405,9 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'unreal-cpp', source: 'unreal', target: 'cpp', type: 'secondary' } },
             { data: { id: 'unreal-hlsl', source: 'unreal', target: 'hlsl', type: 'secondary' } },
             { data: { id: 'godot-glsl', source: 'godot', target: 'glsl', type: 'secondary' } },
+            { data: { id: 'blender-glsl', source: 'blender', target: 'glsl', type: 'secondary' } },
+            { data: { id: 'processing-glsl', source: 'processing', target: 'glsl', type: 'secondary' } },
+            { data: { id: 'touchdesigner-glsl', source: 'touchdesigner', target: 'glsl', type: 'secondary' } },
             { data: { id: 'p5-javascript', source: 'p5', target: 'javascript', type: 'secondary' } },
             { data: { id: 'p5-glsl', source: 'p5', target: 'glsl', type: 'secondary' } },
             { data: { id: 'babylon-glsl', source: 'babylon', target: 'glsl', type: 'secondary' } },
@@ -381,6 +437,33 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'xampp-javascript', source: 'xampp', target: 'javascript', type: 'secondary' } },
             { data: { id: 'xampp-php', source: 'xampp', target: 'php', type: 'secondary' } },
             { data: { id: 'xampp-sql', source: 'xampp', target: 'sql', type: 'secondary' } },
+            { data: { id: 'sql-php', source: 'sql', target: 'php', type: 'secondary' } },
+            { data: { id: 'spout-windows', source: 'spout', target: 'windows', type: 'secondary' } },
+            { data: { id: 'syphon-mac', source: 'syphon', target: 'mac', type: 'secondary' } },
+            { data: { id: 'frameworks-websockets', source: 'frameworks', target: 'websockets', type: 'secondary' } },
+            { data: { id: 'blender-python', source: 'blender', target: 'python', type: 'secondary' } },
+            { data: { id: 'paquete-adobe-javascript', source: 'paquete-adobe', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'obs-spout', source: 'obs', target: 'spout', type: 'secondary' } },
+            { data: { id: 'obs-ndi', source: 'obs', target: 'ndi', type: 'secondary' } },
+            { data: { id: 'vr-unity', source: 'vr', target: 'unity', type: 'secondary' } },
+            { data: { id: 'vr-unreal', source: 'vr', target: 'unreal', type: 'secondary' } },
+            { data: { id: 'ar-android', source: 'ar', target: 'android', type: 'secondary' } },
+            { data: { id: 'virtual-production-unreal', source: 'virtual-production', target: 'unreal', type: 'secondary' } },
+            { data: { id: 'ableton-sonido', source: 'ableton', target: 'sonido', type: 'secondary' } },
+            { data: { id: 'ableton-osc', source: 'ableton', target: 'osc', type: 'secondary' } },
+            { data: { id: 'ableton-midi', source: 'ableton', target: 'midi', type: 'secondary' } },
+            { data: { id: 'puredata-sonido', source: 'puredata', target: 'sonido', type: 'secondary' } },
+            { data: { id: 'puredata-osc', source: 'puredata', target: 'osc', type: 'secondary' } },
+            { data: { id: 'puredata-midi', source: 'puredata', target: 'midi', type: 'secondary' } },
+            { data: { id: 'resolume-osc', source: 'resolume', target: 'osc', type: 'secondary' } },
+            { data: { id: 'guipper-osc', source: 'guipper', target: 'osc', type: 'secondary' } },
+            { data: { id: 'guipper-spout', source: 'guipper', target: 'spout', type: 'secondary' } },
+            { data: { id: 'guipper-ndi', source: 'guipper', target: 'ndi', type: 'secondary' } },
+            { data: { id: 'videojuegos-unity', source: 'videojuegos', target: 'unity', type: 'secondary' } },
+            { data: { id: 'videojuegos-godot', source: 'videojuegos', target: 'godot', type: 'secondary' } },
+            { data: { id: 'videojuegos-unreal', source: 'videojuegos', target: 'unreal', type: 'secondary' } },
+            { data: { id: 'videojuegos-javascript', source: 'videojuegos', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'videojuegos-three', source: 'videojuegos', target: 'three', type: 'secondary' } },
             
             // Conexiones con sistemas operativos
             { data: { id: 'unity-windows', source: 'unity', target: 'windows', type: 'secondary' } },
@@ -503,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -527,18 +610,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
                     'html': 'languages', 'css': 'languages', 'json': 'languages', 'r': 'languages', 'arduino': 'languages',
-                    'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
+                    'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend', 'angular': 'frontend', 'nextjs': 'frontend',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
                     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
-                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes'
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes',
+                    'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
+                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia'
                 };
-                
-                // Definir las bibliotecas de Python como nodos especiales
-                const pythonLibs = ['pytorch', 'pyaudio', 'pyvision'];
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
@@ -552,10 +634,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         let siblingOffset;
                         let radius = CONFIG.categoryDistances[parentCategory] || 500;
                         
-                        // Caso especial para las bibliotecas de Python
-                        if (pythonLibs.includes(node.id())) {
-                            return null; // Devolver null para que se maneje en el evento move
-                        }
+                        // No hay casos especiales
                         
                         // Distribuir los nodos secundarios de forma radial alrededor de la categoría
                         // Calcular el ángulo para cada nodo secundario
@@ -749,12 +828,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Reposicionar las bibliotecas de Python cuando se mueva el nodo Python
     cy.on('position', 'node#python', function() {
-        positionPythonLibraries(cy);
+       // positionPythonLibraries(cy);
     });
     
     // Reposicionar las bibliotecas de Python cuando finalice cualquier arrastre
     cy.on('dragfree', function() {
-        positionPythonLibraries(cy);
+        //positionPythonLibraries(cy);
     });
     
     // Controles de zoom
@@ -788,7 +867,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -812,18 +891,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
                     'html': 'languages', 'css': 'languages', 'json': 'languages', 'r': 'languages', 'arduino': 'languages',
-                    'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
+                    'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend', 'angular': 'frontend', 'nextjs': 'frontend',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
                     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
-                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes'
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes',
+                    'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
+                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia'
                 };
-                
-                // Definir las bibliotecas de Python como nodos especiales
-                const pythonLibs = ['pytorch', 'pyaudio', 'pyvision'];
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
@@ -924,5 +1002,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
         // Posicionar las bibliotecas de Python inicialmente
-        positionPythonLibraries(cy);
+        //positionPythonLibraries(cy);
 });
