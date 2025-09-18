@@ -144,7 +144,7 @@ h3 {
 .bio img {
     width: 200px;
     border-radius: 8px;
-    border: 2px solid var(--border-color);
+    /* border: 2px solid var(--border-color); */
 }
 
 .bio-text {
@@ -239,66 +239,81 @@ h3 {
     margin-bottom: calc(var(--spacing-base) * 1.5);
 }
 
-.resource-link {
+.resource-category a {
     color: var(--text-color);
     text-decoration: none;
     display: block;
-    margin: calc(var(--spacing-base) * 0.5) 0;
-    padding: calc(var(--spacing-base) * 0.75);
+    padding: 1rem;
     border-radius: 8px;
     transition: all 0.3s ease;
-    font-size: 1.1em;
     background: rgba(255,255,255,0.05);
     border: 1px solid transparent;
+    margin-bottom: 0.5rem;
     position: relative;
-    padding-left: calc(var(--spacing-base) * 2);
+    padding-left: 2.5rem;
+    font-weight: 500;
 }
 
-.resource-link::before {
+.resource-category a::before {
     content: '→';
     position: absolute;
-    left: var(--spacing-base);
-    transition: transform 0.3s ease;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    transition: all 0.3s ease;
 }
 
-.resource-link:hover {
+.resource-category a:hover {
     background: rgba(255,255,255,0.1);
     border-color: var(--primary-color);
-    padding-left: calc(var(--spacing-base) * 2.5);
-}
-
-.resource-link:hover::before {
-    transform: translateX(5px);
+    transform: translateX(10px);
     color: var(--primary-color);
 }
 
-.resources a:hover {
-    background: rgba(255,255,255,0.1);
-    transform: translateX(10px);
-    color: var(--hover-color);
-}
-
-.resources a:hover {
-    color: var(--hover-color);
+.resource-category a:hover::before {
+    transform: translate(5px, -50%);
 }
 
 .main-nav {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    gap: 1.5rem;
+    margin-top: 2rem;
     flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 
 .nav-link {
     display: inline-block;
     color: var(--text-color);
     text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
     transition: all 0.3s ease;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    font-weight: 500;
     position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    color: var(--primary-color);
+}
+
+.nav-link.active {
+    background: rgba(255, 105, 180, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 .nav-link::after {
@@ -313,36 +328,36 @@ h3 {
     transform: translateX(-50%);
 }
 
-.nav-link:hover::after {
-    width: 80%;
-}
-
-.nav-link:hover, .nav-link.active {
-    color: var(--primary-color);
-    transform: translateY(-2px);
-}
-
+.nav-link:hover::after,
 .nav-link.active::after {
     width: 80%;
 }
 
+/* Base list styles */
 ul {
-    list-style-position: inside;
+    list-style: none;
     margin: var(--spacing-base) 0;
-    padding-left: calc(var(--spacing-base) * 1.5);
+    padding-left: 0;
 }
 
-ul li {
-    margin: calc(var(--spacing-base) * 0.5) 0;
+li {
     position: relative;
-    padding-left: var(--spacing-base);
+    padding-left: 1.5em;
+    margin: 0.75em 0;
 }
 
-ul li::before {
+li::before {
     content: '▹';
     position: absolute;
-    left: -1em;
+    left: 0;
+    top: 0.4em;
+    transform: translateY(-50%);
     color: var(--primary-color);
+    font-size: 0.8em;
+}
+
+.tool-category li::before {
+    top: 0.5em;
 }
 
 .content-section {
@@ -388,7 +403,6 @@ ul li::before {
     border-radius: 50%;
 }
 
-
 .requirements {
     background-color: rgba(138, 43, 226, 0.2);
     padding: calc(var(--spacing-base) * 1.5);
@@ -407,7 +421,6 @@ ul li::before {
     box-shadow: inset 0 0 20px rgba(255, 105, 180, 0.1);
 }
 
-/* Estilos para el mapa de herramientas */
 .tool-category {
     margin-bottom: 2rem;
     padding: 1.5rem;
@@ -434,19 +447,11 @@ ul li::before {
     position: relative;
 }
 
-.tool-category li::before {
-    content: '▹';
-    position: absolute;
-    left: 0;
-    color: var(--primary-color);
-}
-
 .tool-category strong {
     color: var(--secondary-color);
     margin-right: 0.5rem;
 }
 
-/* Estilos para el diagrama Mermaid */
 .mermaid {
     padding: 2rem;
     background: rgba(18, 18, 18, 0.6);

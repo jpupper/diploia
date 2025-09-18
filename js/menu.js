@@ -15,7 +15,8 @@ function createMenu() {
         link.textContent = item.text;
         
         // Highlight current page
-        if (window.location.pathname.endsWith(item.url)) {
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        if (currentPath === item.url) {
             link.classList.add('active');
         }
         
@@ -27,12 +28,19 @@ function createMenu() {
 
 function initMenu() {
     const headerContainer = document.querySelector('header .container');
+    if (!headerContainer) return;
+
     const existingNav = headerContainer.querySelector('.main-nav');
     if (existingNav) {
         existingNav.remove();
     }
+
     headerContainer.appendChild(createMenu());
 }
 
 // Initialize menu when DOM is loaded
-document.addEventListener('DOMContentLoaded', initMenu);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMenu);
+} else {
+    initMenu();
+}
