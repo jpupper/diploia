@@ -6,7 +6,7 @@ const categoryMap = {
     'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks', 'xampp': 'frameworks',
     'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
-    'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
+    'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders', 'ejemplos-shaders': 'shaders', 'editor-shaders-live': 'shaders',
     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
@@ -14,13 +14,14 @@ const categoryMap = {
     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend', 'angular': 'frontend', 'nextjs': 'frontend',
     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
-    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes',
+    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes', 'mapping': 'soportes',
     'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
-    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia'
+    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia',
+    'livecoding': 'glosario', 'vibecoding': 'glosario', 'programacion': 'glosario', 'prompting': 'glosario', 'consola': 'glosario', 'script': 'glosario', 'compilado-interpretado': 'glosario', 'formatos-exe': 'glosario', 'drivers': 'glosario', 'mcp': 'glosario'
 };
 
 // 2. Actualizar la lista de categorías
-const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
+const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'glosario'];
 
 // 3. Actualizar las distancias de categorías
 const CONFIG = {
@@ -36,9 +37,10 @@ const CONFIG = {
         'llm': 1000,
         'frontend': 500,
         'os': 1000,
-        'soportes': 500,
-        'protocolos': 700,
-        'software-multimedia': 900
+        'soportes': 650,
+        'protocolos': 1200,
+        'software-multimedia': 900,
+        'glosario': 800
     },
     // Distancias desde cada categoría a sus nodos secundarios
     categoryDistances: {
@@ -54,6 +56,7 @@ const CONFIG = {
         'os': 200,
         'soportes': 200,
         'protocolos': 200,
-        'software-multimedia': 200
+        'software-multimedia': 200,
+        'glosario': 200
     }
 };

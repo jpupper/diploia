@@ -21,7 +21,8 @@ const CONFIG = {
         'os': 1000,              // Distancia de Sistemas Operativos al nodo central
         'soportes': 650,        // Distancia de Soportes al nodo central
         'protocolos': 1200,      // Distancia de Protocolos de Comunicación al nodo central
-        'software-multimedia': 900 // Distancia de Software Multimediales al nodo central
+        'software-multimedia': 900, // Distancia de Software Multimediales al nodo central
+        'glosario': 1200         // Distancia de Glosario al nodo central
     },
     categoryDistances: {         // Distancias personalizadas para cada categoríaf
         'engines': 200,         // Distancia de Motores Gráficos a sus herramientas
@@ -36,12 +37,28 @@ const CONFIG = {
         'os': 200,              // Distancia de Sistemas Operativos a sus elementos
         'soportes': 200,        // Distancia de Soportes a sus elementos
         'protocolos': 200,      // Distancia de Protocolos de Comunicación a sus elementos
-        'software-multimedia': 200 // Distancia de Software Multimediales a sus elementos
+        'software-multimedia': 200, // Distancia de Software Multimediales a sus elementos
+        'glosario': 200         // Distancia de Glosario a sus elementos
     }
 };
 
 // Descripciones de los nodos para mostrar en hover
 const NODE_INFO = {
+    // Descripciones de las categorías principales
+    'engines': 'Motores gráficos y entornos de desarrollo para crear aplicaciones interactivas, videojuegos y experiencias visuales. Estas herramientas proporcionan frameworks completos con capacidades de renderizado, física, audio y más.',
+    'frameworks': 'Bibliotecas y frameworks que facilitan el desarrollo web y multimedia. Proporcionan estructuras y funciones predefinidas para agilizar la creación de aplicaciones y contenido interactivo.',
+    'ia': 'Herramientas de Inteligencia Artificial para la generación de contenido, automatización de tareas y asistencia en el proceso creativo. Incluye modelos de generación de imágenes, texto y otros tipos de contenido.',
+    'shaders': 'Programas que se ejecutan en la GPU para crear efectos visuales y gráficos avanzados. Los shaders permiten manipular píxeles, vértices y geometría para crear visuales complejos y efectos en tiempo real.',
+    'db': 'Sistemas de bases de datos para almacenar, organizar y recuperar información. Incluye bases de datos relacionales, NoSQL y servicios en la nube para gestión de datos.',
+    'ides': 'Entornos de Desarrollo Integrado que facilitan la escritura, prueba y depuración de código. Proporcionan herramientas como editores de código, depuradores y funciones de autocompletado.',
+    'languages': 'Lenguajes de programación utilizados para desarrollar aplicaciones, sitios web y experiencias interactivas. Cada lenguaje tiene sus propias características, sintaxis y casos de uso.',
+    'llm': 'Modelos de Lenguaje de Gran Escala (Large Language Models) que utilizan aprendizaje profundo para generar y comprender texto. Son útiles para asistencia en programación, generación de contenido y más.',
+    'frontend': 'Frameworks para desarrollo de interfaces de usuario web. Facilitan la creación de aplicaciones web interactivas y reactivas con componentes reutilizables.',
+    'os': 'Sistemas Operativos que sirven como plataforma base para ejecutar aplicaciones y software. Cada sistema operativo tiene sus propias características, limitaciones y ventajas.',
+    'soportes': 'Medios físicos y digitales donde se pueden implementar y mostrar proyectos interactivos. Incluye dispositivos, plataformas y formatos para la distribución de contenido.',
+    'protocolos': 'Estándares y protocolos de comunicación que permiten la interacción entre diferentes sistemas, dispositivos y aplicaciones. Facilitan el intercambio de datos y la interoperabilidad.',
+    'software-multimedia': 'Aplicaciones especializadas para la creación, edición y procesamiento de contenido multimedia como video, audio, gráficos 3D y efectos visuales.',
+    'glosario': 'Términos y conceptos fundamentales relacionados con la programación, el desarrollo de software y las tecnologías creativas. Sirve como referencia para entender la terminología técnica.',
     'unity': 'Motor de juegos multiplataforma con potentes capacidades gráficas y físicas. No es open source (software propietario, de pago con versión gratuita limitada). Se usa para desarrollo de videojuegos, visualizaciones 3D, realidad virtual y aumentada.',
     'unreal': 'Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas. Parcialmente open source (código fuente disponible, pero con licencia comercial). Se usa para videojuegos de alta calidad, cine virtual, arquitectura y visualización.',
     'godot': 'Motor de juegos con soporte para 2D y 3D, ideal para desarrolladores independientes. Open source (MIT). Se usa para videojuegos independientes, prototipado rápido, proyectos educativos.',
@@ -125,7 +142,20 @@ const NODE_INFO = {
     'videojuegos': 'Medio interactivo que combina narrativa, arte visual y programación. Se usa para entretenimiento, educación, arte interactivo, simulaciones, experiencias inmersivas.',
     'ableton': 'Software de producción musical y actuación en vivo. No es open source (software comercial). Se usa para producción musical, actuaciones en vivo, instalaciones sonoras, arte interactivo.',
     'puredata': 'Entorno de programación visual para audio, video y procesamiento gráfico. Open source (BSD). Se usa para arte sonoro, instalaciones interactivas, procesamiento de señales en tiempo real, música generativa.',
-    'guipper': 'Software de programación visual para la creación de gráficos generativos en tiempo real. Open source. Se usa para visuales en vivo, VJ, instalaciones interactivas, arte generativo.'
+    'guipper': 'Software de programación visual para la creación de gráficos generativos en tiempo real. Open source. Se usa para visuales en vivo, VJ, instalaciones interactivas, arte generativo.',
+    'mapping': 'Técnica que consiste en proyectar imágenes sobre superficies reales para conseguir efectos de movimiento o 3D. Se usa para instalaciones artísticas, eventos, espectáculos, publicidad, arquitectura.',
+    'livecoding': 'Práctica de programación en vivo donde el código se escribe y modifica en tiempo real como parte de una actuación artística o musical. Implica la creación de visuales o sonidos mediante la escritura de código frente a una audiencia, combinando programación con improvisación artística. Se utiliza en performances, instalaciones interactivas y eventos artísticos.',
+    'vibecoding': 'Práctica de programación utilizando exclusivamente modelos de lenguaje y editores de texto. Permite desarrollar código de manera fluida y conversacional, aprovechando las capacidades de los LLMs para generar, explicar y modificar código sin necesidad de entornos de desarrollo complejos.',
+    'programacion': 'Arte de crear instrucciones para que una computadora realice tareas específicas. Conceptos básicos: IF (estructura condicional que ejecuta código si se cumple una condición), Ciclos repetitivos (do, while, for: estructuras que repiten código un número determinado de veces), Clases (plantillas para crear objetos), Objetos (instancias de clases con propiedades y métodos), Listeners (funciones que esperan y responden a eventos).',
+    'prompting': 'Técnica para comunicarse eficazmente con modelos de IA mediante instrucciones precisas. Consejos para programar bien: 1) Mantener el código simple y legible, 2) Comentar adecuadamente, 3) Seguir convenciones de nomenclatura, 4) Dividir problemas complejos en partes más pequeñas, 5) Realizar pruebas frecuentes, 6) Optimizar solo cuando sea necesario, 7) Practicar la refactorización, 8) Mantener un control de versiones.',
+    'consola': 'Interfaz de línea de comandos que permite interactuar con el sistema operativo o con un programa mediante texto. Se usa para ejecutar comandos, depurar aplicaciones, monitorear procesos y realizar tareas administrativas sin necesidad de una interfaz gráfica.',
+    'script': 'Archivo de texto que contiene una serie de instrucciones que son ejecutadas secuencialmente por un intérprete. Los scripts se utilizan para automatizar tareas, configurar sistemas, procesar datos y crear funcionalidades en aplicaciones web y de escritorio.',
+    'compilado-interpretado': 'Los lenguajes compilados (como C++, Rust) traducen todo el código a lenguaje máquina antes de la ejecución, resultando en programas más rápidos pero menos flexibles. Los lenguajes interpretados (como Python, JavaScript) traducen el código línea por línea durante la ejecución, ofreciendo mayor flexibilidad pero menor rendimiento.',
+    'formatos-exe': 'Archivos ejecutables que contienen instrucciones en código máquina que pueden ser ejecutadas directamente por el sistema operativo. Incluyen .exe (Windows), .app (macOS), .apk (Android), entre otros. Estos archivos son el resultado final del proceso de compilación de un programa.',
+    'drivers': 'Software especializado que permite la comunicación entre el sistema operativo y el hardware de la computadora. Los drivers actúan como traductores entre los dispositivos físicos y el software, permitiendo que componentes como tarjetas gráficas, impresoras o controladores funcionen correctamente.',
+    'mcp': 'Model-Controller-Presenter, un patrón arquitectónico de software que extiende el MVC (Model-View-Controller) para separar mejor las responsabilidades. Se utiliza para estructurar aplicaciones complejas, mejorar la testabilidad y mantener un código más limpio y modular.',
+    'ejemplos-shaders': 'Colección de ejemplos prácticos de shaders GLSL que muestran diferentes efectos visuales y técnicas de programación gráfica. Útil para aprender y experimentar con shaders desde un nivel básico hasta avanzado.',
+    'editor-shaders-live': 'Herramienta online para escribir, editar y visualizar shaders GLSL en tiempo real. Permite experimentar con código de shaders y ver los resultados inmediatamente, facilitando el aprendizaje y la iteración rápida.'
 };
 
 // Función para inicializar el mapa
@@ -157,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'soportes', label: 'Soportes', type: 'category' } },
             { data: { id: 'protocolos', label: 'Protocolos de Comunicación', type: 'category' } },
             { data: { id: 'software-multimedia', label: 'Software Multimediales', type: 'category' } },
+            { data: { id: 'glosario', label: 'Glosario', type: 'category' } },
             
             // Motores Gráficos
             { data: { id: 'unity', label: 'Unity', url: 'https://unity.com/' } },
@@ -189,10 +220,12 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'visual-studio', label: 'Visual Studio', url: 'https://visualstudio.microsoft.com/' } },
             
             // Shaders
-            { data: { id: 'shadertoy', label: 'Shadertoy', url: 'https://www.shadertoy.com/' } },
+            { data: { id: 'shadertoy', label: 'ShaderToy', url: 'https://www.shadertoy.com/' } },
             { data: { id: 'glsl', label: 'GLSL', url: 'https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)' } },
             { data: { id: 'hlsl', label: 'HLSL', url: 'https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl' } },
-            { data: { id: 'bookofshaders', label: 'Book of Shaders', url: 'https://thebookofshaders.com/?lan=es' } },
+            { data: { id: 'bookofshaders', label: 'Book of Shaders', url: 'https://thebookofshaders.com/' } },
+            { data: { id: 'ejemplos-shaders', label: 'Ejemplos Shaders', url: 'https://jeyder.com.ar/ejemplosshaders' } },
+            { data: { id: 'editor-shaders-live', label: 'Editor de Shaders Live', url: 'https://jeyder.com.ar/jpshadereditor' } },
             
             // Bases de Datos
             { data: { id: 'firebase', label: 'Firebase', url: 'https://firebase.google.com/' } },
@@ -248,6 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'ar', label: 'AR', url: '#' } },
             { data: { id: 'sonido', label: 'Sonido', url: '#' } },
             { data: { id: 'videojuegos', label: 'Videojuegos', url: '#' } },
+            { data: { id: 'mapping', label: 'Mapping', url: '#' } },
 
             // Protocolos de Comunicación
             { data: { id: 'websockets', label: 'WebSockets', url: 'https://developer.mozilla.org/es/docs/Web/API/WebSockets_API' } },
@@ -269,6 +303,18 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'puredata', label: 'Pure Data', url: 'https://puredata.info/' } },
             { data: { id: 'guipper', label: 'Guipper', url: 'https://jeyder.com.ar/guipper/' } },
             
+            // Glosario
+            { data: { id: 'livecoding', label: 'Livecoding', url: '#' } },
+            { data: { id: 'vibecoding', label: 'Vibecoding', url: '#' } },
+            { data: { id: 'programacion', label: 'Programación', url: '#' } },
+            { data: { id: 'prompting', label: 'Prompting', url: '#' } },
+            { data: { id: 'consola', label: 'Consola', url: '#' } },
+            { data: { id: 'script', label: 'Script', url: '#' } },
+            { data: { id: 'compilado-interpretado', label: 'Lenguaje de compilado vs interpretado', url: '#' } },
+            { data: { id: 'formatos-exe', label: 'Formatos tipo exe', url: '#' } },
+            { data: { id: 'drivers', label: 'Drivers', url: '#' } },
+            { data: { id: 'mcp', label: 'MCP', url: '#' } },
+            
             // Conexiones principales con el nodo raíz
             { data: { id: 'root-engines', source: 'root', target: 'engines' } },
             { data: { id: 'root-frameworks', source: 'root', target: 'frameworks' } },
@@ -283,6 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'root-soportes', source: 'root', target: 'soportes' } },
             { data: { id: 'root-protocolos', source: 'root', target: 'protocolos' } },
             { data: { id: 'root-software-multimedia', source: 'root', target: 'software-multimedia' } },
+            { data: { id: 'root-glosario', source: 'root', target: 'glosario' } },
             
             // Conexiones de categorías a sus elementos
             // Motores Gráficos
@@ -321,6 +368,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'shaders-glsl', source: 'shaders', target: 'glsl' } },
             { data: { id: 'shaders-hlsl', source: 'shaders', target: 'hlsl' } },
             { data: { id: 'shaders-bookofshaders', source: 'shaders', target: 'bookofshaders' } },
+            { data: { id: 'shaders-ejemplos-shaders', source: 'shaders', target: 'ejemplos-shaders' } },
+            { data: { id: 'shaders-editor-shaders-live', source: 'shaders', target: 'editor-shaders-live' } },
             
             // Bases de Datos
             { data: { id: 'db-firebase', source: 'db', target: 'firebase' } },
@@ -376,6 +425,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'soportes-ar', source: 'soportes', target: 'ar' } },
             { data: { id: 'soportes-sonido', source: 'soportes', target: 'sonido' } },
             { data: { id: 'soportes-videojuegos', source: 'soportes', target: 'videojuegos' } },
+            { data: { id: 'soportes-mapping', source: 'soportes', target: 'mapping' } },
 
             // Protocolos de Comunicación
             { data: { id: 'protocolos-websockets', source: 'protocolos', target: 'websockets' } },
@@ -396,6 +446,18 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'software-multimedia-ableton', source: 'software-multimedia', target: 'ableton' } },
             { data: { id: 'software-multimedia-puredata', source: 'software-multimedia', target: 'puredata' } },
             { data: { id: 'software-multimedia-guipper', source: 'software-multimedia', target: 'guipper' } },
+            
+            // Glosario
+            { data: { id: 'glosario-livecoding', source: 'glosario', target: 'livecoding' } },
+            { data: { id: 'glosario-vibecoding', source: 'glosario', target: 'vibecoding' } },
+            { data: { id: 'glosario-programacion', source: 'glosario', target: 'programacion' } },
+            { data: { id: 'glosario-prompting', source: 'glosario', target: 'prompting' } },
+            { data: { id: 'glosario-consola', source: 'glosario', target: 'consola' } },
+            { data: { id: 'glosario-script', source: 'glosario', target: 'script' } },
+            { data: { id: 'glosario-compilado-interpretado', source: 'glosario', target: 'compilado-interpretado' } },
+            { data: { id: 'glosario-formatos-exe', source: 'glosario', target: 'formatos-exe' } },
+            { data: { id: 'glosario-drivers', source: 'glosario', target: 'drivers' } },
+            { data: { id: 'glosario-mcp', source: 'glosario', target: 'mcp' } },
             
             // Algunas conexiones adicionales entre nodos relacionados (con clase 'secondary')
             { data: { id: 'three-glsl', source: 'three', target: 'glsl', type: 'secondary' } },
@@ -456,6 +518,10 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'puredata-osc', source: 'puredata', target: 'osc', type: 'secondary' } },
             { data: { id: 'puredata-midi', source: 'puredata', target: 'midi', type: 'secondary' } },
             { data: { id: 'resolume-osc', source: 'resolume', target: 'osc', type: 'secondary' } },
+            { data: { id: 'resolume-midi', source: 'resolume', target: 'midi', type: 'secondary' } },
+            { data: { id: 'resolume-ndi', source: 'resolume', target: 'ndi', type: 'secondary' } },
+            { data: { id: 'resolume-spout', source: 'resolume', target: 'spout', type: 'secondary' } },
+            { data: { id: 'resolume-python', source: 'resolume', target: 'python', type: 'secondary' } },
             { data: { id: 'guipper-osc', source: 'guipper', target: 'osc', type: 'secondary' } },
             { data: { id: 'guipper-spout', source: 'guipper', target: 'spout', type: 'secondary' } },
             { data: { id: 'guipper-ndi', source: 'guipper', target: 'ndi', type: 'secondary' } },
@@ -464,6 +530,16 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'videojuegos-unreal', source: 'videojuegos', target: 'unreal', type: 'secondary' } },
             { data: { id: 'videojuegos-javascript', source: 'videojuegos', target: 'javascript', type: 'secondary' } },
             { data: { id: 'videojuegos-three', source: 'videojuegos', target: 'three', type: 'secondary' } },
+            { data: { id: 'vibecoding-ides', source: 'vibecoding', target: 'ides', type: 'secondary' } },
+            { data: { id: 'livecoding-hydra', source: 'livecoding', target: 'hydra', type: 'secondary' } },
+            { data: { id: 'livecoding-javascript', source: 'livecoding', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'livecoding-p5', source: 'livecoding', target: 'p5', type: 'secondary' } },
+            { data: { id: 'livecoding-glsl', source: 'livecoding', target: 'glsl', type: 'secondary' } },
+            { data: { id: 'editor-shaders-live-javascript', source: 'editor-shaders-live', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'editor-shaders-live-html', source: 'editor-shaders-live', target: 'html', type: 'secondary' } },
+            { data: { id: 'editor-shaders-live-css', source: 'editor-shaders-live', target: 'css', type: 'secondary' } },
+            { data: { id: 'editor-shaders-live-websockets', source: 'editor-shaders-live', target: 'websockets', type: 'secondary' } },
+            { data: { id: 'editor-shaders-live-nodejs', source: 'editor-shaders-live', target: 'nodejs', type: 'secondary' } },
             
             // Conexiones con sistemas operativos
             { data: { id: 'unity-windows', source: 'unity', target: 'windows', type: 'secondary' } },
@@ -586,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'glosario'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -605,7 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks', 'xampp': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
-                    'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
+                    'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders', 'ejemplos-shaders': 'shaders', 'editor-shaders-live': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
@@ -613,14 +689,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend', 'angular': 'frontend', 'nextjs': 'frontend',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
                     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
-                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes',
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes', 'mapping': 'soportes',
                     'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
-                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia'
+                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia',
+                    'livecoding': 'glosario', 'vibecoding': 'glosario', 'programacion': 'glosario', 'prompting': 'glosario', 'consola': 'glosario', 'script': 'glosario', 'compilado-interpretado': 'glosario', 'formatos-exe': 'glosario', 'drivers': 'glosario', 'mcp': 'glosario'
                 };
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'glosario'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
@@ -867,7 +944,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'glosario'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -886,7 +963,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks', 'xampp': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
-                    'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
+                    'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders', 'ejemplos-shaders': 'shaders', 'editor-shaders-live': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
@@ -894,14 +971,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend', 'angular': 'frontend', 'nextjs': 'frontend',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
                     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
-                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes',
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes', 'mapping': 'soportes',
                     'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
-                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia'
+                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia',
+                    'livecoding': 'glosario', 'vibecoding': 'glosario', 'programacion': 'glosario', 'prompting': 'glosario', 'consola': 'glosario', 'script': 'glosario', 'compilado-interpretado': 'glosario', 'formatos-exe': 'glosario', 'drivers': 'glosario', 'mcp': 'glosario'
                 };
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'glosario'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
