@@ -8,18 +8,31 @@ const CONFIG = {
     rootFontSize: 20,           // Tamaño de fuente para el nodo raíz
     secondaryNodeDist: 100,      // Distancia entre nodos secundarios
     primaryDistance: 200,       // Distancia de nodo central a categorías principales
-    categoryDistances: {         // Distancias personalizadas para cada categoría
-        'engines': 1200,         // Distancia de Motores Gráficos a sus herramientas
-        'frameworks': 550,       // Distancia de Frameworks Web a sus herramientas
-        'ia': 900,              // Distancia de Herramientas IA a sus herramientas
-        'shaders': 500,         // Distancia de Shaders a sus herramientas
-        'db': 800,              // Distancia de Bases de Datos a sus herramientas
-        'ides': 500,           // Distancia de IDEs a sus herramientas
-        'languages': 1500,      // Distancia de Lenguajes de Programación a sus herramientas
-        'llm': 900,             // Distancia de LLM Models a sus herramientas
-        'frontend': 700,        // Distancia de frameworks frontend a sus herramientas
-        'os': 850,              // Distancia de Sistemas Operativos a sus elementos
-        'soportes': 1500         // Distancia de Soportes a sus elementos
+    categoryDistancesMain: {     // Distancias personalizadas para cada categoría al nodo central
+        'engines': 1200,          // Distancia de Motores Gráficos al nodo central
+        'frameworks': 800,       // Distancia de Frameworks Web al nodo central
+        'ia': 500,              // Distancia de Herramientas IA al nodo central
+        'shaders': 1000,         // Distancia de Shaders al nodo central
+        'db': 800,              // Distancia de Bases de Datos al nodo central
+        'ides': 1200,            // Distancia de IDEs al nodo central
+        'languages': 600,       // Distancia de Lenguajes de Programación al nodo central
+        'llm': 1000,             // Distancia de LLM Models al nodo central
+        'frontend': 500,        // Distancia de frameworks frontend al nodo central
+        'os': 1000,              // Distancia de Sistemas Operativos al nodo central
+        'soportes': 500         // Distancia de Soportes al nodo central
+    },
+    categoryDistances: {         // Distancias personalizadas para cada categoríaf
+        'engines': 200,         // Distancia de Motores Gráficos a sus herramientas
+        'frameworks': 200,       // Distancia de Frameworks Web a sus herramientas
+        'ia': 150,              // Distancia de Herramientas IA a sus herramientas
+        'shaders': 200,         // Distancia de Shaders a sus herramientas
+        'db': 200,              // Distancia de Bases de Datos a sus herramientas
+        'ides': 200,           // Distancia de IDEs a sus herramientas
+        'languages': 200,      // Distancia de Lenguajes de Programación a sus herramientas
+        'llm': 200,             // Distancia de LLM Models a sus herramientas
+        'frontend': 200,        // Distancia de frameworks frontend a sus herramientas
+        'os': 200,              // Distancia de Sistemas Operativos a sus elementos
+        'soportes': 200         // Distancia de Soportes a sus elementos
     }
 };
 
@@ -82,8 +95,14 @@ const NODE_INFO = {
     'mac': 'Sistema operativo de Apple para computadoras Mac. No es open source (producto comercial). Se usa para diseño gráfico, desarrollo, producción multimedia.',
     'android': 'Sistema operativo móvil basado en Linux desarrollado por Google. Parcialmente open source (Apache 2.0). Se usa en dispositivos móviles, pantallas y otros dispositivos electrónicos.',
     'ios': 'Sistema operativo móvil de Apple para iPhone y iPad. No es open source (producto comercial). Se usa en dispositivos móviles de Apple.',
-    'pantalla-touch': 'Interfaz de entrada basada en contacto directo con la pantalla. Se usa en dispositivos móviles, quioscos interactivos, instalaciones artísticas.',
-    'instalaciones-fisicas': 'Espacios físicos con componentes electrónicos interactivos. Se usa para arte interactivo, museos, exposiciones, eventos.'
+    'pantalla-touch': 'Interfaz de entrada basada en contacto directo con la pantalla. Existen 2 tipos de pantallas touch, los marcos touch con salida HDMI o los dispositivos touch KIOSK que vienen con un android incluido, los dispositivos KIOSK admiten compilados de .apk o se puede acceder a travez de una red local. Se usa en dispositivos móviles, quioscos interactivos, instalaciones artísticas.',
+    'instalaciones-fisicas': 'Espacios físicos con componentes electrónicos interactivos. Se usa para arte interactivo, museos, exposiciones, eventos.',
+    'raspberry-pi': 'Computadora de placa única de bajo costo y tamaño reducido. Open source (hardware). Se usa para proyectos DIY, instalaciones interactivas, Internet de las Cosas, educación.',
+    'pantalla-led': 'Dispositivo de visualización basado en diodos emisores de luz. Se usa para instalaciones artísticas, señalización digital, escenografías, mapping.',
+    'proyector': 'Dispositivo óptico que proyecta imágenes en una superficie. Se usa para videomapping, instalaciones inmersivas, proyecciones arquitectónicas, arte digital.',
+    'sitio-web': 'Conjunto de páginas web interconectadas accesibles a través de internet. Se usa para portfolios digitales, documentación de proyectos, galerías virtuales, arte web.',
+    'compilado-apk': 'Archivo de aplicación empaquetado para el sistema operativo Android. Se usa para distribuir aplicaciones móviles, instalaciones interactivas en dispositivos KIOSK, experiencias inmersivas.',
+    'xampp': 'Paquete de software libre que incluye el servidor web Apache, la base de datos MySQL/MariaDB y los intérpretes para scripts PHP y Perl. Se usa para desarrollo web local, pruebas de aplicaciones, entornos de desarrollo.'
 };
 
 // Función para posicionar las bibliotecas de Python alrededor del nodo Python
@@ -150,6 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'openframeworks', label: 'OpenFrameworks', url: 'https://openframeworks.cc/' } },
             { data: { id: 'ml5', label: 'ML5.js', url: 'https://ml5js.org/' } },
             { data: { id: 'hydra', label: 'Hydra', url: 'https://hydra.ojack.xyz/' } },
+            { data: { id: 'xampp', label: 'XAMPP', url: 'https://www.apachefriends.org/' } },
             
             // Herramientas IA
             { data: { id: 'comfy', label: 'ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI' } },
@@ -215,6 +235,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Soportes
             { data: { id: 'pantalla-touch', label: 'Pantalla Touch', url: '#' } },
             { data: { id: 'instalaciones-fisicas', label: 'Instalaciones Físicas', url: '#' } },
+            { data: { id: 'raspberry-pi', label: 'Raspberry Pi', url: 'https://www.raspberrypi.org/' } },
+            { data: { id: 'pantalla-led', label: 'Pantalla LED', url: '#' } },
+            { data: { id: 'proyector', label: 'Proyector', url: '#' } },
+            { data: { id: 'sitio-web', label: 'Sitio Web', url: '#' } },
+            { data: { id: 'compilado-apk', label: 'Compilado .apk', url: '#' } },
             
             // Conexiones principales con el nodo raíz
             { data: { id: 'root-engines', source: 'root', target: 'engines' } },
@@ -236,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'engines-godot', source: 'engines', target: 'godot' } },
             { data: { id: 'engines-touchdesigner', source: 'engines', target: 'touchdesigner' } },
             { data: { id: 'engines-processing', source: 'engines', target: 'processing' } },
+            { data: { id: 'engines-openframeworks', source: 'engines', target: 'openframeworks' } },
             
             // Frameworks Web
             { data: { id: 'frameworks-p5', source: 'frameworks', target: 'p5' } },
@@ -246,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'frameworks-websockets', source: 'frameworks', target: 'websockets' } },
             { data: { id: 'frameworks-ml5', source: 'frameworks', target: 'ml5' } },
             { data: { id: 'frameworks-hydra', source: 'frameworks', target: 'hydra' } },
+            { data: { id: 'frameworks-xampp', source: 'frameworks', target: 'xampp' } },
             
             // Herramientas IA
             { data: { id: 'ia-comfy', source: 'ia', target: 'comfy' } },
@@ -311,6 +338,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Soportes
             { data: { id: 'soportes-pantalla-touch', source: 'soportes', target: 'pantalla-touch' } },
             { data: { id: 'soportes-instalaciones-fisicas', source: 'soportes', target: 'instalaciones-fisicas' } },
+            { data: { id: 'soportes-raspberry-pi', source: 'soportes', target: 'raspberry-pi' } },
+            { data: { id: 'soportes-pantalla-led', source: 'soportes', target: 'pantalla-led' } },
+            { data: { id: 'soportes-proyector', source: 'soportes', target: 'proyector' } },
+            { data: { id: 'soportes-sitio-web', source: 'soportes', target: 'sitio-web' } },
+            { data: { id: 'soportes-compilado-apk', source: 'soportes', target: 'compilado-apk' } },
             
             // Algunas conexiones adicionales entre nodos relacionados (con clase 'secondary')
             { data: { id: 'three-glsl', source: 'three', target: 'glsl', type: 'secondary' } },
@@ -329,7 +361,6 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'nodejs-javascript', source: 'nodejs', target: 'javascript', type: 'secondary' } },
             { data: { id: 'nodejs-typescript', source: 'nodejs', target: 'typescript', type: 'secondary' } },
             { data: { id: 'openframeworks-cpp', source: 'openframeworks', target: 'cpp', type: 'secondary' } },
-            { data: { id: 'engines-openframeworks', source: 'engines', target: 'openframeworks', type: 'secondary' } },
             { data: { id: 'comfy-python', source: 'comfy', target: 'python', type: 'secondary' } },
             { data: { id: 'n8n-python', source: 'n8n', target: 'python', type: 'secondary' } },
             { data: { id: 'pinokio-python', source: 'pinokio', target: 'python', type: 'secondary' } },
@@ -338,6 +369,18 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'arduino-cpp', source: 'arduino', target: 'cpp', type: 'secondary' } },
             { data: { id: 'pantalla-touch-android', source: 'pantalla-touch', target: 'android', type: 'secondary' } },
             { data: { id: 'instalaciones-fisicas-arduino', source: 'instalaciones-fisicas', target: 'arduino', type: 'secondary' } },
+            { data: { id: 'raspberry-pi-linux', source: 'raspberry-pi', target: 'linux', type: 'secondary' } },
+            { data: { id: 'sitio-web-javascript', source: 'sitio-web', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'sitio-web-css', source: 'sitio-web', target: 'css', type: 'secondary' } },
+            { data: { id: 'sitio-web-html', source: 'sitio-web', target: 'html', type: 'secondary' } },
+            { data: { id: 'sitio-web-nodejs', source: 'sitio-web', target: 'nodejs', type: 'secondary' } },
+            { data: { id: 'sitio-web-typescript', source: 'sitio-web', target: 'typescript', type: 'secondary' } },
+            { data: { id: 'compilado-apk-unity', source: 'compilado-apk', target: 'unity', type: 'secondary' } },
+            { data: { id: 'compilado-apk-sitio-web', source: 'compilado-apk', target: 'sitio-web', type: 'secondary' } },
+            { data: { id: 'compilado-apk-pantalla-touch', source: 'compilado-apk', target: 'pantalla-touch', type: 'secondary' } },
+            { data: { id: 'xampp-javascript', source: 'xampp', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'xampp-php', source: 'xampp', target: 'php', type: 'secondary' } },
+            { data: { id: 'xampp-sql', source: 'xampp', target: 'sql', type: 'secondary' } },
             
             // Conexiones con sistemas operativos
             { data: { id: 'unity-windows', source: 'unity', target: 'windows', type: 'secondary' } },
@@ -464,7 +507,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
-                        const radius = 300;
+                        // Usar la distancia personalizada para cada categoría o el valor por defecto
+                        const radius = CONFIG.categoryDistancesMain[node.id()] || 300;
                         return {
                             x: radius * Math.cos(angle),
                             y: radius * Math.sin(angle)
@@ -474,8 +518,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
-                    'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'openframeworks': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks',
+                    'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines', 'openframeworks': 'engines',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks', 'xampp': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
@@ -486,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
                     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
-                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes'
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes'
                 };
                 
                 // Definir las bibliotecas de Python como nodos especiales
@@ -513,30 +557,23 @@ document.addEventListener('DOMContentLoaded', function() {
                             return null; // Devolver null para que se maneje en el evento move
                         }
                         
-                        // Si hay más de 3 elementos, reiniciar ángulo y aumentar distancia
-
-                        let cnt = 3;
-
-                        if (siblings.length >  cnt) {
-                            // Dividir en grupos de 3
-                            const groupIndex = Math.floor(siblingIndex / cnt);
-                            const posInGroup = siblingIndex % cnt;
-                            
-                            // Aumentar radio para cada grupo adicional
-                            radius += groupIndex * CONFIG.secondaryNodeDist;
-                            
-                            // Calcular offset dentro del grupo
-                            siblingOffset = (posInGroup - 1) * (Math.PI / 12);
-                     
-                        } else {
-                            // Distribución normal para 3 o menos elementos
-                            siblingOffset = (siblingIndex - (siblings.length - 1) / 2) * (Math.PI / 12);
-                           // siblingOffset += Math.PI;
-                        }
+                        // Distribuir los nodos secundarios de forma radial alrededor de la categoría
+                        // Calcular el ángulo para cada nodo secundario
+                        const totalNodes = siblings.length;
+                        // Distribuir los nodos en un círculo completo (360 grados)
+                        const angleStep = (2 * Math.PI) / totalNodes;
+                        // El ángulo para este nodo específico
+                        const nodeAngle = angleStep * siblingIndex;
                         
+                        // Calcular la posición en coordenadas cartesianas
+                        // Primero obtenemos la posición de la categoría padre
+                        const categoryX = CONFIG.categoryDistancesMain[parentCategory] * Math.cos(categoryAngle) || 0;
+                        const categoryY = CONFIG.categoryDistancesMain[parentCategory] * Math.sin(categoryAngle) || 0;
+                        
+                        // Luego calculamos la posición del nodo secundario alrededor de la categoría
                         return {
-                            x: radius * Math.cos(categoryAngle + siblingOffset),
-                            y: radius * Math.sin(categoryAngle + siblingOffset)
+                            x: categoryX + radius * Math.cos(nodeAngle),
+                            y: categoryY + radius * Math.sin(nodeAngle)
                         };
                     }
                 }
@@ -755,7 +792,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
-                        const radius = 300;
+                        // Usar la distancia personalizada para cada categoría o el valor por defecto
+                        const radius = CONFIG.categoryDistancesMain[node.id()] || 300;
                         return {
                             x: radius * Math.cos(angle),
                             y: radius * Math.sin(angle)
@@ -765,8 +803,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
-                    'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'openframeworks': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks',
+                    'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines', 'openframeworks': 'engines',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks', 'xampp': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
@@ -777,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
                     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
-                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes'
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes'
                 };
                 
                 // Definir las bibliotecas de Python como nodos especiales
@@ -794,12 +832,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (categoryIndex !== -1 && siblingIndex !== -1) {
                         const categoryAngle = (2 * Math.PI * categoryIndex) / categories.length;
-                        const siblingOffset = (siblingIndex - (siblings.length - 1) / 2) * (Math.PI / 12);
-                        const radius = 600;
                         
+                        // Distribuir los nodos secundarios de forma radial alrededor de la categoría
+                        const totalNodes = siblings.length;
+                        // Distribuir los nodos en un círculo completo (360 grados)
+                        const angleStep = (2 * Math.PI) / totalNodes;
+                        // El ángulo para este nodo específico
+                        const nodeAngle = angleStep * siblingIndex;
+                        
+                        // Usar la distancia personalizada para cada categoría o el valor por defecto
+                        const radius = CONFIG.categoryDistances[parentCategory] || 600;
+                        
+                        // Calcular la posición en coordenadas cartesianas
+                        // Primero obtenemos la posición de la categoría padre
+                        const categoryX = CONFIG.categoryDistancesMain[parentCategory] * Math.cos(categoryAngle) || 0;
+                        const categoryY = CONFIG.categoryDistancesMain[parentCategory] * Math.sin(categoryAngle) || 0;
+                        
+                        // Luego calculamos la posición del nodo secundario alrededor de la categoría
                         return {
-                            x: radius * Math.cos(categoryAngle + siblingOffset),
-                            y: radius * Math.sin(categoryAngle + siblingOffset)
+                            x: categoryX + radius * Math.cos(nodeAngle),
+                            y: categoryY + radius * Math.sin(nodeAngle)
                         };
                     }
                 }
