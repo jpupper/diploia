@@ -1,77 +1,89 @@
 // Variables globales de configuración
 const CONFIG = {
-    rootNodeSize: 200,      // Tamaño del nodo raíz central
-    primaryNodeSize: 150,   // Tamaño de los nodos primarios (categorías)
-    secondaryNodeSize: 120, // Tamaño de los nodos secundarios
-    nodeFontSize: 16,       // Tamaño de fuente para nodos secundarios
-    categoryFontSize: 18,   // Tamaño de fuente para categorías
-    rootFontSize: 20,       // Tamaño de fuente para el nodo raíz
-    primaryDistance: 200,   // Distancia de nodo central a categorías principales
-    secondaryNodeDist: 150, // Distancia base entre nodos secundarios
-    
-    // Distancias variables entre categorías y sus herramientas
-    categoryDistances: {
-        'engines': 600,      // Distancia de Motores Gráficos a sus herramientas
-        'frameworks': 800,   // Distancia de Frameworks Web a sus herramientas
-        'ia': 800,           // Distancia de Herramientas IA a sus herramientas
-        'shaders': 1200,     // Distancia de Shaders a sus herramientas
-        'db': 800,           // Distancia de Bases de Datos a sus herramientas
-        'ides': 1000,        // Distancia de IDEs a sus herramientas
-        'languages': 1200,   // Distancia de Lenguajes de Programación a sus herramientas
-        'llm': 900,          // Distancia de LLM Models a sus herramientas
-        'frontend': 700      // Distancia de frameworks frontend a sus herramientas
+    rootNodeSize: 100,          // Tamaño para el nodo raíz
+    primaryNodeSize: 80,        // Tamaño para categorías
+    secondaryNodeSize: 60,      // Tamaño para nodos secundarios
+    nodeFontSize: 14,           // Tamaño de fuente para nodos normales
+    categoryFontSize: 18,       // Tamaño de fuente para categorías
+    rootFontSize: 20,           // Tamaño de fuente para el nodo raíz
+    secondaryNodeDist: 100,      // Distancia entre nodos secundarios
+    primaryDistance: 200,       // Distancia de nodo central a categorías principales
+    categoryDistances: {         // Distancias personalizadas para cada categoría
+        'engines': 1200,         // Distancia de Motores Gráficos a sus herramientas
+        'frameworks': 550,       // Distancia de Frameworks Web a sus herramientas
+        'ia': 900,              // Distancia de Herramientas IA a sus herramientas
+        'shaders': 500,         // Distancia de Shaders a sus herramientas
+        'db': 800,              // Distancia de Bases de Datos a sus herramientas
+        'ides': 500,           // Distancia de IDEs a sus herramientas
+        'languages': 1500,      // Distancia de Lenguajes de Programación a sus herramientas
+        'llm': 900,             // Distancia de LLM Models a sus herramientas
+        'frontend': 700,        // Distancia de frameworks frontend a sus herramientas
+        'os': 850,              // Distancia de Sistemas Operativos a sus elementos
+        'soportes': 1500         // Distancia de Soportes a sus elementos
     }
 };
 
 // Descripciones de los nodos para mostrar en hover
 const NODE_INFO = {
-    'unity': 'Motor de juegos multiplataforma con potentes capacidades gráficas y físicas. No es open source (software propietario, de pago con versión gratuita limitada).',
-    'unreal': 'Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas. Parcialmente open source (código fuente disponible, pero con licencia comercial).',
-    'godot': 'Motor de juegos con soporte para 2D y 3D, ideal para desarrolladores independientes. Open source (MIT).',
-    'touchdesigner': 'Plataforma de desarrollo visual para contenido interactivo en tiempo real. No es open source (software propietario, de pago con versión no comercial).',
-    'processing': 'Entorno de desarrollo y lenguaje de programación enfocado en artes visuales. Open source (LGPL/GPL).',
-    'openframeworks': 'Framework C++ para programación creativa y arte interactivo. Open source (MIT).',
-    'csharp': 'Lenguaje de programación orientado a objetos desarrollado por Microsoft. Open source (.NET es MIT).',
-    'nodejs': 'Entorno de ejecución de JavaScript del lado del servidor. Open source (MIT).',
-    'websockets': 'Protocolo de comunicación bidireccional en tiempo real sobre TCP. Estándar abierto.',
-    'react': 'Biblioteca de JavaScript para construir interfaces de usuario interactivas. Open source (MIT).',
-    'vue': 'Framework progresivo para construir interfaces de usuario. Open source (MIT).',
-    'svelte': 'Framework que compila código en JavaScript optimizado en tiempo de compilación. Open source (MIT).',
-    'pytorch': 'Biblioteca de aprendizaje profundo para Python con aceleración GPU. Open source (BSD).',
-    'pyaudio': 'Biblioteca de Python para trabajar con audio y procesamiento de señales. Open source (MIT).',
-    'pyvision': 'Conjunto de herramientas para visión por computadora en Python. Open source.',
-    'chatgpt': 'Modelo de lenguaje de OpenAI para conversaciones y generación de texto. No es open source (servicio de pago con API).',
-    'deepseek': 'Modelo de lenguaje con capacidades avanzadas de razonamiento. Open source.',
-    'gemini': 'Modelo multimodal de Google que procesa texto, imágenes y otros formatos. No es open source (servicio de pago con versión gratuita).',
-    'kimi': 'Asistente de IA con capacidades de razonamiento y generación creativa. No es open source (servicio de pago).',
-    'claude': 'Modelo de lenguaje de Anthropic diseñado para ser útil e inofensivo. No es open source (servicio de pago con versión gratuita).',
-    'pinokio': 'Asistente de IA enfocado en automatización y ejecución de tareas. Open source.',
-    'p5': 'Biblioteca JavaScript para programación creativa con enfoque en artes visuales. Open source (LGPL).',
-    'three': 'Biblioteca JavaScript para crear y mostrar gráficos 3D en navegadores. Open source (MIT).',
-    'babylon': 'Framework de JavaScript para crear juegos y experiencias 3D web. Open source (Apache 2.0).',
-    'tone': 'Framework de audio web para crear experiencias musicales interactivas. Open source (MIT).',
-    'comfy': 'Interfaz gráfica para flujos de trabajo de IA generativa. Open source (GPL), pero algunos modelos requieren pago.',
-    'n8n': 'Plataforma de automatización de flujos de trabajo con integración de IA. Open source (Apache 2.0), con versión cloud de pago.',
-    'cursor': 'Editor de código con asistencia de IA integrada. No es open source (servicio de pago con versión gratuita).',
-    'trae': 'Asistente de programación basado en IA para desarrollo. No es open source (servicio de pago).',
-    'v0': 'Herramienta de generación de interfaces con IA. No es open source (servicio de pago con versión gratuita limitada).',
-    'windsurf': 'Plataforma de desarrollo con asistencia de IA. No es open source (servicio de pago con versión gratuita limitada).',
-    'shadertoy': 'Plataforma web para crear y compartir shaders en tiempo real. No es open source (plataforma propietaria), pero los shaders son públicos.',
-    'glsl': 'Lenguaje de sombreado para gráficos OpenGL. Estándar abierto.',
-    'hlsl': 'Lenguaje de sombreado de alto nivel para DirectX. No es open source (propiedad de Microsoft).',
-    'bookofshaders': 'Guía paso a paso para aprender programación de shaders. Open source (contenido abierto, CC).',
-    'firebase': 'Plataforma de desarrollo con base de datos en tiempo real. No es open source (servicio de pago con nivel gratuito).',
-    'mongodb': 'Base de datos NoSQL orientada a documentos. Licencia dual (SSPL/comercial).',
-    'sql': 'Lenguaje estándar para gestionar bases de datos relacionales. Estándar abierto.',
-    'cpp': 'Lenguaje de programación de propósito general con control de bajo nivel. Estándar abierto.',
-    'php': 'Lenguaje de programación para desarrollo web del lado del servidor. Open source (PHP License).',
-    'javascript': 'Lenguaje de programación interpretado para desarrollo web. Estándar abierto (ECMA).',
-    'python': 'Lenguaje de programación de alto nivel con sintaxis clara. Open source (PSF License).',
-    'typescript': 'Superconjunto de JavaScript con tipado estático opcional. Open source (Apache 2.0).',
-    'java': 'Lenguaje de programación orientado a objetos y portable. Parcialmente open source (OpenJDK).',
-    'html': 'Lenguaje de marcado para estructurar contenido web. Estándar abierto (W3C).',
-    'css': 'Lenguaje de hojas de estilo para diseño web. Estándar abierto (W3C).',
-    'json': 'Formato ligero de intercambio de datos. Estándar abierto.'
+    'unity': 'Motor de juegos multiplataforma con potentes capacidades gráficas y físicas. No es open source (software propietario, de pago con versión gratuita limitada). Se usa para desarrollo de videojuegos, visualizaciones 3D, realidad virtual y aumentada.',
+    'unreal': 'Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas. Parcialmente open source (código fuente disponible, pero con licencia comercial). Se usa para videojuegos de alta calidad, cine virtual, arquitectura y visualización.',
+    'godot': 'Motor de juegos con soporte para 2D y 3D, ideal para desarrolladores independientes. Open source (MIT). Se usa para videojuegos independientes, prototipado rápido, proyectos educativos.',
+    'touchdesigner': 'Plataforma de desarrollo visual para contenido interactivo en tiempo real. No es open source (software propietario, de pago con versión no comercial). Se usa para arte digital, instalaciones interactivas, visuales en vivo, mapping.',
+    'processing': 'Entorno de desarrollo y lenguaje de programación enfocado en artes visuales. Open source (LGPL/GPL). Se usa para arte generativo, visualización de datos, prototipado, educación.',
+    'openframeworks': 'Framework C++ para programación creativa y arte interactivo. Open source (MIT). Se usa para instalaciones interactivas, arte digital, visuales en tiempo real.',
+    'csharp': 'Lenguaje de programación orientado a objetos desarrollado por Microsoft. Open source (.NET es MIT). Se usa para desarrollo de aplicaciones Windows, Unity, servicios web.',
+    'nodejs': 'Entorno de ejecución de JavaScript del lado del servidor. Open source (MIT). Se usa para servidores web, APIs, aplicaciones en tiempo real, microservicios.',
+    'websockets': 'Protocolo de comunicación bidireccional en tiempo real sobre TCP. Estándar abierto. Se usa para chats, juegos multijugador, actualizaciones en tiempo real, dashboards.',
+    'react': 'Biblioteca de JavaScript para construir interfaces de usuario interactivas. Open source (MIT). Se usa para aplicaciones web, interfaces de usuario, SPAs.',
+    'vue': 'Framework progresivo para construir interfaces de usuario. Open source (MIT). Se usa para aplicaciones web, interfaces de usuario, integración progresiva.',
+    'svelte': 'Framework que compila código en JavaScript optimizado en tiempo de compilación. Open source (MIT). Se usa para aplicaciones web ligeras, componentes interactivos, visualizaciones.',
+    'pytorch': 'Biblioteca de aprendizaje profundo para Python con aceleración GPU. Open source (BSD). Se usa para investigación en IA, visión por computadora, procesamiento de lenguaje natural.',
+    'pyaudio': 'Biblioteca de Python para trabajar con audio y procesamiento de señales. Open source (MIT). Se usa para procesamiento de audio, reconocimiento de voz, música generativa.',
+    'pyvision': 'Conjunto de herramientas para visión por computadora en Python. Open source. Se usa para procesamiento de imágenes, reconocimiento de objetos, análisis visual.',
+    'chatgpt': 'Modelo de lenguaje de OpenAI para conversaciones y generación de texto. No es open source (servicio de pago con API). Se usa para asistentes virtuales, generación de contenido, respuesta a preguntas.',
+    'deepseek': 'Modelo de lenguaje con capacidades avanzadas de razonamiento. Open source. Se usa para generación de código, asistencia en programación, razonamiento lógico.',
+    'gemini': 'Modelo multimodal de Google que procesa texto, imágenes y otros formatos. No es open source (servicio de pago con versión gratuita). Se usa para asistentes virtuales, análisis multimodal, generación de contenido.',
+    'kimi': 'Asistente de IA con capacidades de razonamiento y generación creativa. No es open source (servicio de pago). Se usa para asistencia creativa, generación de contenido, respuesta a consultas.',
+    'claude': 'Modelo de lenguaje de Anthropic diseñado para ser útil e inofensivo. No es open source (servicio de pago con versión gratuita). Se usa para asistencia virtual, generación de texto, análisis de documentos.',
+    'pinokio': 'Asistente de IA enfocado en automatización y ejecución de tareas. Open source. Se usa para automatización de flujos de trabajo, ejecución de scripts, integración de sistemas.',
+    'p5': 'Biblioteca JavaScript para programación creativa con enfoque en artes visuales. Open source (LGPL). Se usa para arte generativo, visualizaciones interactivas, educación en programación.',
+    'three': 'Biblioteca JavaScript para crear y mostrar gráficos 3D en navegadores. Open source (MIT). Se usa para visualizaciones 3D web, juegos en navegador, experiencias interactivas.',
+    'babylon': 'Framework de JavaScript para crear juegos y experiencias 3D web. Open source (Apache 2.0). Se usa para juegos web, visualizaciones 3D, realidad virtual en navegador.',
+    'tone': 'Framework de audio web para crear experiencias musicales interactivas. Open source (MIT). Se usa para música web, sintetizadores, instrumentos virtuales, arte sonoro.',
+    'ml5': 'Biblioteca de aprendizaje automático para web basada en TensorFlow.js. Open source (MIT). Se usa para proyectos de IA accesibles, arte generativo, experimentos de aprendizaje automático en navegador.',
+    'hydra': 'Plataforma de livecoding para síntesis visual en tiempo real. Open source (GPL). Se usa para performances audiovisuales, livecoding, arte generativo, visuales en vivo.',
+    'comfy': 'Interfaz gráfica para flujos de trabajo de IA generativa. Open source (GPL), pero algunos modelos requieren pago. Se usa para generación de imágenes, edición con IA, flujos de trabajo visuales.',
+    'n8n': 'Plataforma de automatización de flujos de trabajo con integración de IA. Open source (Apache 2.0), con versión cloud de pago. Se usa para automatización de procesos, integración de servicios, workflows.',
+    'cursor': 'Editor de código con asistencia de IA integrada. No es open source (servicio de pago con versión gratuita). Se usa para desarrollo de software, programación asistida por IA.',
+    'visual-studio': 'Entorno de desarrollo integrado completo. No es open source (producto de Microsoft con versión Community gratuita). Se usa para desarrollo de aplicaciones en múltiples lenguajes, especialmente .NET.',
+    'trae': 'Asistente de programación basado en IA para desarrollo. No es open source (servicio de pago). Se usa para desarrollo de software, programación asistida por IA.',
+    'v0': 'Herramienta de generación de interfaces con IA. No es open source (servicio de pago con versión gratuita limitada). Se usa para diseño de interfaces, prototipado, generación de código frontend.',
+    'windsurf': 'Plataforma de desarrollo con asistencia de IA. No es open source (servicio de pago con versión gratuita limitada). Se usa para desarrollo de software, programación asistida por IA.',
+    'shadertoy': 'Plataforma web para crear y compartir shaders en tiempo real. No es open source (plataforma propietaria), pero los shaders son públicos. Se usa para programación de shaders, efectos visuales, demostraciones gráficas.',
+    'glsl': 'Lenguaje de sombreado para gráficos OpenGL. Estándar abierto. Se usa para programación de shaders, efectos visuales, gráficos 3D.',
+    'hlsl': 'Lenguaje de sombreado de alto nivel para DirectX. No es open source (propiedad de Microsoft). Se usa para desarrollo de videojuegos, efectos visuales, gráficos 3D.',
+    'bookofshaders': 'Guía paso a paso para aprender programación de shaders. Open source (contenido abierto, CC). Se usa para educación, aprendizaje de shaders, programación gráfica.',
+    'firebase': 'Plataforma de desarrollo con base de datos en tiempo real. No es open source (servicio de pago con nivel gratuito). Se usa para aplicaciones web y móviles, autenticación, almacenamiento en la nube.',
+    'mongodb': 'Base de datos NoSQL orientada a documentos. Licencia dual (SSPL/comercial). Se usa para aplicaciones web, almacenamiento de datos no estructurados, APIs.',
+    'sql': 'Lenguaje estándar para gestionar bases de datos relacionales. Estándar abierto. Se usa para sistemas de gestión de datos, aplicaciones empresariales, análisis.',
+    'cpp': 'Lenguaje de programación de propósito general con control de bajo nivel. Estándar abierto. Se usa para desarrollo de sistemas, videojuegos, aplicaciones de alto rendimiento.',
+    'php': 'Lenguaje de programación para desarrollo web del lado del servidor. Open source (PHP License). Se usa para desarrollo web, CMS, aplicaciones de servidor.',
+    'javascript': 'Lenguaje de programación interpretado para desarrollo web. Estándar abierto (ECMA). Se usa para desarrollo web frontend, aplicaciones interactivas, servidores Node.js.',
+    'python': 'Lenguaje de programación de alto nivel con sintaxis clara. Open source (PSF License). Se usa para ciencia de datos, IA, automatización, desarrollo web.',
+    'r': 'Lenguaje de programación especializado en estadística y visualización de datos. Open source (GPL). Se usa para análisis estadístico, ciencia de datos, visualización, investigación.',
+    'arduino': 'Plataforma de hardware y software para prototipado electrónico. Open source. Se usa para proyectos DIY, robótica, arte interactivo, Internet de las Cosas.',
+    'typescript': 'Superconjunto de JavaScript con tipado estático opcional. Open source (Apache 2.0). Se usa para desarrollo web frontend, aplicaciones empresariales, proyectos grandes.',
+    'java': 'Lenguaje de programación orientado a objetos y portable. Parcialmente open source (OpenJDK). Se usa para aplicaciones empresariales, Android, sistemas distribuidos.',
+    'html': 'Lenguaje de marcado para estructurar contenido web. Estándar abierto (W3C). Se usa para desarrollo web, estructura de páginas, documentos web.',
+    'css': 'Lenguaje de hojas de estilo para diseño web. Estándar abierto (W3C). Se usa para diseño web, interfaces de usuario, animaciones.',
+    'json': 'Formato ligero de intercambio de datos. Estándar abierto. Se usa para APIs, configuraciones, almacenamiento de datos estructurados.',
+    'windows': 'Sistema operativo de Microsoft para computadoras personales. No es open source (producto comercial). Se usa para entornos de escritorio, juegos, desarrollo de software.',
+    'linux': 'Sistema operativo de código abierto basado en Unix. Open source (GPL y otras). Se usa para servidores, desarrollo, sistemas embebidos, supercomputación.',
+    'mac': 'Sistema operativo de Apple para computadoras Mac. No es open source (producto comercial). Se usa para diseño gráfico, desarrollo, producción multimedia.',
+    'android': 'Sistema operativo móvil basado en Linux desarrollado por Google. Parcialmente open source (Apache 2.0). Se usa en dispositivos móviles, pantallas y otros dispositivos electrónicos.',
+    'ios': 'Sistema operativo móvil de Apple para iPhone y iPad. No es open source (producto comercial). Se usa en dispositivos móviles de Apple.',
+    'pantalla-touch': 'Interfaz de entrada basada en contacto directo con la pantalla. Se usa en dispositivos móviles, quioscos interactivos, instalaciones artísticas.',
+    'instalaciones-fisicas': 'Espacios físicos con componentes electrónicos interactivos. Se usa para arte interactivo, museos, exposiciones, eventos.'
 };
 
 // Función para posicionar las bibliotecas de Python alrededor del nodo Python
@@ -118,6 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'languages', label: 'Lenguajes de Programación', type: 'category' } },
             { data: { id: 'llm', label: 'LLM Models', type: 'category' } },
             { data: { id: 'frontend', label: 'Frontend Frameworks', type: 'category' } },
+            { data: { id: 'os', label: 'Sistemas Operativos', type: 'category' } },
+            { data: { id: 'soportes', label: 'Soportes', type: 'category' } },
             
             // Motores Gráficos
             { data: { id: 'unity', label: 'Unity', url: 'https://unity.com/' } },
@@ -134,6 +148,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'nodejs', label: 'Node.js', url: 'https://nodejs.org/' } },
             { data: { id: 'websockets', label: 'WebSockets', url: 'https://developer.mozilla.org/es/docs/Web/API/WebSockets_API' } },
             { data: { id: 'openframeworks', label: 'OpenFrameworks', url: 'https://openframeworks.cc/' } },
+            { data: { id: 'ml5', label: 'ML5.js', url: 'https://ml5js.org/' } },
+            { data: { id: 'hydra', label: 'Hydra', url: 'https://hydra.ojack.xyz/' } },
             
             // Herramientas IA
             { data: { id: 'comfy', label: 'ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI' } },
@@ -141,10 +157,11 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'pinokio', label: 'Pinokio', url: 'https://pinokio.computer/' } },
             
             // IDEs
-            { data: { id: 'cursor', label: 'Cursor Editor', url: 'https://cursor.sh/' } },
+            { data: { id: 'cursor', label: 'Cursor', url: 'https://cursor.sh/' } },
             { data: { id: 'trae', label: 'Trae AI', url: 'https://www.trae.ai/' } },
             { data: { id: 'v0', label: 'v0.dev', url: 'https://v0.dev/' } },
             { data: { id: 'windsurf', label: 'Windsurf', url: 'https://www.windsurf.io/' } },
+            { data: { id: 'visual-studio', label: 'Visual Studio', url: 'https://visualstudio.microsoft.com/' } },
             
             // Shaders
             { data: { id: 'shadertoy', label: 'Shadertoy', url: 'https://www.shadertoy.com/' } },
@@ -168,6 +185,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'html', label: 'HTML', url: 'https://developer.mozilla.org/es/docs/Web/HTML' } },
             { data: { id: 'css', label: 'CSS', url: 'https://developer.mozilla.org/es/docs/Web/CSS' } },
             { data: { id: 'json', label: 'JSON', url: 'https://www.json.org/' } },
+            { data: { id: 'r', label: 'R', url: 'https://www.r-project.org/' } },
+            { data: { id: 'arduino', label: 'Arduino', url: 'https://www.arduino.cc/' } },
             
             // Frontend Frameworks
             { data: { id: 'react', label: 'React', url: 'https://reactjs.org/' } },
@@ -186,6 +205,17 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'kimi', label: 'Kimi', url: 'https://kimi.moonshot.cn/' } },
             { data: { id: 'claude', label: 'Claude', url: 'https://www.anthropic.com/claude' } },
             
+            // Sistemas Operativos
+            { data: { id: 'windows', label: 'Windows', url: 'https://www.microsoft.com/windows' } },
+            { data: { id: 'linux', label: 'Linux', url: 'https://www.linux.org/' } },
+            { data: { id: 'mac', label: 'macOS', url: 'https://www.apple.com/macos' } },
+            { data: { id: 'android', label: 'Android', url: 'https://www.android.com/' } },
+            { data: { id: 'ios', label: 'iOS', url: 'https://www.apple.com/ios' } },
+            
+            // Soportes
+            { data: { id: 'pantalla-touch', label: 'Pantalla Touch', url: '#' } },
+            { data: { id: 'instalaciones-fisicas', label: 'Instalaciones Físicas', url: '#' } },
+            
             // Conexiones principales con el nodo raíz
             { data: { id: 'root-engines', source: 'root', target: 'engines' } },
             { data: { id: 'root-frameworks', source: 'root', target: 'frameworks' } },
@@ -196,6 +226,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'root-languages', source: 'root', target: 'languages' } },
             { data: { id: 'root-llm', source: 'root', target: 'llm' } },
             { data: { id: 'root-frontend', source: 'root', target: 'frontend' } },
+            { data: { id: 'root-os', source: 'root', target: 'os' } },
+            { data: { id: 'root-soportes', source: 'root', target: 'soportes' } },
             
             // Conexiones de categorías a sus elementos
             // Motores Gráficos
@@ -212,7 +244,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'frameworks-tone', source: 'frameworks', target: 'tone' } },
             { data: { id: 'frameworks-nodejs', source: 'frameworks', target: 'nodejs' } },
             { data: { id: 'frameworks-websockets', source: 'frameworks', target: 'websockets' } },
-            { data: { id: 'frameworks-openframeworks', source: 'frameworks', target: 'openframeworks' } },
+            { data: { id: 'frameworks-ml5', source: 'frameworks', target: 'ml5' } },
+            { data: { id: 'frameworks-hydra', source: 'frameworks', target: 'hydra' } },
             
             // Herramientas IA
             { data: { id: 'ia-comfy', source: 'ia', target: 'comfy' } },
@@ -224,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'ides-trae', source: 'ides', target: 'trae' } },
             { data: { id: 'ides-v0', source: 'ides', target: 'v0' } },
             { data: { id: 'ides-windsurf', source: 'ides', target: 'windsurf' } },
+            { data: { id: 'ides-visual-studio', source: 'ides', target: 'visual-studio' } },
             
             // Shaders
             { data: { id: 'shaders-shadertoy', source: 'shaders', target: 'shadertoy' } },
@@ -247,6 +281,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'languages-html', source: 'languages', target: 'html' } },
             { data: { id: 'languages-css', source: 'languages', target: 'css' } },
             { data: { id: 'languages-json', source: 'languages', target: 'json' } },
+            { data: { id: 'languages-r', source: 'languages', target: 'r' } },
+            { data: { id: 'languages-arduino', source: 'languages', target: 'arduino' } },
             
             // Frontend Frameworks
             { data: { id: 'frontend-react', source: 'frontend', target: 'react' } },
@@ -265,6 +301,17 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'llm-kimi', source: 'llm', target: 'kimi' } },
             { data: { id: 'llm-claude', source: 'llm', target: 'claude' } },
             
+            // Sistemas Operativos
+            { data: { id: 'os-windows', source: 'os', target: 'windows' } },
+            { data: { id: 'os-linux', source: 'os', target: 'linux' } },
+            { data: { id: 'os-mac', source: 'os', target: 'mac' } },
+            { data: { id: 'os-android', source: 'os', target: 'android' } },
+            { data: { id: 'os-ios', source: 'os', target: 'ios' } },
+            
+            // Soportes
+            { data: { id: 'soportes-pantalla-touch', source: 'soportes', target: 'pantalla-touch' } },
+            { data: { id: 'soportes-instalaciones-fisicas', source: 'soportes', target: 'instalaciones-fisicas' } },
+            
             // Algunas conexiones adicionales entre nodos relacionados (con clase 'secondary')
             { data: { id: 'three-glsl', source: 'three', target: 'glsl', type: 'secondary' } },
             { data: { id: 'javascript-typescript', source: 'javascript', target: 'typescript', type: 'secondary' } },
@@ -282,9 +329,42 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'nodejs-javascript', source: 'nodejs', target: 'javascript', type: 'secondary' } },
             { data: { id: 'nodejs-typescript', source: 'nodejs', target: 'typescript', type: 'secondary' } },
             { data: { id: 'openframeworks-cpp', source: 'openframeworks', target: 'cpp', type: 'secondary' } },
+            { data: { id: 'engines-openframeworks', source: 'engines', target: 'openframeworks', type: 'secondary' } },
             { data: { id: 'comfy-python', source: 'comfy', target: 'python', type: 'secondary' } },
             { data: { id: 'n8n-python', source: 'n8n', target: 'python', type: 'secondary' } },
             { data: { id: 'pinokio-python', source: 'pinokio', target: 'python', type: 'secondary' } },
+            { data: { id: 'ml5-javascript', source: 'ml5', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'hydra-javascript', source: 'hydra', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'arduino-cpp', source: 'arduino', target: 'cpp', type: 'secondary' } },
+            { data: { id: 'pantalla-touch-android', source: 'pantalla-touch', target: 'android', type: 'secondary' } },
+            { data: { id: 'instalaciones-fisicas-arduino', source: 'instalaciones-fisicas', target: 'arduino', type: 'secondary' } },
+            
+            // Conexiones con sistemas operativos
+            { data: { id: 'unity-windows', source: 'unity', target: 'windows', type: 'secondary' } },
+            { data: { id: 'unity-mac', source: 'unity', target: 'mac', type: 'secondary' } },
+            { data: { id: 'unity-linux', source: 'unity', target: 'linux', type: 'secondary' } },
+            { data: { id: 'unity-android', source: 'unity', target: 'android', type: 'secondary' } },
+            { data: { id: 'unity-ios', source: 'unity', target: 'ios', type: 'secondary' } },
+            
+            { data: { id: 'unreal-windows', source: 'unreal', target: 'windows', type: 'secondary' } },
+            { data: { id: 'unreal-mac', source: 'unreal', target: 'mac', type: 'secondary' } },
+            
+            { data: { id: 'godot-windows', source: 'godot', target: 'windows', type: 'secondary' } },
+            { data: { id: 'godot-mac', source: 'godot', target: 'mac', type: 'secondary' } },
+            { data: { id: 'godot-linux', source: 'godot', target: 'linux', type: 'secondary' } },
+            { data: { id: 'godot-android', source: 'godot', target: 'android', type: 'secondary' } },
+            
+            { data: { id: 'processing-windows', source: 'processing', target: 'windows', type: 'secondary' } },
+            { data: { id: 'processing-mac', source: 'processing', target: 'mac', type: 'secondary' } },
+            { data: { id: 'processing-linux', source: 'processing', target: 'linux', type: 'secondary' } },
+            { data: { id: 'processing-android', source: 'processing', target: 'android', type: 'secondary' } },
+            
+            { data: { id: 'openframeworks-windows', source: 'openframeworks', target: 'windows', type: 'secondary' } },
+            { data: { id: 'openframeworks-mac', source: 'openframeworks', target: 'mac', type: 'secondary' } },
+            { data: { id: 'openframeworks-linux', source: 'openframeworks', target: 'linux', type: 'secondary' } },
+            
+            { data: { id: 'touchdesigner-windows', source: 'touchdesigner', target: 'windows', type: 'secondary' } },
+            { data: { id: 'touchdesigner-mac', source: 'touchdesigner', target: 'mac', type: 'secondary' } },
         ],
         style: [
             {
@@ -380,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -395,16 +475,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
                     'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'openframeworks': 'frameworks',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'openframeworks': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
-                    'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides',
+                    'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
-                    'html': 'languages', 'css': 'languages', 'json': 'languages',
+                    'html': 'languages', 'css': 'languages', 'json': 'languages', 'r': 'languages', 'arduino': 'languages',
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
-                    'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm'
+                    'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
+                    'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes'
                 };
                 
                 // Definir las bibliotecas de Python como nodos especiales
@@ -412,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
@@ -432,19 +514,24 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         
                         // Si hay más de 3 elementos, reiniciar ángulo y aumentar distancia
-                        if (siblings.length > 3) {
+
+                        let cnt = 3;
+
+                        if (siblings.length >  cnt) {
                             // Dividir en grupos de 3
-                            const groupIndex = Math.floor(siblingIndex / 3);
-                            const posInGroup = siblingIndex % 3;
+                            const groupIndex = Math.floor(siblingIndex / cnt);
+                            const posInGroup = siblingIndex % cnt;
                             
                             // Aumentar radio para cada grupo adicional
                             radius += groupIndex * CONFIG.secondaryNodeDist;
                             
                             // Calcular offset dentro del grupo
                             siblingOffset = (posInGroup - 1) * (Math.PI / 12);
+                     
                         } else {
                             // Distribución normal para 3 o menos elementos
                             siblingOffset = (siblingIndex - (siblings.length - 1) / 2) * (Math.PI / 12);
+                           // siblingOffset += Math.PI;
                         }
                         
                         return {
@@ -664,7 +751,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -679,16 +766,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
                     'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'openframeworks': 'frameworks',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'openframeworks': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
-                    'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides',
+                    'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
-                    'html': 'languages', 'css': 'languages', 'json': 'languages',
+                    'html': 'languages', 'css': 'languages', 'json': 'languages', 'r': 'languages', 'arduino': 'languages',
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
-                    'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm'
+                    'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
+                    'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes'
                 };
                 
                 // Definir las bibliotecas de Python como nodos especiales
@@ -696,7 +785,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
