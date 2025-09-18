@@ -502,6 +502,13 @@ li::before {
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.7) !important;
     transform: scale(1.1) !important;
     z-index: 1000 !important;
+    background-color: #3a3a3a !important;
+    animation: pulse-bg 1.5s infinite alternate !important;
+}
+
+@keyframes pulse-bg {
+    0% { background-color: #3a3a3a; }
+    100% { background-color: #5a5a5a; }
 }
 
 .hover-connected {

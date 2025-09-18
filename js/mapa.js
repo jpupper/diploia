@@ -7,16 +7,19 @@ const CONFIG = {
     categoryFontSize: 18,   // Tamaño de fuente para categorías
     rootFontSize: 20,       // Tamaño de fuente para el nodo raíz
     primaryDistance: 200,   // Distancia de nodo central a categorías principales
+    secondaryNodeDist: 150, // Distancia base entre nodos secundarios
     
     // Distancias variables entre categorías y sus herramientas
     categoryDistances: {
         'engines': 600,      // Distancia de Motores Gráficos a sus herramientas
         'frameworks': 800,   // Distancia de Frameworks Web a sus herramientas
         'ia': 800,           // Distancia de Herramientas IA a sus herramientas
-        'shaders': 1200,      // Distancia de Shaders a sus herramientas
+        'shaders': 1200,     // Distancia de Shaders a sus herramientas
         'db': 800,           // Distancia de Bases de Datos a sus herramientas
-        'ides': 1000,         // Distancia de IDEs a sus herramientas
-        'languages': 1200     // Distancia de Lenguajes de Programación a sus herramientas
+        'ides': 1000,        // Distancia de IDEs a sus herramientas
+        'languages': 1200,   // Distancia de Lenguajes de Programación a sus herramientas
+        'llm': 900,          // Distancia de LLM Models a sus herramientas
+        'frontend': 700      // Distancia de frameworks frontend a sus herramientas
     }
 };
 
@@ -26,6 +29,18 @@ const NODE_INFO = {
     'unreal': 'Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas.',
     'godot': 'Motor de código abierto con soporte para 2D y 3D, ideal para desarrolladores independientes.',
     'csharp': 'Lenguaje de programación orientado a objetos desarrollado por Microsoft, muy utilizado en Unity.',
+    'nodejs': 'Entorno de ejecución de JavaScript del lado del servidor, basado en el motor V8 de Chrome.',
+    'react': 'Biblioteca de JavaScript para construir interfaces de usuario interactivas y componentes reutilizables.',
+    'vue': 'Framework progresivo para construir interfaces de usuario con una arquitectura adaptable.',
+    'svelte': 'Framework que compila código en JavaScript optimizado en tiempo de compilación.',
+    'pytorch': 'Biblioteca de aprendizaje profundo para Python con aceleración GPU y flexibilidad para investigación.',
+    'pyaudio': 'Biblioteca de Python para trabajar con audio y procesamiento de señales de sonido.',
+    'pyvision': 'Conjunto de herramientas para visión por computadora y procesamiento de imágenes en Python.',
+    'chatgpt': 'Modelo de lenguaje de OpenAI para conversaciones y generación de texto natural.',
+    'deepseek': 'Modelo de lenguaje de código abierto con capacidades avanzadas de razonamiento.',
+    'gemini': 'Modelo multimodal de Google que puede procesar y generar texto, imágenes y otros formatos.',
+    'kimi': 'Asistente de IA con capacidades de razonamiento y generación de contenido creativo.',
+    'claude': 'Modelo de lenguaje de Anthropic diseñado para ser útil, inofensivo y honesto.',
     'p5': 'Biblioteca JavaScript para programación creativa con enfoque en artes visuales y web.',
     'three': 'Biblioteca JavaScript para crear y mostrar gráficos 3D animados en navegadores web.',
     'babylon': 'Framework de JavaScript para crear juegos y experiencias 3D en navegadores web.',
@@ -69,6 +84,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'db', label: 'Bases de Datos', type: 'category' } },
             { data: { id: 'ides', label: 'IDEs', type: 'category' } },
             { data: { id: 'languages', label: 'Lenguajes de Programación', type: 'category' } },
+            { data: { id: 'llm', label: 'LLM Models', type: 'category' } },
+            { data: { id: 'frontend', label: 'Frontend Frameworks', type: 'category' } },
             
             // Motores Gráficos
             { data: { id: 'unity', label: 'Unity', url: 'https://unity.com/' } },
@@ -80,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'three', label: 'Three.js', url: 'https://threejs.org/docs/' } },
             { data: { id: 'babylon', label: 'Babylon.js', url: 'https://www.babylonjs.com/' } },
             { data: { id: 'tone', label: 'Tone.js', url: 'https://tonejs.github.io/' } },
+            { data: { id: 'nodejs', label: 'Node.js', url: 'https://nodejs.org/' } },
             
             // Herramientas IA
             { data: { id: 'comfy', label: 'ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI' } },
@@ -111,6 +129,23 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'typescript', label: 'TypeScript', url: 'https://www.typescriptlang.org/' } },
             { data: { id: 'java', label: 'Java', url: 'https://www.java.com/' } },
             
+            // Frontend Frameworks
+            { data: { id: 'react', label: 'React', url: 'https://reactjs.org/' } },
+            { data: { id: 'vue', label: 'Vue.js', url: 'https://vuejs.org/' } },
+            { data: { id: 'svelte', label: 'Svelte', url: 'https://svelte.dev/' } },
+            
+            // Python Libraries
+            { data: { id: 'pytorch', label: 'PyTorch', url: 'https://pytorch.org/' } },
+            { data: { id: 'pyaudio', label: 'PyAudio', url: 'https://pypi.org/project/PyAudio/' } },
+            { data: { id: 'pyvision', label: 'PyVision', url: 'https://pypi.org/project/pyvision/' } },
+            
+            // LLM Models
+            { data: { id: 'chatgpt', label: 'ChatGPT', url: 'https://openai.com/chatgpt' } },
+            { data: { id: 'deepseek', label: 'Deepseek', url: 'https://deepseek.ai/' } },
+            { data: { id: 'gemini', label: 'Gemini', url: 'https://deepmind.google/technologies/gemini/' } },
+            { data: { id: 'kimi', label: 'Kimi', url: 'https://kimi.moonshot.cn/' } },
+            { data: { id: 'claude', label: 'Claude', url: 'https://www.anthropic.com/claude' } },
+            
             // Conexiones principales con el nodo raíz
             { data: { id: 'root-engines', source: 'root', target: 'engines' } },
             { data: { id: 'root-frameworks', source: 'root', target: 'frameworks' } },
@@ -119,6 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'root-db', source: 'root', target: 'db' } },
             { data: { id: 'root-ides', source: 'root', target: 'ides' } },
             { data: { id: 'root-languages', source: 'root', target: 'languages' } },
+            { data: { id: 'root-llm', source: 'root', target: 'llm' } },
+            { data: { id: 'root-frontend', source: 'root', target: 'frontend' } },
             
             // Conexiones de categorías a sus elementos
             // Motores Gráficos
@@ -131,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'frameworks-three', source: 'frameworks', target: 'three' } },
             { data: { id: 'frameworks-babylon', source: 'frameworks', target: 'babylon' } },
             { data: { id: 'frameworks-tone', source: 'frameworks', target: 'tone' } },
+            { data: { id: 'frameworks-nodejs', source: 'frameworks', target: 'nodejs' } },
             
             // Herramientas IA
             { data: { id: 'ia-comfy', source: 'ia', target: 'comfy' } },
@@ -162,12 +200,31 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'languages-typescript', source: 'languages', target: 'typescript' } },
             { data: { id: 'languages-java', source: 'languages', target: 'java' } },
             
+            // Frontend Frameworks
+            { data: { id: 'frontend-react', source: 'frontend', target: 'react' } },
+            { data: { id: 'frontend-vue', source: 'frontend', target: 'vue' } },
+            { data: { id: 'frontend-svelte', source: 'frontend', target: 'svelte' } },
+            
+            // Python Libraries
+            { data: { id: 'python-pytorch', source: 'python', target: 'pytorch', type: 'secondary' } },
+            { data: { id: 'python-pyaudio', source: 'python', target: 'pyaudio', type: 'secondary' } },
+            { data: { id: 'python-pyvision', source: 'python', target: 'pyvision', type: 'secondary' } },
+            
+            // LLM Models
+            { data: { id: 'llm-chatgpt', source: 'llm', target: 'chatgpt' } },
+            { data: { id: 'llm-deepseek', source: 'llm', target: 'deepseek' } },
+            { data: { id: 'llm-gemini', source: 'llm', target: 'gemini' } },
+            { data: { id: 'llm-kimi', source: 'llm', target: 'kimi' } },
+            { data: { id: 'llm-claude', source: 'llm', target: 'claude' } },
+            
             // Algunas conexiones adicionales entre nodos relacionados (con clase 'secondary')
             { data: { id: 'three-glsl', source: 'three', target: 'glsl', type: 'secondary' } },
             { data: { id: 'javascript-typescript', source: 'javascript', target: 'typescript', type: 'secondary' } },
             { data: { id: 'unity-cpp', source: 'unity', target: 'cpp', type: 'secondary' } },
             { data: { id: 'unity-csharp', source: 'unity', target: 'csharp', type: 'secondary' } },
             { data: { id: 'p5-javascript', source: 'p5', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'nodejs-javascript', source: 'nodejs', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'nodejs-typescript', source: 'nodejs', target: 'typescript', type: 'secondary' } },
         ],
         style: [
             {
@@ -187,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'width': CONFIG.secondaryNodeSize + 'px',
                     'height': CONFIG.secondaryNodeSize + 'px',
                     'padding': '15px',
-                    'transition-property': 'background-color, border-color, border-width, width, height',
+                    'transition-property': 'background-color, border-color, border-width, width, height, background-opacity',
                     'transition-duration': '0.3s',
                     'transition-timing-function': 'ease-in-out'
                 }
@@ -263,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -278,18 +335,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
                     'unity': 'engines', 'unreal': 'engines', 'godot': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
-                    'python': 'languages', 'typescript': 'languages', 'java': 'languages'
+                    'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
+                    'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
+                    'pytorch': 'python', 'pyaudio': 'python', 'pyvision': 'python',
+                    'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm'
                 };
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
@@ -298,9 +358,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (categoryIndex !== -1 && siblingIndex !== -1) {
                         const categoryAngle = (2 * Math.PI * categoryIndex) / categories.length;
-                        const siblingOffset = (siblingIndex - (siblings.length - 1) / 2) * (Math.PI / 12);
-                        // Usar distancia variable según la categoría
-                        const radius = CONFIG.categoryDistances[parentCategory] || 500;
+                        
+                        // Algoritmo mejorado para distribución de nodos secundarios
+                        let siblingOffset;
+                        let radius = CONFIG.categoryDistances[parentCategory] || 500;
+                        
+                        // Si hay más de 3 elementos, reiniciar ángulo y aumentar distancia
+                        if (siblings.length > 3) {
+                            // Dividir en grupos de 3
+                            const groupIndex = Math.floor(siblingIndex / 3);
+                            const posInGroup = siblingIndex % 3;
+                            
+                            // Aumentar radio para cada grupo adicional
+                            radius += groupIndex * CONFIG.secondaryNodeDist;
+                            
+                            // Calcular offset dentro del grupo
+                            siblingOffset = (posInGroup - 1) * (Math.PI / 12);
+                        } else {
+                            // Distribución normal para 3 o menos elementos
+                            siblingOffset = (siblingIndex - (siblings.length - 1) / 2) * (Math.PI / 12);
+                        }
                         
                         return {
                             x: radius * Math.cos(categoryAngle + siblingOffset),
@@ -319,7 +396,8 @@ document.addEventListener('DOMContentLoaded', function() {
         userPanningEnabled: true,
         boxSelectionEnabled: false,
         autounselectify: false,
-        autoungrabify: false  // Permitir arrastrar nodos
+        autoungrabify: false,  // Permitir arrastrar nodos
+        wheelSensitivity: 0.1  // Reducir la sensibilidad del zoom con la rueda
     });
     
     // Crear el elemento para mostrar información al hacer hover
@@ -481,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -496,18 +574,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
                     'unity': 'engines', 'unreal': 'engines', 'godot': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
-                    'python': 'languages', 'typescript': 'languages', 'java': 'languages'
+                    'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
+                    'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
+                    'pytorch': 'python', 'pyaudio': 'python', 'pyvision': 'python',
+                    'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm'
                 };
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
@@ -594,6 +675,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error al activar pantalla completa automáticamente:', err);
             }
         }, 1000); // Pequeño retraso para asegurar que todo está cargado
+    } else {
+        // Asegurar que el texto del botón es correcto al inicio
+        document.getElementById('fullscreen').textContent = 'Pantalla Completa';
     }
     
     // Detectar cambios en el estado de pantalla completa
