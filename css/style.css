@@ -496,7 +496,7 @@ li::before {
 }
 
 /* Estilos para hover */
-.hover {
+node.hover, .hover {
     border-width: 5px !important;
     border-color: #00ffff !important;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.7) !important;
@@ -511,17 +511,19 @@ li::before {
     100% { background-color: #5a5a5a; }
 }
 
-.hover-connected {
+node.hover-connected, .hover-connected {
     border-color: #00ccff !important;
+    border-width: 4px !important;
     box-shadow: 0 0 10px rgba(0, 204, 255, 0.5) !important;
     z-index: 999 !important;
 }
 
 /* Estilos para bordes en hover - aplicados por JavaScript */
-.cy-edge.hover {
+edge.hover, .edge.hover {
     width: 4px !important;
     z-index: 999 !important;
     opacity: 1 !important;
+    /* Nota: line-color y target-arrow-color se aplican directamente desde JavaScript */
 }
 
 /* Animaciones para el infoBox */

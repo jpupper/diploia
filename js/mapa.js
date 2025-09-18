@@ -25,46 +25,78 @@ const CONFIG = {
 
 // Descripciones de los nodos para mostrar en hover
 const NODE_INFO = {
-    'unity': 'Motor de juegos multiplataforma con potentes capacidades gráficas y físicas.',
-    'unreal': 'Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas.',
-    'godot': 'Motor de código abierto con soporte para 2D y 3D, ideal para desarrolladores independientes.',
-    'csharp': 'Lenguaje de programación orientado a objetos desarrollado por Microsoft, muy utilizado en Unity.',
-    'nodejs': 'Entorno de ejecución de JavaScript del lado del servidor, basado en el motor V8 de Chrome.',
-    'react': 'Biblioteca de JavaScript para construir interfaces de usuario interactivas y componentes reutilizables.',
-    'vue': 'Framework progresivo para construir interfaces de usuario con una arquitectura adaptable.',
-    'svelte': 'Framework que compila código en JavaScript optimizado en tiempo de compilación.',
-    'pytorch': 'Biblioteca de aprendizaje profundo para Python con aceleración GPU y flexibilidad para investigación.',
-    'pyaudio': 'Biblioteca de Python para trabajar con audio y procesamiento de señales de sonido.',
-    'pyvision': 'Conjunto de herramientas para visión por computadora y procesamiento de imágenes en Python.',
-    'chatgpt': 'Modelo de lenguaje de OpenAI para conversaciones y generación de texto natural.',
-    'deepseek': 'Modelo de lenguaje de código abierto con capacidades avanzadas de razonamiento.',
-    'gemini': 'Modelo multimodal de Google que puede procesar y generar texto, imágenes y otros formatos.',
-    'kimi': 'Asistente de IA con capacidades de razonamiento y generación de contenido creativo.',
-    'claude': 'Modelo de lenguaje de Anthropic diseñado para ser útil, inofensivo y honesto.',
-    'p5': 'Biblioteca JavaScript para programación creativa con enfoque en artes visuales y web.',
-    'three': 'Biblioteca JavaScript para crear y mostrar gráficos 3D animados en navegadores web.',
-    'babylon': 'Framework de JavaScript para crear juegos y experiencias 3D en navegadores web.',
-    'tone': 'Framework de audio web para crear experiencias musicales interactivas.',
-    'comfy': 'Interfaz gráfica para flujos de trabajo de IA generativa, especialmente para imágenes.',
-    'n8n': 'Plataforma de automatización de flujos de trabajo con integración de IA.',
-    'cursor': 'Editor de código con asistencia de IA integrada para programación.',
-    'trae': 'Asistente de programación basado en IA para desarrollo de software.',
-    'v0': 'Herramienta de generación de interfaces con IA.',
-    'windsurf': 'Plataforma de desarrollo con asistencia de IA.',
-    'shadertoy': 'Plataforma web para crear y compartir shaders en tiempo real.',
-    'glsl': 'Lenguaje de sombreado para gráficos OpenGL.',
-    'hlsl': 'Lenguaje de sombreado de alto nivel para DirectX.',
-    'bookofshaders': 'Guía paso a paso para aprender programación de shaders.',
-    'firebase': 'Plataforma de desarrollo con base de datos en tiempo real y servicios en la nube.',
-    'mongodb': 'Base de datos NoSQL orientada a documentos, flexible y escalable.',
-    'sql': 'Lenguaje estándar para gestionar bases de datos relacionales.',
-    'cpp': 'Lenguaje de programación de propósito general con control de bajo nivel.',
-    'php': 'Lenguaje de programación para desarrollo web del lado del servidor.',
-    'javascript': 'Lenguaje de programación interpretado para desarrollo web interactivo.',
-    'python': 'Lenguaje de programación de alto nivel con sintaxis clara y legible.',
-    'typescript': 'Superconjunto de JavaScript con tipado estático opcional.',
-    'java': 'Lenguaje de programación orientado a objetos, portable y de propósito general.'
+    'unity': 'Motor de juegos multiplataforma con potentes capacidades gráficas y físicas. No es open source (software propietario, de pago con versión gratuita limitada).',
+    'unreal': 'Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas. Parcialmente open source (código fuente disponible, pero con licencia comercial).',
+    'godot': 'Motor de juegos con soporte para 2D y 3D, ideal para desarrolladores independientes. Open source (MIT).',
+    'touchdesigner': 'Plataforma de desarrollo visual para contenido interactivo en tiempo real. No es open source (software propietario, de pago con versión no comercial).',
+    'processing': 'Entorno de desarrollo y lenguaje de programación enfocado en artes visuales. Open source (LGPL/GPL).',
+    'openframeworks': 'Framework C++ para programación creativa y arte interactivo. Open source (MIT).',
+    'csharp': 'Lenguaje de programación orientado a objetos desarrollado por Microsoft. Open source (.NET es MIT).',
+    'nodejs': 'Entorno de ejecución de JavaScript del lado del servidor. Open source (MIT).',
+    'websockets': 'Protocolo de comunicación bidireccional en tiempo real sobre TCP. Estándar abierto.',
+    'react': 'Biblioteca de JavaScript para construir interfaces de usuario interactivas. Open source (MIT).',
+    'vue': 'Framework progresivo para construir interfaces de usuario. Open source (MIT).',
+    'svelte': 'Framework que compila código en JavaScript optimizado en tiempo de compilación. Open source (MIT).',
+    'pytorch': 'Biblioteca de aprendizaje profundo para Python con aceleración GPU. Open source (BSD).',
+    'pyaudio': 'Biblioteca de Python para trabajar con audio y procesamiento de señales. Open source (MIT).',
+    'pyvision': 'Conjunto de herramientas para visión por computadora en Python. Open source.',
+    'chatgpt': 'Modelo de lenguaje de OpenAI para conversaciones y generación de texto. No es open source (servicio de pago con API).',
+    'deepseek': 'Modelo de lenguaje con capacidades avanzadas de razonamiento. Open source.',
+    'gemini': 'Modelo multimodal de Google que procesa texto, imágenes y otros formatos. No es open source (servicio de pago con versión gratuita).',
+    'kimi': 'Asistente de IA con capacidades de razonamiento y generación creativa. No es open source (servicio de pago).',
+    'claude': 'Modelo de lenguaje de Anthropic diseñado para ser útil e inofensivo. No es open source (servicio de pago con versión gratuita).',
+    'pinokio': 'Asistente de IA enfocado en automatización y ejecución de tareas. Open source.',
+    'p5': 'Biblioteca JavaScript para programación creativa con enfoque en artes visuales. Open source (LGPL).',
+    'three': 'Biblioteca JavaScript para crear y mostrar gráficos 3D en navegadores. Open source (MIT).',
+    'babylon': 'Framework de JavaScript para crear juegos y experiencias 3D web. Open source (Apache 2.0).',
+    'tone': 'Framework de audio web para crear experiencias musicales interactivas. Open source (MIT).',
+    'comfy': 'Interfaz gráfica para flujos de trabajo de IA generativa. Open source (GPL), pero algunos modelos requieren pago.',
+    'n8n': 'Plataforma de automatización de flujos de trabajo con integración de IA. Open source (Apache 2.0), con versión cloud de pago.',
+    'cursor': 'Editor de código con asistencia de IA integrada. No es open source (servicio de pago con versión gratuita).',
+    'trae': 'Asistente de programación basado en IA para desarrollo. No es open source (servicio de pago).',
+    'v0': 'Herramienta de generación de interfaces con IA. No es open source (servicio de pago con versión gratuita limitada).',
+    'windsurf': 'Plataforma de desarrollo con asistencia de IA. No es open source (servicio de pago con versión gratuita limitada).',
+    'shadertoy': 'Plataforma web para crear y compartir shaders en tiempo real. No es open source (plataforma propietaria), pero los shaders son públicos.',
+    'glsl': 'Lenguaje de sombreado para gráficos OpenGL. Estándar abierto.',
+    'hlsl': 'Lenguaje de sombreado de alto nivel para DirectX. No es open source (propiedad de Microsoft).',
+    'bookofshaders': 'Guía paso a paso para aprender programación de shaders. Open source (contenido abierto, CC).',
+    'firebase': 'Plataforma de desarrollo con base de datos en tiempo real. No es open source (servicio de pago con nivel gratuito).',
+    'mongodb': 'Base de datos NoSQL orientada a documentos. Licencia dual (SSPL/comercial).',
+    'sql': 'Lenguaje estándar para gestionar bases de datos relacionales. Estándar abierto.',
+    'cpp': 'Lenguaje de programación de propósito general con control de bajo nivel. Estándar abierto.',
+    'php': 'Lenguaje de programación para desarrollo web del lado del servidor. Open source (PHP License).',
+    'javascript': 'Lenguaje de programación interpretado para desarrollo web. Estándar abierto (ECMA).',
+    'python': 'Lenguaje de programación de alto nivel con sintaxis clara. Open source (PSF License).',
+    'typescript': 'Superconjunto de JavaScript con tipado estático opcional. Open source (Apache 2.0).',
+    'java': 'Lenguaje de programación orientado a objetos y portable. Parcialmente open source (OpenJDK).',
+    'html': 'Lenguaje de marcado para estructurar contenido web. Estándar abierto (W3C).',
+    'css': 'Lenguaje de hojas de estilo para diseño web. Estándar abierto (W3C).',
+    'json': 'Formato ligero de intercambio de datos. Estándar abierto.'
 };
+
+// Función para posicionar las bibliotecas de Python alrededor del nodo Python
+function positionPythonLibraries(cy) {
+    const pythonLibs = ['pytorch', 'pyaudio', 'pyvision'];
+    const pythonNode = cy.getElementById('python');
+    
+    if (pythonNode.length > 0) {
+        const pythonPos = pythonNode.position();
+        
+        pythonLibs.forEach((libId, index) => {
+            const libNode = cy.getElementById(libId);
+            if (libNode.length > 0) {
+                // Calcular posición relativa alrededor de Python
+                const angle = ((index + 1) / (pythonLibs.length + 1)) * 2 * Math.PI;
+                const radius = 150; // Radio cercano alrededor de Python
+                
+                libNode.position({
+                    x: pythonPos.x + radius * Math.cos(angle),
+                    y: pythonPos.y + radius * Math.sin(angle)
+                });
+            }
+        });
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     // Verificar parámetro de fullscreen en la URL
@@ -91,6 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'unity', label: 'Unity', url: 'https://unity.com/' } },
             { data: { id: 'unreal', label: 'Unreal Engine', url: 'https://www.unrealengine.com/' } },
             { data: { id: 'godot', label: 'Godot', url: 'https://godotengine.org/' } },
+            { data: { id: 'touchdesigner', label: 'TouchDesigner', url: 'https://derivative.ca/' } },
+            { data: { id: 'processing', label: 'Processing', url: 'https://processing.org/' } },
             
             // Frameworks Web
             { data: { id: 'p5', label: 'P5.js', url: 'https://p5js.org/es/' } },
@@ -98,10 +132,13 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'babylon', label: 'Babylon.js', url: 'https://www.babylonjs.com/' } },
             { data: { id: 'tone', label: 'Tone.js', url: 'https://tonejs.github.io/' } },
             { data: { id: 'nodejs', label: 'Node.js', url: 'https://nodejs.org/' } },
+            { data: { id: 'websockets', label: 'WebSockets', url: 'https://developer.mozilla.org/es/docs/Web/API/WebSockets_API' } },
+            { data: { id: 'openframeworks', label: 'OpenFrameworks', url: 'https://openframeworks.cc/' } },
             
             // Herramientas IA
             { data: { id: 'comfy', label: 'ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI' } },
             { data: { id: 'n8n', label: 'n8n', url: 'https://n8n.io/' } },
+            { data: { id: 'pinokio', label: 'Pinokio', url: 'https://pinokio.computer/' } },
             
             // IDEs
             { data: { id: 'cursor', label: 'Cursor Editor', url: 'https://cursor.sh/' } },
@@ -128,6 +165,9 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'python', label: 'Python', url: 'https://www.python.org/' } },
             { data: { id: 'typescript', label: 'TypeScript', url: 'https://www.typescriptlang.org/' } },
             { data: { id: 'java', label: 'Java', url: 'https://www.java.com/' } },
+            { data: { id: 'html', label: 'HTML', url: 'https://developer.mozilla.org/es/docs/Web/HTML' } },
+            { data: { id: 'css', label: 'CSS', url: 'https://developer.mozilla.org/es/docs/Web/CSS' } },
+            { data: { id: 'json', label: 'JSON', url: 'https://www.json.org/' } },
             
             // Frontend Frameworks
             { data: { id: 'react', label: 'React', url: 'https://reactjs.org/' } },
@@ -162,6 +202,8 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'engines-unity', source: 'engines', target: 'unity' } },
             { data: { id: 'engines-unreal', source: 'engines', target: 'unreal' } },
             { data: { id: 'engines-godot', source: 'engines', target: 'godot' } },
+            { data: { id: 'engines-touchdesigner', source: 'engines', target: 'touchdesigner' } },
+            { data: { id: 'engines-processing', source: 'engines', target: 'processing' } },
             
             // Frameworks Web
             { data: { id: 'frameworks-p5', source: 'frameworks', target: 'p5' } },
@@ -169,10 +211,13 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'frameworks-babylon', source: 'frameworks', target: 'babylon' } },
             { data: { id: 'frameworks-tone', source: 'frameworks', target: 'tone' } },
             { data: { id: 'frameworks-nodejs', source: 'frameworks', target: 'nodejs' } },
+            { data: { id: 'frameworks-websockets', source: 'frameworks', target: 'websockets' } },
+            { data: { id: 'frameworks-openframeworks', source: 'frameworks', target: 'openframeworks' } },
             
             // Herramientas IA
             { data: { id: 'ia-comfy', source: 'ia', target: 'comfy' } },
             { data: { id: 'ia-n8n', source: 'ia', target: 'n8n' } },
+            { data: { id: 'ia-pinokio', source: 'ia', target: 'pinokio' } },
             
             // IDEs
             { data: { id: 'ides-cursor', source: 'ides', target: 'cursor' } },
@@ -199,6 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
             { data: { id: 'languages-python', source: 'languages', target: 'python' } },
             { data: { id: 'languages-typescript', source: 'languages', target: 'typescript' } },
             { data: { id: 'languages-java', source: 'languages', target: 'java' } },
+            { data: { id: 'languages-html', source: 'languages', target: 'html' } },
+            { data: { id: 'languages-css', source: 'languages', target: 'css' } },
+            { data: { id: 'languages-json', source: 'languages', target: 'json' } },
             
             // Frontend Frameworks
             { data: { id: 'frontend-react', source: 'frontend', target: 'react' } },
@@ -220,11 +268,23 @@ document.addEventListener('DOMContentLoaded', function() {
             // Algunas conexiones adicionales entre nodos relacionados (con clase 'secondary')
             { data: { id: 'three-glsl', source: 'three', target: 'glsl', type: 'secondary' } },
             { data: { id: 'javascript-typescript', source: 'javascript', target: 'typescript', type: 'secondary' } },
-            { data: { id: 'unity-cpp', source: 'unity', target: 'cpp', type: 'secondary' } },
             { data: { id: 'unity-csharp', source: 'unity', target: 'csharp', type: 'secondary' } },
+            { data: { id: 'unity-hlsl', source: 'unity', target: 'hlsl', type: 'secondary' } },
+            { data: { id: 'unreal-cpp', source: 'unreal', target: 'cpp', type: 'secondary' } },
+            { data: { id: 'unreal-hlsl', source: 'unreal', target: 'hlsl', type: 'secondary' } },
+            { data: { id: 'godot-glsl', source: 'godot', target: 'glsl', type: 'secondary' } },
             { data: { id: 'p5-javascript', source: 'p5', target: 'javascript', type: 'secondary' } },
+            { data: { id: 'p5-glsl', source: 'p5', target: 'glsl', type: 'secondary' } },
+            { data: { id: 'babylon-glsl', source: 'babylon', target: 'glsl', type: 'secondary' } },
+            { data: { id: 'touchdesigner-python', source: 'touchdesigner', target: 'python', type: 'secondary' } },
+            { data: { id: 'touchdesigner-glsl', source: 'touchdesigner', target: 'glsl', type: 'secondary' } },
+            { data: { id: 'processing-java', source: 'processing', target: 'java', type: 'secondary' } },
             { data: { id: 'nodejs-javascript', source: 'nodejs', target: 'javascript', type: 'secondary' } },
             { data: { id: 'nodejs-typescript', source: 'nodejs', target: 'typescript', type: 'secondary' } },
+            { data: { id: 'openframeworks-cpp', source: 'openframeworks', target: 'cpp', type: 'secondary' } },
+            { data: { id: 'comfy-python', source: 'comfy', target: 'python', type: 'secondary' } },
+            { data: { id: 'n8n-python', source: 'n8n', target: 'python', type: 'secondary' } },
+            { data: { id: 'pinokio-python', source: 'pinokio', target: 'python', type: 'secondary' } },
         ],
         style: [
             {
@@ -334,18 +394,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
-                    'unity': 'engines', 'unreal': 'engines', 'godot': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks',
-                    'comfy': 'ia', 'n8n': 'ia',
+                    'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'openframeworks': 'frameworks',
+                    'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
+                    'html': 'languages', 'css': 'languages', 'json': 'languages',
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
-                    'pytorch': 'python', 'pyaudio': 'python', 'pyvision': 'python',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm'
                 };
+                
+                // Definir las bibliotecas de Python como nodos especiales
+                const pythonLibs = ['pytorch', 'pyaudio', 'pyvision'];
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
@@ -362,6 +425,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Algoritmo mejorado para distribución de nodos secundarios
                         let siblingOffset;
                         let radius = CONFIG.categoryDistances[parentCategory] || 500;
+                        
+                        // Caso especial para las bibliotecas de Python
+                        if (pythonLibs.includes(node.id())) {
+                            return null; // Devolver null para que se maneje en el evento move
+                        }
                         
                         // Si hay más de 3 elementos, reiniciar ángulo y aumentar distancia
                         if (siblings.length > 3) {
@@ -478,14 +546,33 @@ document.addEventListener('DOMContentLoaded', function() {
         var nodeId = node.id();
         var nodeInfo = NODE_INFO[nodeId];
         
-        // Resaltar el nodo y sus conexiones
-        node.addClass('hover');
-        var connectedEdges = node.connectedEdges();
-        connectedEdges.addClass('hover');
-        var connectedNodes = node.neighborhood('node');
-        connectedNodes.addClass('hover-connected');
+        // Aplicar estilo directamente para asegurar que se aplique
+        node.style({
+            'border-width': '5px',
+            'border-color': '#00ffff',
+            'background-color': '#3a3a3a',
+            'z-index': 1000
+        });
         
-        if (nodeInfo && !node.data('type')) { // Solo para nodos que no son categorías
+        // Obtener todas las conexiones entrantes y salientes
+        var connectedEdges = node.connectedEdges();
+        connectedEdges.style({
+            'width': '4px',
+            'line-color': '#00ffff',
+            'target-arrow-color': '#00ffff',
+            'opacity': 1,
+            'z-index': 999
+        });
+        
+        // Resaltar nodos conectados
+        var connectedNodes = node.neighborhood('node');
+        connectedNodes.style({
+            'border-color': '#00ccff',
+            'border-width': '4px',
+            'z-index': 999
+        });
+        
+        if (nodeInfo) { // Mostrar info para todos los nodos
             infoBox.textContent = nodeInfo;
             infoBox.style.display = 'block';
             infoBox.style.opacity = 0;
@@ -505,10 +592,16 @@ document.addEventListener('DOMContentLoaded', function() {
     cy.on('mouseout', 'node', function(evt){
         var node = evt.target;
         
-        // Quitar resaltado
-        node.removeClass('hover');
-        cy.edges().removeClass('hover');
-        cy.nodes().removeClass('hover-connected');
+        // Restaurar estilos originales
+        node.removeStyle('border-width border-color background-color z-index');
+        
+        // Restaurar estilos de bordes
+        var connectedEdges = node.connectedEdges();
+        connectedEdges.removeStyle('width line-color target-arrow-color opacity z-index');
+        
+        // Restaurar estilos de nodos conectados
+        var connectedNodes = node.neighborhood('node');
+        connectedNodes.removeStyle('border-color border-width z-index');
         
         // Ocultar infoBox con animación
         infoBox.style.opacity = 0;
@@ -526,6 +619,18 @@ document.addEventListener('DOMContentLoaded', function() {
             infoBox.style.left = (evt.renderedPosition.x + 20) + 'px';
             infoBox.style.top = (evt.renderedPosition.y + 20) + 'px';
         }
+    });
+    
+
+    
+    // Reposicionar las bibliotecas de Python cuando se mueva el nodo Python
+    cy.on('position', 'node#python', function() {
+        positionPythonLibraries(cy);
+    });
+    
+    // Reposicionar las bibliotecas de Python cuando finalice cualquier arrastre
+    cy.on('dragfree', function() {
+        positionPythonLibraries(cy);
     });
     
     // Controles de zoom
@@ -573,18 +678,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
-                    'unity': 'engines', 'unreal': 'engines', 'godot': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks',
-                    'comfy': 'ia', 'n8n': 'ia',
+                    'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'openframeworks': 'frameworks',
+                    'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
+                    'html': 'languages', 'css': 'languages', 'json': 'languages',
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend',
-                    'pytorch': 'python', 'pyaudio': 'python', 'pyvision': 'python',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm'
                 };
+                
+                // Definir las bibliotecas de Python como nodos especiales
+                const pythonLibs = ['pytorch', 'pyaudio', 'pyvision'];
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
@@ -656,29 +764,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Activar fullscreen automáticamente si está en la URL
-    if (autoFullscreen) {
-        setTimeout(function() {
-            var elem = document.getElementById('cy');
-            try {
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.mozRequestFullScreen) {
-                    elem.mozRequestFullScreen();
-                } else if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) {
-                    elem.msRequestFullscreen();
-                }
-                document.getElementById('fullscreen').textContent = 'Salir';
-            } catch (err) {
-                console.error('Error al activar pantalla completa automáticamente:', err);
-            }
-        }, 1000); // Pequeño retraso para asegurar que todo está cargado
-    } else {
-        // Asegurar que el texto del botón es correcto al inicio
-        document.getElementById('fullscreen').textContent = 'Pantalla Completa';
-    }
+    // Ya no activamos fullscreen automáticamente
+    // Asegurar que el texto del botón es correcto al inicio
+    document.getElementById('fullscreen').textContent = 'Pantalla Completa';
     
     // Detectar cambios en el estado de pantalla completa
     document.addEventListener('fullscreenchange', updateFullscreenButton);
@@ -694,4 +782,6 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Pantalla Completa';
         }
     }
+        // Posicionar las bibliotecas de Python inicialmente
+        positionPythonLibraries(cy);
 });
