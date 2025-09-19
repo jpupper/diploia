@@ -15,10 +15,11 @@
             padding: 0;
         }
         main {
-            height: calc(100vh - 100px);
+            height: calc(100vh - 60px);
             padding: 0;
             margin: 0;
             max-width: 100%;
+            margin-top: 60px;
         }
         .container {
             max-width: 100%;
@@ -32,7 +33,7 @@
         }
         #cy {
             width: 100%;
-            height: calc(100vh - 160px);
+            height: calc(100vh - 60px);
             background-color: rgba(18, 18, 18, 0.6);
             border-radius: 0;
             margin: 0;
@@ -87,10 +88,17 @@
     </style>
 </head>
 <body>
-    <header>
+    <header class="compact-header">
         <div class="container">
-            <h1>MODULO Código</h1>
-            <p>Mapa de Herramientas</p>
+            <div class="header-content">
+                <h1>MODULO CÓDIGO</h1>
+                <nav class="main-nav">
+                    <a href="index.html" class="nav-link">Inicio</a>
+                    <a href="clases.html" class="nav-link">Clases</a>
+                    <a href="trabajopractico.html" class="nav-link">Trabajo Práctico</a>
+                    <a href="mapadeherramientas.html" class="nav-link active">Mapa de Herramientas</a>
+                </nav>
+            </div>
         </div>
     </header>
 

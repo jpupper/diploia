@@ -1,8 +1,8 @@
 // Variables globales de configuración
 const CONFIG = {
-    rootNodeSize: 100,          // Tamaño para el nodo raíz
-    primaryNodeSize: 80,        // Tamaño para categorías
-    secondaryNodeSize: 60,      // Tamaño para nodos secundarios
+    rootNodeSize: 200,          // Tamaño para el nodo raíz
+    primaryNodeSize: 100,        // Tamaño para categorías
+    secondaryNodeSize: 90,      // Tamaño para nodos secundarios
     nodeFontSize: 14,           // Tamaño de fuente para nodos normales
     categoryFontSize: 18,       // Tamaño de fuente para categorías
     rootFontSize: 20,           // Tamaño de fuente para el nodo raíz
@@ -19,7 +19,7 @@ const CONFIG = {
         'llm': 1000,             // Distancia de LLM Models al nodo central
         'frontend': 500,        // Distancia de frameworks frontend al nodo central
         'os': 1000,              // Distancia de Sistemas Operativos al nodo central
-        'soportes': 650,        // Distancia de Soportes al nodo central
+        'soportes': 1600,        // Distancia de Soportes al nodo central
         'protocolos': 1200,      // Distancia de Protocolos de Comunicación al nodo central
         'software-multimedia': 900, // Distancia de Software Multimediales al nodo central
         'glosario': 1200         // Distancia de Glosario al nodo central
@@ -35,7 +35,7 @@ const CONFIG = {
         'llm': 200,             // Distancia de LLM Models a sus herramientas
         'frontend': 200,        // Distancia de frameworks frontend a sus herramientas
         'os': 200,              // Distancia de Sistemas Operativos a sus elementos
-        'soportes': 200,        // Distancia de Soportes a sus elementos
+        'soportes': 250,        // Distancia de Soportes a sus elementos
         'protocolos': 200,      // Distancia de Protocolos de Comunicación a sus elementos
         'software-multimedia': 200, // Distancia de Software Multimediales a sus elementos
         'glosario': 200         // Distancia de Glosario a sus elementos
