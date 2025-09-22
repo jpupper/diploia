@@ -355,7 +355,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         if (nodeInfo) { // Mostrar info para todos los nodos
-            infoBox.textContent = nodeInfo;
+            // Usar innerHTML en lugar de textContent para permitir HTML
+            infoBox.innerHTML = nodeInfo;
             infoBox.style.display = 'block';
             infoBox.style.opacity = 0;
             

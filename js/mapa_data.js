@@ -13,7 +13,7 @@ const CONFIG = {
     primaryDistance: 200,       // Distancia de nodo central a categorías principales
     categoryDistancesMain: {     // Distancias personalizadas para cada categoría al nodo central
         'engines': 1200,          // Distancia de Motores Gráficos al nodo central
-        'frameworks': 1000,       // Distancia de Frameworks Web al nodo central
+        'frameworks': 1200,       // Distancia de Frameworks Web al nodo central
         'ia': 500,              // Distancia de Herramientas IA al nodo central
         'shaders': 1000,         // Distancia de Shaders al nodo central
         'db': 600,              // Distancia de Bases de Datos al nodo central
@@ -48,117 +48,450 @@ const CONFIG = {
 // Descripciones de los nodos para mostrar en hover
 const NODE_INFO = {
     // Descripciones de las categorías principales
-    'engines': 'Motores gráficos y entornos de desarrollo para crear aplicaciones interactivas, videojuegos y experiencias visuales. Estas herramientas proporcionan frameworks completos con capacidades de renderizado, física, audio y más.',
-    'frameworks': 'Bibliotecas y frameworks que facilitan el desarrollo web y multimedia. Proporcionan estructuras y funciones predefinidas para agilizar la creación de aplicaciones y contenido interactivo.',
-    'ia': 'Herramientas de Inteligencia Artificial para la generación de contenido, automatización de tareas y asistencia en el proceso creativo. Incluye modelos de generación de imágenes, texto y otros tipos de contenido.',
-    'shaders': 'Programas que se ejecutan en la GPU para crear efectos visuales y gráficos avanzados. Los shaders permiten manipular píxeles, vértices y geometría para crear visuales complejos y efectos en tiempo real.',
-    'db': 'Sistemas de bases de datos para almacenar, organizar y recuperar información. Incluye bases de datos relacionales, NoSQL y servicios en la nube para gestión de datos.',
-    'ides': 'Entornos de Desarrollo Integrado que facilitan la escritura, prueba y depuración de código. Proporcionan herramientas como editores de código, depuradores y funciones de autocompletado.',
-    'languages': 'Lenguajes de programación utilizados para desarrollar aplicaciones, sitios web y experiencias interactivas. Cada lenguaje tiene sus propias características, sintaxis y casos de uso.',
-    'llm': 'Modelos de Lenguaje de Gran Escala (Large Language Models) que utilizan aprendizaje profundo para generar y comprender texto. Son útiles para asistencia en programación, generación de contenido y más.',
-    'frontend': 'Frameworks para desarrollo de interfaces de usuario web. Facilitan la creación de aplicaciones web interactivas y reactivas con componentes reutilizables.',
-    'os': 'Sistemas Operativos que sirven como plataforma base para ejecutar aplicaciones y software. Cada sistema operativo tiene sus propias características, limitaciones y ventajas.',
-    'soportes': 'Medios físicos y digitales donde se pueden implementar y mostrar proyectos interactivos. Incluye dispositivos, plataformas y formatos para la distribución de contenido.',
-    'protocolos': 'Estándares y protocolos de comunicación que permiten la interacción entre diferentes sistemas, dispositivos y aplicaciones. Facilitan el intercambio de datos y la interoperabilidad.',
-    'software-multimedia': 'Aplicaciones especializadas para la creación, edición y procesamiento de contenido multimedia como video, audio, gráficos 3D y efectos visuales.',
-    'glosario': 'Términos y conceptos fundamentales relacionados con la programación, el desarrollo de software y las tecnologías creativas. Sirve como referencia para entender la terminología técnica.',
-    'unity': 'Motor de juegos multiplataforma con potentes capacidades gráficas y físicas. No es open source (software propietario, de pago con versión gratuita limitada). Se usa para desarrollo de videojuegos, visualizaciones 3D, realidad virtual y aumentada.',
-    'unreal': 'Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas. Parcialmente open source (código fuente disponible, pero con licencia comercial). Se usa para videojuegos de alta calidad, cine virtual, arquitectura y visualización.',
-    'godot': 'Motor de juegos con soporte para 2D y 3D, ideal para desarrolladores independientes. Open source (MIT). Se usa para videojuegos independientes, prototipado rápido, proyectos educativos.',
-    'touchdesigner': 'Plataforma de desarrollo visual para contenido interactivo en tiempo real. No es open source (software propietario, de pago con versión no comercial). Se usa para arte digital, instalaciones interactivas, visuales en vivo, mapping.',
-    'processing': 'Entorno de desarrollo y lenguaje de programación enfocado en artes visuales. Open source (LGPL/GPL). Se usa para arte generativo, visualización de datos, prototipado, educación.',
-    'openframeworks': 'Framework C++ para programación creativa y arte interactivo. Open source (MIT). Se usa para instalaciones interactivas, arte digital, visuales en tiempo real.',
-    'csharp': 'Lenguaje de programación orientado a objetos desarrollado por Microsoft. Open source (.NET es MIT). Se usa para desarrollo de aplicaciones Windows, Unity, servicios web.',
-    'nodejs': 'Entorno de ejecución de JavaScript del lado del servidor. Open source (MIT). Se usa para servidores web, APIs, aplicaciones en tiempo real, microservicios.',
-    'websockets': 'Protocolo de comunicación bidireccional en tiempo real sobre TCP. Estándar abierto. Se usa para chats, juegos multijugador, actualizaciones en tiempo real, dashboards.',
-    'react': 'Biblioteca de JavaScript para construir interfaces de usuario interactivas. Open source (MIT). Se usa para aplicaciones web, interfaces de usuario, SPAs.',
-    'vue': 'Framework progresivo para construir interfaces de usuario. Open source (MIT). Se usa para aplicaciones web, interfaces de usuario, integración progresiva.',
-    'svelte': 'Framework que compila código en JavaScript optimizado en tiempo de compilación. Open source (MIT). Se usa para aplicaciones web ligeras, componentes interactivos, visualizaciones.',
-    'chatgpt': 'Modelo de lenguaje de OpenAI para conversaciones y generación de texto. No es open source (servicio de pago con API). Se usa para asistentes virtuales, generación de contenido, respuesta a preguntas.',
-    'deepseek': 'Modelo de lenguaje con capacidades avanzadas de razonamiento. Open source. Se usa para generación de código, asistencia en programación, razonamiento lógico.',
-    'gemini': 'Modelo multimodal de Google que procesa texto, imágenes y otros formatos. No es open source (servicio de pago con versión gratuita). Se usa para asistentes virtuales, análisis multimodal, generación de contenido.',
-    'kimi': 'Asistente de IA con capacidades de razonamiento y generación creativa. No es open source (servicio de pago). Se usa para asistencia creativa, generación de contenido, respuesta a consultas.',
-    'claude': 'Modelo de lenguaje de Anthropic diseñado para ser útil e inofensivo. No es open source (servicio de pago con versión gratuita). Se usa para asistencia virtual, generación de texto, análisis de documentos.',
-    'pinokio': 'Asistente de IA enfocado en automatización y ejecución de tareas. Open source. Se usa para automatización de flujos de trabajo, ejecución de scripts, integración de sistemas.',
-    'p5': 'Biblioteca JavaScript para programación creativa con enfoque en artes visuales. Open source (LGPL). Se usa para arte generativo, visualizaciones interactivas, educación en programación.',
-    'three': 'Biblioteca JavaScript para crear y mostrar gráficos 3D en navegadores. Open source (MIT). Se usa para visualizaciones 3D web, juegos en navegador, experiencias interactivas.',
-    'babylon': 'Framework de JavaScript para crear juegos y experiencias 3D web. Open source (Apache 2.0). Se usa para juegos web, visualizaciones 3D, realidad virtual en navegador.',
-    'tone': 'Framework de audio web para crear experiencias musicales interactivas. Open source (MIT). Se usa para música web, sintetizadores, instrumentos virtuales, arte sonoro.',
-    'ml5': 'Biblioteca de aprendizaje automático para web basada en TensorFlow.js. Open source (MIT). Se usa para proyectos de IA accesibles, arte generativo, experimentos de aprendizaje automático en navegador.',
-    'hydra': 'Plataforma de livecoding para síntesis visual en tiempo real. Open source (GPL). Se usa para performances audiovisuales, livecoding, arte generativo, visuales en vivo.',
-    'comfy': 'Interfaz gráfica para flujos de trabajo de IA generativa. Open source (GPL), pero algunos modelos requieren pago. Se usa para generación de imágenes, edición con IA, flujos de trabajo visuales.',
-    'n8n': 'Plataforma de automatización de flujos de trabajo con integración de IA. Open source (Apache 2.0), con versión cloud de pago. Se usa para automatización de procesos, integración de servicios, workflows.',
-    'cursor': 'Editor de código con asistencia de IA integrada. No es open source (servicio de pago con versión gratuita). Se usa para desarrollo de software, programación asistida por IA.',
-    'visual-studio': 'Entorno de desarrollo integrado completo. No es open source (producto de Microsoft con versión Community gratuita). Se usa para desarrollo de aplicaciones en múltiples lenguajes, especialmente .NET.',
-    'trae': 'Asistente de programación basado en IA para desarrollo. No es open source (servicio de pago). Se usa para desarrollo de software, programación asistida por IA.',
-    'v0': 'Herramienta de generación de interfaces con IA. No es open source (servicio de pago con versión gratuita limitada). Se usa para diseño de interfaces, prototipado, generación de código frontend.',
-    'windsurf': 'Plataforma de desarrollo con asistencia de IA. No es open source (servicio de pago con versión gratuita limitada). Se usa para desarrollo de software, programación asistida por IA.',
-    'shadertoy': 'Plataforma web para crear y compartir shaders en tiempo real. No es open source (plataforma propietaria), pero los shaders son públicos. Se usa para programación de shaders, efectos visuales, demostraciones gráficas.',
-    'glsl': 'Lenguaje de sombreado para gráficos OpenGL. Estándar abierto. Se usa para programación de shaders, efectos visuales, gráficos 3D.',
-    'hlsl': 'Lenguaje de sombreado de alto nivel para DirectX. No es open source (propiedad de Microsoft). Se usa para desarrollo de videojuegos, efectos visuales, gráficos 3D.',
-    'bookofshaders': 'Guía paso a paso para aprender programación de shaders. Open source (contenido abierto, CC). Se usa para educación, aprendizaje de shaders, programación gráfica.',
-    'firebase': 'Plataforma de desarrollo con base de datos en tiempo real. No es open source (servicio de pago con nivel gratuito). Se usa para aplicaciones web y móviles, autenticación, almacenamiento en la nube.',
-    'mongodb': 'Base de datos NoSQL orientada a documentos. Licencia dual (SSPL/comercial). Se usa para aplicaciones web, almacenamiento de datos no estructurados, APIs.',
-    'sql': 'Lenguaje estándar para gestionar bases de datos relacionales. Estándar abierto. Se usa para sistemas de gestión de datos, aplicaciones empresariales, análisis.',
-    'cpp': 'Lenguaje de programación de propósito general con control de bajo nivel. Estándar abierto. Se usa para desarrollo de sistemas, videojuegos, aplicaciones de alto rendimiento.',
-    'php': 'Lenguaje de programación para desarrollo web del lado del servidor. Open source (PHP License). Se usa para desarrollo web, CMS, aplicaciones de servidor.',
-    'javascript': 'Lenguaje de programación interpretado para desarrollo web. Estándar abierto (ECMA). Se usa para desarrollo web frontend, aplicaciones interactivas, servidores Node.js.',
-    'python': 'Lenguaje de programación de alto nivel con sintaxis clara. Open source (PSF License). Se usa para ciencia de datos, IA, automatización, desarrollo web.',
-    'r': 'Lenguaje de programación especializado en estadística y visualización de datos. Open source (GPL). Se usa para análisis estadístico, ciencia de datos, visualización, investigación.',
-    'arduino': 'Plataforma de hardware y software para prototipado electrónico. Open source. Se usa para proyectos DIY, robótica, arte interactivo, Internet de las Cosas.',
-    'typescript': 'Superconjunto de JavaScript con tipado estático opcional. Open source (Apache 2.0). Se usa para desarrollo web frontend, aplicaciones empresariales, proyectos grandes.',
-    'java': 'Lenguaje de programación orientado a objetos y portable. Parcialmente open source (OpenJDK). Se usa para aplicaciones empresariales, Android, sistemas distribuidos.',
-    'html': 'Lenguaje de marcado para estructurar contenido web. Estándar abierto (W3C). Se usa para desarrollo web, estructura de páginas, documentos web.',
-    'css': 'Lenguaje de hojas de estilo para diseño web. Estándar abierto (W3C). Se usa para diseño web, interfaces de usuario, animaciones.',
-    'json': 'Formato ligero de intercambio de datos. Estándar abierto. Se usa para APIs, configuraciones, almacenamiento de datos estructurados.',
-    'windows': 'Sistema operativo de Microsoft para computadoras personales. No es open source (producto comercial). Se usa para entornos de escritorio, juegos, desarrollo de software.',
-    'linux': 'Sistema operativo de código abierto basado en Unix. Open source (GPL y otras). Se usa para servidores, desarrollo, sistemas embebidos, supercomputación.',
-    'mac': 'Sistema operativo de Apple para computadoras Mac. No es open source (producto comercial). Se usa para diseño gráfico, desarrollo, producción multimedia.',
-    'android': 'Sistema operativo móvil basado en Linux desarrollado por Google. Parcialmente open source (Apache 2.0). Android admite .apk que no sean de origen del Google Play si habilitamos los permisos, pero para comercializar oficialmente una aplicación se requiere subirla al Google Play. Se usa en dispositivos móviles, pantallas y otros dispositivos electrónicos.',
-    'ios': 'Sistema operativo móvil de Apple para iPhone y iPad. No es open source (producto comercial). Para correr y compilar una aplicación en iOS se requiere una cuenta PAGA de iOS developer, subir la aplicación y pasar por una frustrante burocracia de aplicaciones, es la plataforma para desarrollar más complicada. Se usa en dispositivos móviles de Apple.',
-    'pantalla-touch': 'Interfaz de entrada basada en contacto directo con la pantalla. Existen 2 tipos de pantallas touch, los marcos touch con salida HDMI o los dispositivos touch KIOSK que vienen con un android incluido, los dispositivos KIOSK admiten compilados de .apk o se puede acceder a travez de una red local. Se usa en dispositivos móviles, quioscos interactivos, instalaciones artísticas.',
-    'instalaciones-fisicas': 'Espacios físicos con componentes electrónicos interactivos. Se usa para arte interactivo, museos, exposiciones, eventos.',
-    'raspberry-pi': 'Computadora de placa única de bajo costo y tamaño reducido. Open source (hardware). Se usa para proyectos DIY, instalaciones interactivas, Internet de las Cosas, educación.',
-    'pantalla-led': 'Dispositivo de visualización basado en diodos emisores de luz. Se usa para instalaciones artísticas, señalización digital, escenografías, mapping.',
-    'proyector': 'Dispositivo óptico que proyecta imágenes en una superficie. Se usa para videomapping, instalaciones inmersivas, proyecciones arquitectónicas, arte digital.',
-    'sitio-web': 'Conjunto de páginas web interconectadas accesibles a través de internet. Se usa para portfolios digitales, documentación de proyectos, galerías virtuales, arte web.',
-    'compilado-apk': 'Archivo de aplicación empaquetado para el sistema operativo Android. Se usa para distribuir aplicaciones móviles, instalaciones interactivas en dispositivos KIOSK, experiencias inmersivas.',
-    'xampp': 'Paquete de software libre que incluye el servidor web Apache, la base de datos MySQL/MariaDB y los intérpretes para scripts PHP y Perl. Se usa para desarrollo web local, pruebas de aplicaciones, entornos de desarrollo.',
-    'spout': 'Protocolo de intercambio de texturas en tiempo real para Windows. Open source (BSD). Se usa para compartir texturas entre aplicaciones en tiempo real, VJ, instalaciones interactivas.',
-    'syphon': 'Protocolo de intercambio de texturas en tiempo real para macOS. Open source (MIT). Se usa para compartir texturas entre aplicaciones en tiempo real, VJ, instalaciones interactivas.',
-    'ndi': 'Protocolo de vídeo en red de NewTek. Parcialmente open source. Se usa para transmisión de vídeo de alta calidad por red, producción en vivo, instalaciones interactivas.',
-    'webrtc': 'Tecnología web para comunicación en tiempo real. Open source. Se usa para videollamadas, transmisión de datos peer-to-peer, aplicaciones colaborativas.',
-    'osc': 'Protocolo de comunicación para instrumentos musicales y multimedia. Open source. Se usa para control de software multimedia, mapeo de datos, instalaciones interactivas.',
-    'resolume': 'Software para mezcla de vídeo en tiempo real y mapping. No es open source (software comercial). Se usa para VJ, mapping arquitectónico, instalaciones audiovisuales, eventos en vivo.',
-    'blender': 'Software de modelado 3D, animación, composición y renderizado. Open source (GPL). Se usa para modelado 3D, animación, efectos visuales, videojuegos.',
-    'paquete-adobe': 'Conjunto de aplicaciones para diseño gráfico, edición de video y desarrollo web. No es open source (software comercial). Incluye After Effects, Premiere, Photoshop, Illustrator, XD, entre otros. Se usa para diseño gráfico, edición de video, animación, desarrollo web.',
-    'obs': 'Software para grabación y transmisión de video en vivo. Open source (GPL). Se usa para streaming, grabación de pantalla, producción de video en vivo.',
-    'cinema4d': 'Software de modelado 3D, animación y renderizado. No es open source (software comercial). Se usa para modelado 3D, animación, efectos visuales, diseño gráfico.',
-    'angular': 'Framework de JavaScript para desarrollo de aplicaciones web. Open source (MIT). Se usa para aplicaciones web empresariales, SPAs, aplicaciones móviles híbridas.',
-    'nextjs': 'Framework de React para aplicaciones web con renderizado del lado del servidor. Open source (MIT). Se usa para sitios web con alto rendimiento SEO, aplicaciones web, e-commerce.',
-    'virtual-production': 'Técnica que combina filmación en vivo con entornos virtuales en tiempo real, especialmente utilizando Unreal Engine como plataforma principal. Se usa para producción cinematográfica, televisión, eventos en vivo, instalaciones artísticas y creación de contenido digital avanzado.',
-    'vr': 'Tecnología que permite la inmersión en entornos virtuales mediante dispositivos como Oculus Quest, HTC Vive, Valve Index y otros visores. Se usa para videojuegos inmersivos, entrenamiento, educación, arte interactivo.',
-    'ar': 'Tecnología que superpone elementos virtuales en el mundo real. Se usa principalmente en dispositivos móviles Android e iOS para aplicaciones interactivas, educación, marketing, navegación y experiencias artísticas.',
-    'api': 'Interfaz de Programación de Aplicaciones. Conjunto de reglas y protocolos que permiten la comunicación entre diferentes aplicaciones de software. Se usa para integración de servicios, acceso a datos externos, automatización de procesos.',
-    'midi': 'Protocolo estándar para la comunicación entre instrumentos musicales electrónicos y computadoras. Se usa para composición musical, control de sintetizadores, automatización de audio, instalaciones interactivas.',
-    'sonido': 'Medio de expresión artística y comunicación basado en ondas acústicas. Se usa en instalaciones sonoras, música generativa, arte interactivo, diseño de experiencias inmersivas.',
-    'videojuegos': 'Medio interactivo que combina narrativa, arte visual y programación. Se usa para entretenimiento, educación, arte interactivo, simulaciones, experiencias inmersivas.',
-    'ableton': 'Software de producción musical y actuación en vivo. No es open source (software comercial). Se usa para producción musical, actuaciones en vivo, instalaciones sonoras, arte interactivo.',
-    'puredata': 'Entorno de programación visual para audio, video y procesamiento gráfico. Open source (BSD). Se usa para arte sonoro, instalaciones interactivas, procesamiento de señales en tiempo real, música generativa.',
-    'guipper': 'Software de programación visual para la creación de gráficos generativos en tiempo real. Open source. Se usa para visuales en vivo, VJ, instalaciones interactivas, arte generativo.',
-    'mapping': 'Técnica que consiste en proyectar imágenes sobre superficies reales para conseguir efectos de movimiento o 3D. Se usa para instalaciones artísticas, eventos, espectáculos, publicidad, arquitectura.',
-    'livecoding': 'Práctica de programación en vivo donde el código se escribe y modifica en tiempo real como parte de una actuación artística o musical. Implica la creación de visuales o sonidos mediante la escritura de código frente a una audiencia, combinando programación con improvisación artística. Se utiliza en performances, instalaciones interactivas y eventos artísticos.',
-    'vibecoding': 'Práctica de programación utilizando exclusivamente modelos de lenguaje y editores de texto. Permite desarrollar código de manera fluida y conversacional, aprovechando las capacidades de los LLMs para generar, explicar y modificar código sin necesidad de entornos de desarrollo complejos.',
-    'programacion': 'Arte de crear instrucciones para que una computadora realice tareas específicas. Conceptos básicos: IF (estructura condicional que ejecuta código si se cumple una condición), Ciclos repetitivos (do, while, for: estructuras que repiten código un número determinado de veces), Clases (plantillas para crear objetos), Objetos (instancias de clases con propiedades y métodos), Listeners (funciones que esperan y responden a eventos).',
-    'prompting': 'Técnica para comunicarse eficazmente con modelos de IA mediante instrucciones precisas. Consejos para programar bien: 1) Mantener el código simple y legible, 2) Comentar adecuadamente, 3) Seguir convenciones de nomenclatura, 4) Dividir problemas complejos en partes más pequeñas, 5) Realizar pruebas frecuentes, 6) Optimizar solo cuando sea necesario, 7) Practicar la refactorización, 8) Mantener un control de versiones.',
-    'consola': 'Interfaz de línea de comandos que permite interactuar con el sistema operativo o con un programa mediante texto. Se usa para ejecutar comandos, depurar aplicaciones, monitorear procesos y realizar tareas administrativas sin necesidad de una interfaz gráfica.',
-    'script': 'Archivo de texto que contiene una serie de instrucciones que son ejecutadas secuencialmente por un intérprete. Los scripts se utilizan para automatizar tareas, configurar sistemas, procesar datos y crear funcionalidades en aplicaciones web y de escritorio.',
-    'compilado-interpretado': 'Los lenguajes compilados (como C++, Rust) traducen todo el código a lenguaje máquina antes de la ejecución, resultando en programas más rápidos pero menos flexibles. Los lenguajes interpretados (como Python, JavaScript) traducen el código línea por línea durante la ejecución, ofreciendo mayor flexibilidad pero menor rendimiento.',
-    'formatos-exe': 'Archivos ejecutables que contienen instrucciones en código máquina que pueden ser ejecutadas directamente por el sistema operativo. Incluyen .exe (Windows), .app (macOS), .apk (Android), entre otros. Estos archivos son el resultado final del proceso de compilación de un programa.',
-    'drivers': 'Software especializado que permite la comunicación entre el sistema operativo y el hardware de la computadora. Los drivers actúan como traductores entre los dispositivos físicos y el software, permitiendo que componentes como tarjetas gráficas, impresoras o controladores funcionen correctamente.',
-    'mcp': 'Model-Controller-Presenter, un patrón arquitectónico de software que extiende el MVC (Model-View-Controller) para separar mejor las responsabilidades. Se utiliza para estructurar aplicaciones complejas, mejorar la testabilidad y mantener un código más limpio y modular.',
-    'ejemplos-shaders': 'Colección de ejemplos prácticos de shaders GLSL que muestran diferentes efectos visuales y técnicas de programación gráfica. Útil para aprender y experimentar con shaders desde un nivel básico hasta avanzado.',
-    'editor-shaders-live': 'Herramienta online para escribir, editar y visualizar shaders GLSL en tiempo real. Permite experimentar con código de shaders y ver los resultados inmediatamente, facilitando el aprendizaje y la iteración rápida.'
+    'engines': `<h3>Motores Gráficos</h3>
+                <p>Motores gráficos y entornos de desarrollo para crear aplicaciones interactivas, videojuegos y experiencias visuales.</p>
+                <p><strong>Se usa para:</strong> Desarrollo de videojuegos, aplicaciones interactivas, simulaciones y experiencias visuales.</p>
+                <p><strong>Disponibilidad:</strong> Variada, desde soluciones open source hasta plataformas comerciales de pago.</p>`,
+    'frameworks': `<h3>Frameworks Web</h3>
+                   <p>Bibliotecas y frameworks que facilitan el desarrollo web y multimedia.</p>
+                   <p><strong>Se usa para:</strong> Crear aplicaciones web, interfaces interactivas y contenido multimedia en la web.</p>
+                   <p><strong>Disponibilidad:</strong> Mayormente open source bajo licencias permisivas como MIT.</p>`,
+    'ia': `<h3>Herramientas de IA</h3>
+           <p>Herramientas de Inteligencia Artificial para la generación de contenido, automatización de tareas y asistencia en el proceso creativo.</p>
+           <p><strong>Se usa para:</strong> Generación de imágenes, texto, audio y automatización de tareas creativas.</p>
+           <p><strong>Disponibilidad:</strong> Mezcla de soluciones open source y servicios comerciales.</p>`,
+    'shaders': `<h3>Shaders</h3>
+                <p>Programas que se ejecutan en la GPU para crear efectos visuales y gráficos avanzados.</p>
+                <p><strong>Se usa para:</strong> Efectos visuales, gráficos en tiempo real, procesamiento de imágenes y visuales generativos.</p>
+                <p><strong>Disponibilidad:</strong> Tecnología abierta con implementaciones específicas según plataforma.</p>`,
+    'db': `<h3>Bases de Datos</h3>
+           <p>Sistemas para almacenar, organizar y recuperar información.</p>
+           <p><strong>Se usa para:</strong> Almacenamiento persistente, gestión de datos de aplicaciones y servicios web.</p>
+           <p><strong>Disponibilidad:</strong> Opciones open source y servicios comerciales en la nube.</p>`,
+    'ides': `<h3>Entornos de Desarrollo (IDEs)</h3>
+             <p>Entornos que facilitan la escritura, prueba y depuración de código.</p>
+             <p><strong>Se usa para:</strong> Desarrollo de software, programación y gestión de proyectos de código.</p>
+             <p><strong>Disponibilidad:</strong> Desde opciones gratuitas y open source hasta soluciones comerciales premium.</p>`,
+    'languages': `<h3>Lenguajes de Programación</h3>
+                  <p>Lenguajes utilizados para desarrollar aplicaciones, sitios web y experiencias interactivas.</p>
+                  <p><strong>Se usa para:</strong> Implementar lógica, algoritmos y funcionalidades en software.</p>
+                  <p><strong>Disponibilidad:</strong> Generalmente de uso libre, con implementaciones open source y comerciales.</p>`,
+    'llm': `<h3>Modelos de Lenguaje (LLM)</h3>
+            <p>Modelos de Lenguaje de Gran Escala que utilizan aprendizaje profundo para generar y comprender texto.</p>
+            <p><strong>Se usa para:</strong> Asistencia en programación, generación de contenido, chatbots y procesamiento de lenguaje natural.</p>
+            <p><strong>Disponibilidad:</strong> Principalmente servicios comerciales con algunas opciones open source emergentes.</p>`,
+    'frontend': `<h3>Frameworks Frontend</h3>
+                 <p>Frameworks para desarrollo de interfaces de usuario web.</p>
+                 <p><strong>Se usa para:</strong> Crear aplicaciones web interactivas, SPAs y interfaces de usuario reactivas.</p>
+                 <p><strong>Disponibilidad:</strong> Mayormente open source bajo licencias como MIT.</p>`,
+    'os': `<h3>Sistemas Operativos</h3>
+           <p>Plataformas base para ejecutar aplicaciones y software.</p>
+           <p><strong>Se usa para:</strong> Proporcionar un entorno de ejecución para aplicaciones y gestionar recursos de hardware.</p>
+           <p><strong>Disponibilidad:</strong> Opciones comerciales (Windows, macOS) y open source (Linux).</p>`,
+    'soportes': `<h3>Soportes</h3>
+                 <p>Medios físicos y digitales donde se pueden implementar y mostrar proyectos interactivos.</p>
+                 <p><strong>Se usa para:</strong> Desplegar y exhibir proyectos interactivos y experiencias multimedia.</p>
+                 <p><strong>Disponibilidad:</strong> Variada, desde hardware especializado hasta plataformas web.</p>`,
+    'protocolos': `<h3>Protocolos de Comunicación</h3>
+                   <p>Estándares que permiten la interacción entre diferentes sistemas, dispositivos y aplicaciones.</p>
+                   <p><strong>Se usa para:</strong> Intercambio de datos, comunicación en tiempo real y conectividad entre sistemas.</p>
+                   <p><strong>Disponibilidad:</strong> Generalmente estándares abiertos de libre implementación.</p>`,
+    'software-multimedia': `<h3>Software Multimedia</h3>
+                            <p>Aplicaciones especializadas para la creación, edición y procesamiento de contenido multimedia.</p>
+                            <p><strong>Se usa para:</strong> Edición de video/audio, composición visual, efectos especiales y producción multimedia.</p>
+                            <p><strong>Disponibilidad:</strong> Mezcla de soluciones comerciales y alternativas open source.</p>`,
+    'glosario': `<h3>Glosario</h3>
+                 <p>Términos y conceptos fundamentales relacionados con la programación, el desarrollo de software y las tecnologías creativas.</p>
+                 <p><strong>Se usa para:</strong> Referencia técnica, aprendizaje y comprensión de terminología especializada.</p>
+                 <p><strong>Disponibilidad:</strong> Conocimiento libre y abierto.</p>`,
+    'unity': `<h3>Unity</h3>
+              <p>Motor de juegos multiplataforma con potentes capacidades gráficas y físicas.</p>
+              <p><strong>Se usa para:</strong> Desarrollo de videojuegos, visualizaciones 3D, realidad virtual y aumentada.</p>
+              <p><strong>Disponibilidad:</strong> Software propietario, de pago con versión gratuita limitada.</p>`,
+    'unreal': `<h3>Unreal Engine</h3>
+               <p>Motor de juegos de alta fidelidad visual, ideal para proyectos AAA y experiencias inmersivas.</p>
+               <p><strong>Se usa para:</strong> Videojuegos de alta calidad, cine virtual, arquitectura y visualización.</p>
+               <p><strong>Disponibilidad:</strong> Parcialmente open source (código fuente disponible, pero con licencia comercial).</p>`,
+    'godot': `<h3>Godot</h3>
+              <p>Motor de juegos con soporte para 2D y 3D, ideal para desarrolladores independientes.</p>
+              <p><strong>Se usa para:</strong> Videojuegos independientes, prototipado rápido, proyectos educativos.</p>
+              <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'touchdesigner': `<h3>TouchDesigner</h3>
+                      <p>Plataforma de desarrollo visual para contenido interactivo en tiempo real.</p>
+                      <p><strong>Se usa para:</strong> Arte digital, instalaciones interactivas, visuales en vivo, mapping.</p>
+                      <p><strong>Disponibilidad:</strong> Software propietario, de pago con versión no comercial gratuita.</p>`,
+    'processing': `<h3>Processing</h3>
+                   <p>Entorno de desarrollo y lenguaje de programación enfocado en artes visuales.</p>
+                   <p><strong>Se usa para:</strong> Arte generativo, visualización de datos, prototipado, educación.</p>
+                   <p><strong>Disponibilidad:</strong> Open source (LGPL/GPL).</p>`,
+    'openframeworks': `<h3>OpenFrameworks</h3>
+                       <p>Framework C++ para programación creativa y arte interactivo.</p>
+                       <p><strong>Se usa para:</strong> Instalaciones interactivas, arte digital, visuales en tiempo real.</p>
+                       <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'csharp': `<h3>C#</h3>
+               <p>Lenguaje de programación orientado a objetos desarrollado por Microsoft.</p>
+               <p><strong>Se usa para:</strong> Desarrollo de aplicaciones Windows, Unity, servicios web.</p>
+               <p><strong>Disponibilidad:</strong> Open source (.NET es MIT).</p>`,
+    'nodejs': `<h3>Node.js</h3>
+               <p>Entorno de ejecución de JavaScript del lado del servidor.</p>
+               <p><strong>Se usa para:</strong> Servidores web, APIs, aplicaciones en tiempo real, microservicios.</p>
+               <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'websockets': `<h3>WebSockets</h3>
+                   <p>Protocolo de comunicación bidireccional en tiempo real sobre TCP.</p>
+                   <p><strong>Se usa para:</strong> Chats, juegos multijugador, actualizaciones en tiempo real, dashboards.</p>
+                   <p><strong>Disponibilidad:</strong> Estándar abierto de libre implementación.</p>`,
+    'react': `<h3>React</h3>
+              <p>Biblioteca de JavaScript para construir interfaces de usuario interactivas.</p>
+              <p><strong>Se usa para:</strong> Aplicaciones web, interfaces de usuario, SPAs.</p>
+              <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'vue': `<h3>Vue.js</h3>
+            <p>Framework progresivo para construir interfaces de usuario.</p>
+            <p><strong>Se usa para:</strong> Aplicaciones web, interfaces de usuario, integración progresiva.</p>
+            <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'svelte': `<h3>Svelte</h3>
+               <p>Framework que compila código en JavaScript optimizado en tiempo de compilación.</p>
+               <p><strong>Se usa para:</strong> Aplicaciones web ligeras, componentes interactivos, visualizaciones.</p>
+               <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'chatgpt': `<h3>ChatGPT</h3>
+                <p>Modelo de lenguaje de OpenAI para conversaciones y generación de texto.</p>
+                <p><strong>Se usa para:</strong> Asistentes virtuales, generación de contenido, respuesta a preguntas.</p>
+                <p><strong>Disponibilidad:</strong> Servicio de pago con API.</p>`,
+    'deepseek': `<h3>DeepSeek</h3>
+                 <p>Modelo de lenguaje con capacidades avanzadas de razonamiento.</p>
+                 <p><strong>Se usa para:</strong> Generación de código, asistencia en programación, razonamiento lógico.</p>
+                 <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'gemini': `<h3>Gemini</h3>
+               <p>Modelo multimodal de Google que procesa texto, imágenes y otros formatos.</p>
+               <p><strong>Se usa para:</strong> Asistentes virtuales, análisis multimodal, generación de contenido.</p>
+               <p><strong>Disponibilidad:</strong> Servicio de pago con versión gratuita.</p>`,
+    'kimi': `<h3>Kimi</h3>
+             <p>Asistente de IA con capacidades de razonamiento y generación creativa.</p>
+             <p><strong>Se usa para:</strong> Asistencia creativa, generación de contenido, respuesta a consultas.</p>
+             <p><strong>Disponibilidad:</strong> Servicio de pago.</p>`,
+    'claude': `<h3>Claude</h3>
+               <p>Modelo de lenguaje de Anthropic diseñado para ser útil e inofensivo.</p>
+               <p><strong>Se usa para:</strong> Asistencia virtual, generación de texto, análisis de documentos.</p>
+               <p><strong>Disponibilidad:</strong> Servicio de pago con versión gratuita.</p>`,
+    'pinokio': `<h3>Pinokio</h3>
+                <p>Asistente de IA enfocado en automatización y ejecución de tareas.</p>
+                <p><strong>Se usa para:</strong> Automatización de flujos de trabajo, ejecución de scripts, integración de sistemas.</p>
+                <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'p5': `<h3>P5.js</h3>
+           <p>Biblioteca JavaScript para programación creativa con enfoque en artes visuales.</p>
+           <p><strong>Se usa para:</strong> Arte generativo, visualizaciones interactivas, educación en programación.</p>
+           <p><strong>Disponibilidad:</strong> Open source (LGPL).</p>`,
+    'three': `<h3>Three.js</h3>
+              <p>Biblioteca JavaScript para crear y mostrar gráficos 3D en navegadores.</p>
+              <p><strong>Se usa para:</strong> Visualizaciones 3D web, juegos en navegador, experiencias interactivas.</p>
+              <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'babylon': `<h3>Babylon.js</h3>
+                <p>Framework de JavaScript para crear juegos y experiencias 3D web.</p>
+                <p><strong>Se usa para:</strong> Juegos web, visualizaciones 3D, realidad virtual en navegador.</p>
+                <p><strong>Disponibilidad:</strong> Open source (Apache 2.0).</p>`,
+    'tone': `<h3>Tone.js</h3>
+             <p>Framework de audio web para crear experiencias musicales interactivas.</p>
+             <p><strong>Se usa para:</strong> Música web, sintetizadores, instrumentos virtuales, arte sonoro.</p>
+             <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'ml5': `<h3>ML5.js</h3>
+            <p>Biblioteca de aprendizaje automático para web basada en TensorFlow.js.</p>
+            <p><strong>Se usa para:</strong> Proyectos de IA accesibles, arte generativo, experimentos de aprendizaje automático en navegador.</p>
+            <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'hydra': `<h3>Hydra</h3>
+              <p>Plataforma de livecoding para síntesis visual en tiempo real.</p>
+              <p><strong>Se usa para:</strong> Performances audiovisuales, livecoding, arte generativo, visuales en vivo.</p>
+              <p><strong>Disponibilidad:</strong> Open source (GPL).</p>`,
+    'comfy': `<h3>ComfyUI</h3>
+              <p>Interfaz gráfica para flujos de trabajo de IA generativa.</p>
+              <p><strong>Se usa para:</strong> Generación de imágenes, edición con IA, flujos de trabajo visuales.</p>
+              <p><strong>Disponibilidad:</strong> Open source (GPL), pero algunos modelos requieren pago.</p>`,
+    'n8n': `<h3>n8n</h3>
+            <p>Plataforma de automatización de flujos de trabajo con integración de IA.</p>
+            <p><strong>Se usa para:</strong> Automatización de procesos, integración de servicios, workflows.</p>
+            <p><strong>Disponibilidad:</strong> Open source (Apache 2.0), con versión cloud de pago.</p>`,
+    'cursor': `<h3>Cursor</h3>
+               <p>Editor de código con asistencia de IA integrada.</p>
+               <p><strong>Se usa para:</strong> Desarrollo de software, programación asistida por IA.</p>
+               <p><strong>Disponibilidad:</strong> Servicio de pago con versión gratuita.</p>`,
+    'visual-studio': `<h3>Visual Studio</h3>
+                      <p>Entorno de desarrollo integrado completo.</p>
+                      <p><strong>Se usa para:</strong> Desarrollo de aplicaciones en múltiples lenguajes, especialmente .NET.</p>
+                      <p><strong>Disponibilidad:</strong> Producto de Microsoft con versión Community gratuita.</p>`,
+    'trae': `<h3>Trae AI</h3>
+             <p>Asistente de programación basado en IA para desarrollo.</p>
+             <p><strong>Se usa para:</strong> Desarrollo de software, programación asistida por IA.</p>
+             <p><strong>Disponibilidad:</strong> Servicio de pago.</p>`,
+    'v0': `<h3>v0.dev</h3>
+           <p>Herramienta de generación de interfaces con IA.</p>
+           <p><strong>Se usa para:</strong> Diseño de interfaces, prototipado, generación de código frontend.</p>
+           <p><strong>Disponibilidad:</strong> Servicio de pago con versión gratuita limitada.</p>`,
+    'windsurf': `<h3>Windsurf</h3>
+                 <p>Plataforma de desarrollo con asistencia de IA.</p>
+                 <p><strong>Se usa para:</strong> Desarrollo de software, programación asistida por IA.</p>
+                 <p><strong>Disponibilidad:</strong> Servicio de pago con versión gratuita limitada.</p>`,
+    'shadertoy': `<h3>ShaderToy</h3>
+                  <p>Plataforma web para crear y compartir shaders en tiempo real.</p>
+                  <p><strong>Se usa para:</strong> Programación de shaders, efectos visuales, demostraciones gráficas.</p>
+                  <p><strong>Disponibilidad:</strong> Plataforma propietaria, pero los shaders son públicos.</p>`,
+    'glsl': `<h3>GLSL</h3>
+             <p>Lenguaje de sombreado para gráficos OpenGL.</p>
+             <p><strong>Se usa para:</strong> Programación de shaders, efectos visuales, gráficos 3D.</p>
+             <p><strong>Disponibilidad:</strong> Estándar abierto.</p>`,
+    'hlsl': `<h3>HLSL</h3>
+             <p>Lenguaje de sombreado de alto nivel para DirectX.</p>
+             <p><strong>Se usa para:</strong> Desarrollo de videojuegos, efectos visuales, gráficos 3D.</p>
+             <p><strong>Disponibilidad:</strong> Propiedad de Microsoft.</p>`,
+    'bookofshaders': `<h3>Book of Shaders</h3>
+                      <p>Guía paso a paso para aprender programación de shaders.</p>
+                      <p><strong>Se usa para:</strong> Educación, aprendizaje de shaders, programación gráfica.</p>
+                      <p><strong>Disponibilidad:</strong> Contenido abierto (CC).</p>`,
+    'firebase': `<h3>Firebase</h3>
+                 <p>Plataforma de desarrollo con base de datos en tiempo real.</p>
+                 <p><strong>Se usa para:</strong> Aplicaciones web y móviles, autenticación, almacenamiento en la nube.</p>
+                 <p><strong>Disponibilidad:</strong> Servicio de pago con nivel gratuito.</p>`,
+    'mongodb': `<h3>MongoDB</h3>
+                <p>Base de datos NoSQL orientada a documentos.</p>
+                <p><strong>Se usa para:</strong> Aplicaciones web, almacenamiento de datos no estructurados, APIs.</p>
+                <p><strong>Disponibilidad:</strong> Licencia dual (SSPL/comercial).</p>`,
+    'sql': `<h3>SQL</h3>
+            <p>Lenguaje estándar para gestionar bases de datos relacionales.</p>
+            <p><strong>Se usa para:</strong> Sistemas de gestión de datos, aplicaciones empresariales, análisis.</p>
+            <p><strong>Disponibilidad:</strong> Estándar abierto.</p>`,
+    'cpp': `<h3>C++</h3>
+            <p>Lenguaje de programación de propósito general con control de bajo nivel.</p>
+            <p><strong>Se usa para:</strong> Desarrollo de sistemas, videojuegos, aplicaciones de alto rendimiento.</p>
+            <p><strong>Disponibilidad:</strong> Estándar abierto.</p>`,
+    'php': `<h3>PHP</h3>
+            <p>Lenguaje de programación para desarrollo web del lado del servidor.</p>
+            <p><strong>Se usa para:</strong> Desarrollo web, CMS, aplicaciones de servidor.</p>
+            <p><strong>Disponibilidad:</strong> Open source (PHP License).</p>`,
+    'javascript': `<h3>JavaScript</h3>
+                   <p>Lenguaje de programación interpretado para desarrollo web.</p>
+                   <p><strong>Se usa para:</strong> Desarrollo web frontend, aplicaciones interactivas, servidores Node.js.</p>
+                   <p><strong>Disponibilidad:</strong> Estándar abierto (ECMA).</p>`,
+    'python': `<h3>Python</h3>
+               <p>Lenguaje de programación de alto nivel con sintaxis clara.</p>
+               <p><strong>Se usa para:</strong> Ciencia de datos, IA, automatización, desarrollo web.</p>
+               <p><strong>Disponibilidad:</strong> Open source (PSF License).</p>`,
+    'r': `<h3>R</h3>
+          <p>Lenguaje de programación especializado en estadística y visualización de datos.</p>
+          <p><strong>Se usa para:</strong> Análisis estadístico, ciencia de datos, visualización, investigación.</p>
+          <p><strong>Disponibilidad:</strong> Open source (GPL).</p>`,
+    'arduino': `<h3>Arduino</h3>
+                <p>Plataforma de hardware y software para prototipado electrónico.</p>
+                <p><strong>Se usa para:</strong> Proyectos DIY, robótica, arte interactivo, Internet de las Cosas.</p>
+                <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'typescript': `<h3>TypeScript</h3>
+                   <p>Superconjunto de JavaScript con tipado estático opcional.</p>
+                   <p><strong>Se usa para:</strong> Desarrollo web frontend, aplicaciones empresariales, proyectos grandes.</p>
+                   <p><strong>Disponibilidad:</strong> Open source (Apache 2.0).</p>`,
+    'java': `<h3>Java</h3>
+             <p>Lenguaje de programación orientado a objetos y portable.</p>
+             <p><strong>Se usa para:</strong> Aplicaciones empresariales, Android, sistemas distribuidos.</p>
+             <p><strong>Disponibilidad:</strong> Parcialmente open source (OpenJDK).</p>`,
+    'html': `<h3>HTML</h3>
+             <p>Lenguaje de marcado para estructurar contenido web.</p>
+             <p><strong>Se usa para:</strong> Desarrollo web, estructura de páginas, documentos web.</p>
+             <p><strong>Disponibilidad:</strong> Estándar abierto (W3C).</p>`,
+    'css': `<h3>CSS</h3>
+            <p>Lenguaje de hojas de estilo para diseño web.</p>
+            <p><strong>Se usa para:</strong> Diseño web, interfaces de usuario, animaciones.</p>
+            <p><strong>Disponibilidad:</strong> Estándar abierto (W3C).</p>`,
+    'json': `<h3>JSON</h3>
+             <p>Formato ligero de intercambio de datos.</p>
+             <p><strong>Se usa para:</strong> APIs, configuraciones, almacenamiento de datos estructurados.</p>
+             <p><strong>Disponibilidad:</strong> Estándar abierto.</p>`,
+    'windows': `<h3>Windows</h3>
+                <p>Sistema operativo de Microsoft para computadoras personales.</p>
+                <p><strong>Se usa para:</strong> Entornos de escritorio, juegos, desarrollo de software.</p>
+                <p><strong>Disponibilidad:</strong> Producto comercial.</p>`,
+    'linux': `<h3>Linux</h3>
+              <p>Sistema operativo de código abierto basado en Unix.</p>
+              <p><strong>Se usa para:</strong> Servidores, desarrollo, sistemas embebidos, supercomputación.</p>
+              <p><strong>Disponibilidad:</strong> Open source (GPL y otras).</p>`,
+    'mac': `<h3>macOS</h3>
+            <p>Sistema operativo de Apple para computadoras Mac.</p>
+            <p><strong>Se usa para:</strong> Diseño gráfico, desarrollo, producción multimedia.</p>
+            <p><strong>Disponibilidad:</strong> Producto comercial.</p>`,
+    'android': `<h3>Android</h3>
+                <p>Sistema operativo móvil basado en Linux desarrollado por Google.</p>
+                <p><strong>Se usa para:</strong> Dispositivos móviles, pantallas y otros dispositivos electrónicos.</p>
+                <p><strong>Disponibilidad:</strong> Parcialmente open source (Apache 2.0). Admite .apk no oficiales habilitando permisos, pero para distribución oficial requiere Google Play.</p>`,
+    'ios': `<h3>iOS</h3>
+            <p>Sistema operativo móvil de Apple para iPhone y iPad.</p>
+            <p><strong>Se usa para:</strong> Dispositivos móviles de Apple.</p>
+            <p><strong>Disponibilidad:</strong> Producto comercial. Requiere cuenta de desarrollador de pago y pasar por proceso de aprobación para publicar aplicaciones.</p>`,
+    'pantalla-touch': `<h3>Pantalla Touch</h3>
+                       <p>Interfaz de entrada basada en contacto directo con la pantalla.</p>
+                       <p><strong>Se usa para:</strong> Dispositivos móviles, quioscos interactivos, instalaciones artísticas.</p>
+                       <p><strong>Disponibilidad:</strong> Existen marcos touch con salida HDMI o dispositivos KIOSK con Android incluido que admiten .apk o acceso por red local.</p>`,
+    'instalaciones-fisicas': `<h3>Instalaciones Físicas</h3>
+                              <p>Espacios físicos con componentes electrónicos interactivos.</p>
+                              <p><strong>Se usa para:</strong> Arte interactivo, museos, exposiciones, eventos.</p>
+                              <p><strong>Disponibilidad:</strong> Depende del proyecto y sus componentes.</p>`,
+    'raspberry-pi': `<h3>Raspberry Pi</h3>
+                     <p>Computadora de placa única de bajo costo y tamaño reducido.</p>
+                     <p><strong>Se usa para:</strong> Proyectos DIY, instalaciones interactivas, Internet de las Cosas, educación.</p>
+                     <p><strong>Disponibilidad:</strong> Hardware open source.</p>`,
+    'pantalla-led': `<h3>Pantalla LED</h3>
+                     <p>Dispositivo de visualización basado en diodos emisores de luz.</p>
+                     <p><strong>Se usa para:</strong> Instalaciones artísticas, señalización digital, escenografías, mapping.</p>
+                     <p><strong>Disponibilidad:</strong> Hardware comercial en diversos formatos.</p>`,
+    'proyector': `<h3>Proyector</h3>
+                  <p>Dispositivo óptico que proyecta imágenes en una superficie.</p>
+                  <p><strong>Se usa para:</strong> Videomapping, instalaciones inmersivas, proyecciones arquitectónicas, arte digital.</p>
+                  <p><strong>Disponibilidad:</strong> Hardware comercial en diversos formatos y potencias.</p>`,
+    'sitio-web': `<h3>Sitio Web</h3>
+                  <p>Conjunto de páginas web interconectadas accesibles a través de internet.</p>
+                  <p><strong>Se usa para:</strong> Portfolios digitales, documentación de proyectos, galerías virtuales, arte web.</p>
+                  <p><strong>Disponibilidad:</strong> Accesible a través de navegadores web.</p>`,
+    'compilado-apk': `<h3>Compilado APK</h3>
+                      <p>Archivo de aplicación empaquetado para el sistema operativo Android.</p>
+                      <p><strong>Se usa para:</strong> Distribuir aplicaciones móviles, instalaciones interactivas en dispositivos KIOSK, experiencias inmersivas.</p>
+                      <p><strong>Disponibilidad:</strong> Formato estándar para aplicaciones Android.</p>`,
+    'xampp': `<h3>XAMPP</h3>
+              <p>Paquete de software libre que incluye el servidor web Apache, la base de datos MySQL/MariaDB y los intérpretes para scripts PHP y Perl.</p>
+              <p><strong>Se usa para:</strong> Desarrollo web local, pruebas de aplicaciones, entornos de desarrollo.</p>
+              <p><strong>Disponibilidad:</strong> Software libre y gratuito.</p>`,
+    'spout': `<h3>Spout</h3>
+              <p>Protocolo de intercambio de texturas en tiempo real para Windows.</p>
+              <p><strong>Se usa para:</strong> Compartir texturas entre aplicaciones en tiempo real, VJ, instalaciones interactivas.</p>
+              <p><strong>Disponibilidad:</strong> Open source (BSD).</p>`,
+    'syphon': `<h3>Syphon</h3>
+               <p>Protocolo de intercambio de texturas en tiempo real para macOS.</p>
+               <p><strong>Se usa para:</strong> Compartir texturas entre aplicaciones en tiempo real, VJ, instalaciones interactivas.</p>
+               <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'ndi': `<h3>NDI</h3>
+            <p>Protocolo de vídeo en red de NewTek.</p>
+            <p><strong>Se usa para:</strong> Transmisión de vídeo de alta calidad por red, producción en vivo, instalaciones interactivas.</p>
+            <p><strong>Disponibilidad:</strong> Parcialmente open source.</p>`,
+    'webrtc': `<h3>WebRTC</h3>
+               <p>Tecnología web para comunicación en tiempo real.</p>
+               <p><strong>Se usa para:</strong> Videollamadas, transmisión de datos peer-to-peer, aplicaciones colaborativas.</p>
+               <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'osc': `<h3>OSC</h3>
+            <p>Protocolo de comunicación para instrumentos musicales y multimedia.</p>
+            <p><strong>Se usa para:</strong> Control de software multimedia, mapeo de datos, instalaciones interactivas.</p>
+            <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'resolume': `<h3>Resolume</h3>
+                 <p>Software para mezcla de vídeo en tiempo real y mapping.</p>
+                 <p><strong>Se usa para:</strong> VJ, mapping arquitectónico, instalaciones audiovisuales, eventos en vivo.</p>
+                 <p><strong>Disponibilidad:</strong> Software comercial.</p>`,
+    'blender': `<h3>Blender</h3>
+                <p>Software de modelado 3D, animación, composición y renderizado.</p>
+                <p><strong>Se usa para:</strong> Modelado 3D, animación, efectos visuales, videojuegos.</p>
+                <p><strong>Disponibilidad:</strong> Open source (GPL).</p>`,
+    'paquete-adobe': `<h3>Paquete Adobe</h3>
+                       <p>Conjunto de aplicaciones para diseño gráfico, edición de video y desarrollo web.</p>
+                       <p><strong>Se usa para:</strong> Diseño gráfico, edición de video, animación, desarrollo web.</p>
+                       <p><strong>Disponibilidad:</strong> Software comercial. Incluye After Effects, Premiere, Photoshop, Illustrator, XD, entre otros.</p>`,
+    'obs': `<h3>OBS Studio</h3>
+            <p>Software para grabación y transmisión de video en vivo.</p>
+            <p><strong>Se usa para:</strong> Streaming, grabación de pantalla, producción de video en vivo.</p>
+            <p><strong>Disponibilidad:</strong> Open source (GPL).</p>`,
+    'cinema4d': `<h3>Cinema 4D</h3>
+                 <p>Software de modelado 3D, animación y renderizado.</p>
+                 <p><strong>Se usa para:</strong> Modelado 3D, animación, efectos visuales, diseño gráfico.</p>
+                 <p><strong>Disponibilidad:</strong> Software comercial.</p>`,
+    'angular': `<h3>Angular</h3>
+                <p>Framework de JavaScript para desarrollo de aplicaciones web.</p>
+                <p><strong>Se usa para:</strong> Aplicaciones web empresariales, SPAs, aplicaciones móviles híbridas.</p>
+                <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'nextjs': `<h3>Next.js</h3>
+               <p>Framework de React para aplicaciones web con renderizado del lado del servidor.</p>
+               <p><strong>Se usa para:</strong> Sitios web con alto rendimiento SEO, aplicaciones web, e-commerce.</p>
+               <p><strong>Disponibilidad:</strong> Open source (MIT).</p>`,
+    'virtual-production': `<h3>Virtual Production</h3>
+                           <p>Técnica que combina filmación en vivo con entornos virtuales en tiempo real.</p>
+                           <p><strong>Se usa para:</strong> Producción cinematográfica, televisión, eventos en vivo, instalaciones artísticas.</p>
+                           <p><strong>Disponibilidad:</strong> Tecnología principalmente basada en Unreal Engine.</p>`,
+    'vr': `<h3>Realidad Virtual (VR)</h3>
+           <p>Tecnología que permite la inmersión en entornos virtuales mediante dispositivos especializados.</p>
+           <p><strong>Se usa para:</strong> Videojuegos inmersivos, entrenamiento, educación, arte interactivo.</p>
+           <p><strong>Disponibilidad:</strong> Requiere hardware específico como Oculus Quest, HTC Vive, Valve Index.</p>`,
+    'ar': `<h3>Realidad Aumentada (AR)</h3>
+           <p>Tecnología que superpone elementos virtuales en el mundo real.</p>
+           <p><strong>Se usa para:</strong> Aplicaciones interactivas, educación, marketing, navegación, experiencias artísticas.</p>
+           <p><strong>Disponibilidad:</strong> Principalmente en dispositivos móviles Android e iOS.</p>`,
+    'api': `<h3>API</h3>
+            <p>Interfaz de Programación de Aplicaciones. Conjunto de reglas y protocolos para la comunicación entre aplicaciones.</p>
+            <p><strong>Se usa para:</strong> Integración de servicios, acceso a datos externos, automatización de procesos.</p>
+            <p><strong>Disponibilidad:</strong> Varía según el proveedor, desde abiertas hasta comerciales.</p>`,
+    'midi': `<h3>MIDI</h3>
+             <p>Protocolo estándar para la comunicación entre instrumentos musicales electrónicos y computadoras.</p>
+             <p><strong>Se usa para:</strong> Composición musical, control de sintetizadores, automatización de audio, instalaciones interactivas.</p>
+             <p><strong>Disponibilidad:</strong> Estándar abierto.</p>`,
+    'sonido': `<h3>Sonido</h3>
+               <p>Medio de expresión artística y comunicación basado en ondas acústicas.</p>
+               <p><strong>Se usa para:</strong> Instalaciones sonoras, música generativa, arte interactivo, diseño de experiencias inmersivas.</p>
+               <p><strong>Disponibilidad:</strong> Medio universal accesible a través de diversas tecnologías.</p>`,
+    'videojuegos': `<h3>Videojuegos</h3>
+                    <p>Medio interactivo que combina narrativa, arte visual y programación.</p>
+                    <p><strong>Se usa para:</strong> Entretenimiento, educación, arte interactivo, simulaciones, experiencias inmersivas.</p>
+                    <p><strong>Disponibilidad:</strong> Desde plataformas comerciales hasta desarrollo independiente.</p>`,
+    'ableton': `<h3>Ableton Live</h3>
+                <p>Software de producción musical y actuación en vivo.</p>
+                <p><strong>Se usa para:</strong> Producción musical, actuaciones en vivo, instalaciones sonoras, arte interactivo.</p>
+                <p><strong>Disponibilidad:</strong> Software comercial.</p>`,
+    'puredata': `<h3>Pure Data</h3>
+                 <p>Entorno de programación visual para audio, video y procesamiento gráfico.</p>
+                 <p><strong>Se usa para:</strong> Arte sonoro, instalaciones interactivas, procesamiento de señales en tiempo real, música generativa.</p>
+                 <p><strong>Disponibilidad:</strong> Open source (BSD).</p>`,
+    'guipper': `<h3>Guipper</h3>
+                <p>Software de programación visual para la creación de gráficos generativos en tiempo real.</p>
+                <p><strong>Se usa para:</strong> Visuales en vivo, VJ, instalaciones interactivas, arte generativo.</p>
+                <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'mapping': `<h3>Mapping</h3>
+                <p>Técnica que consiste en proyectar imágenes sobre superficies reales para conseguir efectos de movimiento o 3D.</p>
+                <p><strong>Se usa para:</strong> Instalaciones artísticas, eventos, espectáculos, publicidad, arquitectura.</p>
+                <p><strong>Disponibilidad:</strong> Técnica accesible mediante software especializado.</p>`,
+    'livecoding': `<h3>Livecoding</h3>
+                   <p>Práctica de programación en vivo donde el código se escribe y modifica en tiempo real como parte de una actuación artística o musical.</p>
+                   <p><strong>Se usa para:</strong> Performances, instalaciones interactivas, eventos artísticos.</p>
+                   <p><strong>Disponibilidad:</strong> Práctica abierta con diversas herramientas disponibles.</p>`,
+    'vibecoding': `<h3>Vibecoding</h3>
+                   <p>Práctica de programación utilizando exclusivamente modelos de lenguaje y editores de texto.</p>
+                   <p><strong>Se usa para:</strong> Desarrollo de código de manera fluida y conversacional.</p>
+                   <p><strong>Disponibilidad:</strong> Requiere acceso a modelos de lenguaje avanzados (LLMs).</p>`,
+    'programacion': `<h3>Programación</h3>
+                     <p>Arte de crear instrucciones para que una computadora realice tareas específicas.</p>
+                     <p><strong>Se usa para:</strong> Desarrollo de software, automatización, resolución de problemas.</p>
+                     <p><strong>Disponibilidad:</strong> Conocimiento libre con conceptos básicos como: IF (estructura condicional), Ciclos repetitivos (do, while, for), Clases, Objetos y Listeners.</p>`,
+    'prompting': `<h3>Prompting</h3>
+                  <p>Técnica para comunicarse eficazmente con modelos de IA mediante instrucciones precisas.</p>
+                  <p><strong>Se usa para:</strong> Obtener resultados óptimos de modelos de IA, generación de contenido, asistencia en programación.</p>
+                  <p><strong>Disponibilidad:</strong> Técnica accesible para cualquier usuario de modelos de IA.</p>`,
+    'consola': `<h3>Consola</h3>
+                <p>Interfaz de línea de comandos que permite interactuar con el sistema operativo o con un programa mediante texto.</p>
+                <p><strong>Se usa para:</strong> Ejecutar comandos, depurar aplicaciones, monitorear procesos y realizar tareas administrativas.</p>
+                <p><strong>Disponibilidad:</strong> Presente en todos los sistemas operativos modernos.</p>`,
+    'script': `<h3>Script</h3>
+               <p>Archivo de texto que contiene una serie de instrucciones que son ejecutadas secuencialmente por un intérprete.</p>
+               <p><strong>Se usa para:</strong> Automatizar tareas, configurar sistemas, procesar datos y crear funcionalidades.</p>
+               <p><strong>Disponibilidad:</strong> Puede crearse en cualquier editor de texto.</p>`,
+    'compilado-interpretado': `<h3>Lenguajes Compilados vs Interpretados</h3>
+                              <p>Dos enfoques diferentes para la ejecución de código.</p>
+                              <p><strong>Se usa para:</strong> Desarrollo de software con diferentes requisitos de rendimiento y flexibilidad.</p>
+                              <p><strong>Disponibilidad:</strong> Los lenguajes compilados (C++, Rust) traducen todo el código a lenguaje máquina antes de la ejecución, mientras que los interpretados (Python, JavaScript) lo hacen línea por línea durante la ejecución.</p>`,
+    'formatos-exe': `<h3>Formatos Ejecutables</h3>
+                     <p>Archivos que contienen instrucciones en código máquina ejecutables directamente por el sistema operativo.</p>
+                     <p><strong>Se usa para:</strong> Distribuir aplicaciones listas para usar sin necesidad de compilación.</p>
+                     <p><strong>Disponibilidad:</strong> Incluyen .exe (Windows), .app (macOS), .apk (Android), entre otros.</p>`,
+    'drivers': `<h3>Drivers</h3>
+                <p>Software especializado que permite la comunicación entre el sistema operativo y el hardware.</p>
+                <p><strong>Se usa para:</strong> Habilitar el funcionamiento de componentes como tarjetas gráficas, impresoras o controladores.</p>
+                <p><strong>Disponibilidad:</strong> Proporcionados por fabricantes de hardware o incluidos en sistemas operativos.</p>`,
+    'mcp': `<h3>MCP (Model-Controller-Presenter)</h3>
+            <p>Patrón arquitectónico de software que extiende el MVC para separar mejor las responsabilidades.</p>
+            <p><strong>Se usa para:</strong> Estructurar aplicaciones complejas, mejorar la testabilidad y mantener un código más limpio.</p>
+            <p><strong>Disponibilidad:</strong> Concepto de diseño aplicable en cualquier proyecto de software.</p>`,
+    'ejemplos-shaders': `<h3>Ejemplos de Shaders</h3>
+                         <p>Colección de ejemplos prácticos de shaders GLSL que muestran diferentes efectos visuales.</p>
+                         <p><strong>Se usa para:</strong> Aprender y experimentar con shaders desde nivel básico hasta avanzado.</p>
+                         <p><strong>Disponibilidad:</strong> Recursos educativos disponibles en línea.</p>`,
+    'editor-shaders-live': `<h3>Editor de Shaders Live</h3>
+                            <p>Herramienta online para escribir, editar y visualizar shaders GLSL en tiempo real.</p>
+                            <p><strong>Se usa para:</strong> Experimentar con código de shaders y ver resultados inmediatamente.</p>
+                            <p><strong>Disponibilidad:</strong> Herramientas web accesibles desde navegadores.</p>`
 };
 
 
