@@ -200,17 +200,44 @@ document.addEventListener('DOMContentLoaded', function() {
     infoBox.id = 'node-hover-info';
     infoBox.style.position = 'absolute';
     infoBox.style.display = 'none';
-    infoBox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    infoBox.style.backgroundColor = 'rgba(10, 10, 20, 0.9)'; // Fondo más oscuro y menos transparente
     infoBox.style.color = '#fff';
-    infoBox.style.padding = '10px';
-    infoBox.style.borderRadius = '5px';
-    infoBox.style.maxWidth = '300px';
-    infoBox.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+    infoBox.style.padding = '15px'; // Padding aumentado
+    infoBox.style.borderRadius = '8px'; // Bordes más redondeados
+    infoBox.style.minWidth = '320px'; // Ancho mínimo
+    infoBox.style.maxWidth = '400px'; // Ancho máximo aumentado
+    infoBox.style.boxShadow = '0 4px 20px rgba(255, 105, 180, 0.4), 0 0 15px rgba(138, 43, 226, 0.4)'; // Sombra con colores del tema
     infoBox.style.zIndex = '1000';
     infoBox.style.pointerEvents = 'none';
     infoBox.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
     infoBox.style.opacity = 0;
     infoBox.style.transform = 'translateY(10px)';
+    infoBox.style.border = '1px solid rgba(255, 105, 180, 0.5)'; // Borde con color del tema
+    infoBox.style.backdropFilter = 'blur(5px)'; // Efecto de desenfoque
+    
+    // Estilos para los elementos internos del infoBox
+    const style = document.createElement('style');
+    style.textContent = `
+        #node-hover-info h3 {
+            color: #ff69b4; /* Color del tema para títulos */
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 18px;
+            border-bottom: 1px solid rgba(255, 105, 180, 0.3);
+            padding-bottom: 5px;
+        }
+        #node-hover-info p {
+            margin: 8px 0;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+        #node-hover-info strong {
+            color: #8a2be2; /* Color del tema para etiquetas */
+            font-weight: bold;
+        }
+    `;
+    document.head.appendChild(style);
+    
     document.getElementById('cy').appendChild(infoBox);
     
     // Variables para la animación de líneas discontinuas
