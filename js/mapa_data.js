@@ -25,7 +25,7 @@ const CONFIG = {
         'soportes': 1600,        // Distancia de Soportes al nodo central
         'protocolos': 1200,      // Distancia de Protocolos de Comunicación al nodo central
         'software-multimedia': 900, // Distancia de Software Multimediales al nodo central
-        'glosario': 1200         // Distancia de Glosario al nodo central
+        'glosario': 1600         // Distancia de Glosario al nodo central
     },
     categoryDistances: {         // Distancias personalizadas para cada categoría
         'engines': 200,         // Distancia de Motores Gráficos a sus herramientas
@@ -41,7 +41,7 @@ const CONFIG = {
         'soportes': 250,        // Distancia de Soportes a sus elementos
         'protocolos': 200,      // Distancia de Protocolos de Comunicación a sus elementos
         'software-multimedia': 200, // Distancia de Software Multimediales a sus elementos
-        'glosario': 200         // Distancia de Glosario a sus elementos
+        'glosario': 350         // Distancia de Glosario a sus elementos
     }
 };
 
@@ -455,7 +455,16 @@ const NODE_INFO = {
     'programacion': `<h3>Programación</h3>
                      <p>Arte de crear instrucciones para que una computadora realice tareas específicas.</p>
                      <p><strong>Se usa para:</strong> Desarrollo de software, automatización, resolución de problemas.</p>
-                     <p><strong>Disponibilidad:</strong> Conocimiento libre con conceptos básicos como: IF (estructura condicional), Ciclos repetitivos (do, while, for), Clases, Objetos y Listeners.</p>`,
+                     <p><strong>Estructuras básicas:</strong></p>
+                     <ul style="margin: 5px 0; padding-left: 20px;">
+                         <li><strong>Variables:</strong> Contenedores para almacenar datos</li>
+                         <li><strong>IFs:</strong> Estructuras condicionales para toma de decisiones</li>
+                         <li><strong>Ciclos repetitivos:</strong> for, map, while, do-while, etc.</li>
+                         <li><strong>Funciones:</strong> Bloques de código reutilizables</li>
+                         <li><strong>Clases:</strong> Plantillas para crear objetos</li>
+                         <li><strong>Objetos:</strong> Instancias con propiedades y métodos</li>
+                     </ul>
+                     <p><strong>Disponibilidad:</strong> Conocimiento libre accesible a través de diversos recursos educativos.</p>`,
     'prompting': `<h3>Prompting</h3>
                   <p>Técnica para comunicarse eficazmente con modelos de IA mediante instrucciones precisas.</p>
                   <p><strong>Se usa para:</strong> Obtener resultados óptimos de modelos de IA, generación de contenido, asistencia en programación.</p>

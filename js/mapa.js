@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
             font-size: 14px;
         }
         #node-hover-info strong {
-            color: #8a2be2; /* Color del tema para etiquetas */
+            color: #ff9edb; /* Color más claro y visible para etiquetas */
             font-weight: bold;
         }
     `;
