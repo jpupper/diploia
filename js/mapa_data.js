@@ -9,39 +9,44 @@ const CONFIG = {
     nodeFontSize: 14,           // Tamaño de fuente para nodos normales
     categoryFontSize: 18,       // Tamaño de fuente para categorías
     rootFontSize: 20,           // Tamaño de fuente para el nodo raíz
-    secondaryNodeDist: 100,      // Distancia entre nodos secundarios
-    primaryDistance: 200,       // Distancia de nodo central a categorías principales
+    popupTitleFontSize: 22,     // Tamaño de fuente para títulos en popups
+    popupSubtitleFontSize: 18,  // Tamaño de fuente para subtítulos en popups
+    popupTextFontSize: 16,      // Tamaño de fuente para texto en popups
+    secondaryNodeDist: 120,      // Distancia entre nodos secundarios
+    primaryDistance: 250,       // Distancia de nodo central a categorías principales
     categoryDistancesMain: {     // Distancias personalizadas para cada categoría al nodo central
-        'engines': 1200,          // Distancia de Motores Gráficos al nodo central
-        'frameworks': 1200,       // Distancia de Frameworks Web al nodo central
-        'ia': 500,              // Distancia de Herramientas IA al nodo central
-        'shaders': 1000,         // Distancia de Shaders al nodo central
-        'db': 600,              // Distancia de Bases de Datos al nodo central
-        'ides': 1200,            // Distancia de IDEs al nodo central
-        'languages': 1500,       // Distancia de Lenguajes de Programación al nodo central
-        'llm': 1000,             // Distancia de LLM Models al nodo central
-        'frontend': 500,        // Distancia de frameworks frontend al nodo central
-        'os': 1000,              // Distancia de Sistemas Operativos al nodo central
-        'soportes': 1600,        // Distancia de Soportes al nodo central
-        'protocolos': 1200,      // Distancia de Protocolos de Comunicación al nodo central
-        'software-multimedia': 900, // Distancia de Software Multimediales al nodo central
-        'glosario': 1600         // Distancia de Glosario al nodo central
+        'engines': 1300,          // Distancia de Motores Gráficos al nodo central
+        'frameworks': 1300,       // Distancia de Frameworks Web al nodo central
+        'ia': 700,              // Distancia de Herramientas IA al nodo central
+        'shaders': 1100,         // Distancia de Shaders al nodo central
+        'db': 800,              // Distancia de Bases de Datos al nodo central
+        'ides': 1400,            // Distancia de IDEs al nodo central
+        'languages': 1600,       // Distancia de Lenguajes de Programación al nodo central
+        'llm': 1200,             // Distancia de LLM Models al nodo central
+        'frontend': 700,        // Distancia de frameworks frontend al nodo central
+        'os': 1100,              // Distancia de Sistemas Operativos al nodo central
+        'soportes': 1800,        // Distancia de Soportes al nodo central
+        'protocolos': 1400,      // Distancia de Protocolos de Comunicación al nodo central
+        'software-multimedia': 1000, // Distancia de Software Multimediales al nodo central
+        'entornos': 1000,        // Distancia de Entornos de Desarrollo al nodo central
+        'glosario': 1700         // Distancia de Glosario al nodo central
     },
     categoryDistances: {         // Distancias personalizadas para cada categoría
-        'engines': 200,         // Distancia de Motores Gráficos a sus herramientas
-        'frameworks': 200,       // Distancia de Frameworks Web a sus herramientas
-        'ia': 150,              // Distancia de Herramientas IA a sus herramientas
-        'shaders': 200,         // Distancia de Shaders a sus herramientas
-        'db': 200,              // Distancia de Bases de Datos a sus herramientas
-        'ides': 200,           // Distancia de IDEs a sus herramientas
-        'languages': 300,      // Distancia de Lenguajes de Programación a sus herramientas
-        'llm': 200,             // Distancia de LLM Models a sus herramientas
-        'frontend': 200,        // Distancia de frameworks frontend a sus herramientas
-        'os': 200,              // Distancia de Sistemas Operativos a sus elementos
-        'soportes': 250,        // Distancia de Soportes a sus elementos
-        'protocolos': 200,      // Distancia de Protocolos de Comunicación a sus elementos
-        'software-multimedia': 200, // Distancia de Software Multimediales a sus elementos
-        'glosario': 350         // Distancia de Glosario a sus elementos
+        'engines': 250,         // Distancia de Motores Gráficos a sus herramientas
+        'frameworks': 250,       // Distancia de Frameworks Web a sus herramientas
+        'ia': 180,              // Distancia de Herramientas IA a sus herramientas
+        'shaders': 220,         // Distancia de Shaders a sus herramientas
+        'db': 220,              // Distancia de Bases de Datos a sus herramientas
+        'ides': 250,           // Distancia de IDEs a sus herramientas
+        'languages': 350,      // Distancia de Lenguajes de Programación a sus herramientas
+        'llm': 220,             // Distancia de LLM Models a sus herramientas
+        'frontend': 220,        // Distancia de frameworks frontend a sus herramientas
+        'os': 220,              // Distancia de Sistemas Operativos a sus elementos
+        'soportes': 280,        // Distancia de Soportes a sus elementos
+        'protocolos': 220,      // Distancia de Protocolos de Comunicación a sus elementos
+        'software-multimedia': 220, // Distancia de Software Multimediales a sus elementos
+        'entornos': 220,        // Distancia de Entornos de Desarrollo a sus elementos
+        'glosario': 380         // Distancia de Glosario a sus elementos
     }
 };
 
@@ -280,6 +285,10 @@ const NODE_INFO = {
                 <p>Plataforma de hardware y software para prototipado electrónico.</p>
                 <p><strong>Se usa para:</strong> Proyectos DIY, robótica, arte interactivo, Internet de las Cosas.</p>
                 <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'assembler': `<h3>Assembler (Lenguaje Ensamblador)</h3>
+                <p>Lenguaje de programación de bajo nivel que representa directamente las instrucciones del procesador con una sintaxis legible por humanos.</p>
+                <p><strong>Se usa para:</strong> Programación de sistemas embebidos, optimización de rendimiento, desarrollo de drivers, seguridad informática y reverse engineering.</p>
+                <p><strong>Disponibilidad:</strong> Varía según la arquitectura del procesador (x86, ARM, RISC-V, etc.).</p>`,
     'typescript': `<h3>TypeScript</h3>
                    <p>Superconjunto de JavaScript con tipado estático opcional.</p>
                    <p><strong>Se usa para:</strong> Desarrollo web frontend, aplicaciones empresariales, proyectos grandes.</p>
@@ -420,6 +429,10 @@ const NODE_INFO = {
              <p>Protocolo estándar para la comunicación entre instrumentos musicales electrónicos y computadoras.</p>
              <p><strong>Se usa para:</strong> Composición musical, control de sintetizadores, automatización de audio, instalaciones interactivas.</p>
              <p><strong>Disponibilidad:</strong> Estándar abierto.</p>`,
+    'nft': `<h3>NFT</h3>
+             <p>Token No Fungible, un activo digital único que representa la propiedad de un elemento digital específico.</p>
+             <p><strong>Se usa para:</strong> Arte digital, coleccionables, certificados de autenticidad, propiedad digital en blockchain.</p>
+             <p><strong>Disponibilidad:</strong> Implementado en diversas blockchains como Ethereum, Solana, Tezos, entre otras.</p>`,
     'sonido': `<h3>Sonido</h3>
                <p>Medio de expresión artística y comunicación basado en ondas acústicas.</p>
                <p><strong>Se usa para:</strong> Instalaciones sonoras, música generativa, arte interactivo, diseño de experiencias inmersivas.</p>
@@ -440,6 +453,10 @@ const NODE_INFO = {
                 <p>Software de programación visual para la creación de gráficos generativos en tiempo real.</p>
                 <p><strong>Se usa para:</strong> Visuales en vivo, VJ, instalaciones interactivas, arte generativo.</p>
                 <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'gitbash': `<h3>Git Bash</h3>
+                <p>Emulador de terminal que integra Git con una shell de tipo Bash para Windows.</p>
+                <p><strong>Se usa para:</strong> Control de versiones, gestión de repositorios, automatización de tareas mediante scripts.</p>
+                <p><strong>Disponibilidad:</strong> Software libre incluido con Git para Windows.</p>`,
     'mapping': `<h3>Mapping</h3>
                 <p>Técnica que consiste en proyectar imágenes sobre superficies reales para conseguir efectos de movimiento o 3D.</p>
                 <p><strong>Se usa para:</strong> Instalaciones artísticas, eventos, espectáculos, publicidad, arquitectura.</p>
@@ -481,10 +498,6 @@ const NODE_INFO = {
                               <p>Dos enfoques diferentes para la ejecución de código.</p>
                               <p><strong>Se usa para:</strong> Desarrollo de software con diferentes requisitos de rendimiento y flexibilidad.</p>
                               <p><strong>Disponibilidad:</strong> Los lenguajes compilados (C++, Rust) traducen todo el código a lenguaje máquina antes de la ejecución, mientras que los interpretados (Python, JavaScript) lo hacen línea por línea durante la ejecución.</p>`,
-    'formatos-exe': `<h3>Formatos Ejecutables</h3>
-                     <p>Archivos que contienen instrucciones en código máquina ejecutables directamente por el sistema operativo.</p>
-                     <p><strong>Se usa para:</strong> Distribuir aplicaciones listas para usar sin necesidad de compilación.</p>
-                     <p><strong>Disponibilidad:</strong> Incluyen .exe (Windows), .app (macOS), .apk (Android), entre otros.</p>`,
     'drivers': `<h3>Drivers</h3>
                 <p>Software especializado que permite la comunicación entre el sistema operativo y el hardware.</p>
                 <p><strong>Se usa para:</strong> Habilitar el funcionamiento de componentes como tarjetas gráficas, impresoras o controladores.</p>
@@ -493,6 +506,19 @@ const NODE_INFO = {
             <p>Patrón arquitectónico de software que extiende el MVC para separar mejor las responsabilidades.</p>
             <p><strong>Se usa para:</strong> Estructurar aplicaciones complejas, mejorar la testabilidad y mantener un código más limpio.</p>
             <p><strong>Disponibilidad:</strong> Concepto de diseño aplicable en cualquier proyecto de software.</p>`,
+    'repositorio': `<h3>Repositorio (o Repo)</h3>
+            <p>Espacio centralizado donde se almacena, organiza, mantiene y difunde información digital, habitualmente bases de datos o archivos informáticos.</p>
+            <p><strong>Se usa para:</strong> Almacenar código fuente, controlar versiones, colaborar en proyectos de desarrollo y compartir recursos.</p>
+            <p><strong>Disponibilidad:</strong> Servicios como GitHub, GitLab, Bitbucket o implementaciones propias.</p>`,
+    'github': `<h3>GitHub</h3>
+            <p>Plataforma de desarrollo colaborativo basada en Git que permite alojar y revisar código, gestionar proyectos y construir software junto con otros desarrolladores.</p>
+            <p><strong>Se usa para:</strong> Almacenar repositorios, colaborar en proyectos, gestionar versiones de código y publicar páginas web mediante GitHub Pages.</p>
+            <p><strong>Disponibilidad:</strong> Servicio gratuito con opciones de pago para funcionalidades avanzadas.</p>
+            <p><strong>Nota:</strong> Es la plataforma que utilizaremos para mostrar nuestras páginas web durante el curso.</p>`,
+    'git': `<h3>Git</h3>
+            <p>Sistema de control de versiones distribuido diseñado para manejar proyectos desde pequeños a muy grandes con velocidad y eficiencia.</p>
+            <p><strong>Se usa para:</strong> Control de versiones, trabajo colaborativo, seguimiento de cambios en archivos y gestión de ramas de desarrollo.</p>
+            <p><strong>Disponibilidad:</strong> Software libre y de código abierto.</p>`,
     'ejemplos-shaders': `<h3>Ejemplos de Shaders</h3>
                          <p>Colección de ejemplos prácticos de shaders GLSL que muestran diferentes efectos visuales.</p>
                          <p><strong>Se usa para:</strong> Aprender y experimentar con shaders desde nivel básico hasta avanzado.</p>
@@ -500,7 +526,23 @@ const NODE_INFO = {
     'editor-shaders-live': `<h3>Editor de Shaders Live</h3>
                             <p>Herramienta online para escribir, editar y visualizar shaders GLSL en tiempo real.</p>
                             <p><strong>Se usa para:</strong> Experimentar con código de shaders y ver resultados inmediatamente.</p>
-                            <p><strong>Disponibilidad:</strong> Herramientas web accesibles desde navegadores.</p>`
+                            <p><strong>Disponibilidad:</strong> Herramientas web accesibles desde navegadores.</p>`,
+    'entornos': `<h3>Entornos de Desarrollo</h3>
+                <p>Herramientas que permiten crear y gestionar ambientes aislados para el desarrollo de software.</p>
+                <p><strong>Se usa para:</strong> Aislar dependencias, garantizar la reproducibilidad, facilitar la colaboración y el despliegue de aplicaciones.</p>
+                <p><strong>Disponibilidad:</strong> Diversas herramientas open source y comerciales.</p>`,
+    'docker': `<h3>Docker</h3>
+              <p>Plataforma de virtualización a nivel de sistema operativo para desarrollar, enviar y ejecutar aplicaciones en contenedores.</p>
+              <p><strong>Se usa para:</strong> Crear entornos aislados y reproducibles, facilitar el despliegue de aplicaciones y microservicios.</p>
+              <p><strong>Disponibilidad:</strong> Open source con versiones Community y Enterprise.</p>`,
+    'venv': `<h3>venv (Python)</h3>
+            <p>Módulo integrado en Python para crear entornos virtuales ligeros con su propia instalación de Python.</p>
+            <p><strong>Se usa para:</strong> Aislar dependencias de proyectos Python, evitar conflictos entre paquetes.</p>
+            <p><strong>Disponibilidad:</strong> Incluido en la biblioteca estándar de Python desde la versión 3.3.</p>`,
+    'conda': `<h3>Conda</h3>
+             <p>Sistema de gestión de paquetes y entornos multiplataforma, especialmente popular en ciencia de datos.</p>
+             <p><strong>Se usa para:</strong> Crear entornos virtuales para Python, R y otros lenguajes, gestionar dependencias complejas.</p>
+             <p><strong>Disponibilidad:</strong> Open source, disponible a través de Anaconda o Miniconda.</p>`
 };
 
 
@@ -525,6 +567,7 @@ function getMapElements() {
         { data: { id: 'soportes', label: 'Soportes', type: 'category' } },
         { data: { id: 'protocolos', label: 'Protocolos de Comunicación', type: 'category' } },
         { data: { id: 'software-multimedia', label: 'Software Multimediales', type: 'category' } },
+        { data: { id: 'entornos', label: 'Entornos de Desarrollo', type: 'category' } },
         { data: { id: 'glosario', label: 'Glosario', type: 'category' } },
         
         // Motores Gráficos
@@ -583,6 +626,7 @@ function getMapElements() {
         { data: { id: 'json', label: 'JSON', url: 'https://www.json.org/' } },
         { data: { id: 'r', label: 'R', url: 'https://www.r-project.org/' } },
         { data: { id: 'arduino', label: 'Arduino', url: 'https://www.arduino.cc/' } },
+        { data: { id: 'assembler', label: 'Assembler', url: 'https://en.wikipedia.org/wiki/Assembly_language' } },
         
         // Frontend Frameworks
         { data: { id: 'react', label: 'React', url: 'https://reactjs.org/' } },
@@ -620,6 +664,7 @@ function getMapElements() {
         { data: { id: 'sonido', label: 'Sonido', url: '#' } },
         { data: { id: 'videojuegos', label: 'Videojuegos', url: '#' } },
         { data: { id: 'mapping', label: 'Mapping', url: '#' } },
+        { data: { id: 'nft', label: 'NFT', url: 'https://ethereum.org/en/nft/' } },
 
         // Protocolos de Comunicación
         { data: { id: 'websockets', label: 'WebSockets', url: 'https://developer.mozilla.org/es/docs/Web/API/WebSockets_API' } },
@@ -640,6 +685,7 @@ function getMapElements() {
         { data: { id: 'ableton', label: 'Ableton Live', url: 'https://www.ableton.com/' } },
         { data: { id: 'puredata', label: 'Pure Data', url: 'https://puredata.info/' } },
         { data: { id: 'guipper', label: 'Guipper', url: 'https://jeyder.com.ar/guipper/' } },
+        { data: { id: 'gitbash', label: 'Git Bash', url: 'https://gitforwindows.org/' } },
         
         // Glosario
         { data: { id: 'livecoding', label: 'Livecoding', url: '#' } },
@@ -649,9 +695,16 @@ function getMapElements() {
         { data: { id: 'consola', label: 'Consola', url: '#' } },
         { data: { id: 'script', label: 'Script', url: '#' } },
         { data: { id: 'compilado-interpretado', label: 'Lenguaje de compilado vs interpretado', url: '#' } },
-        { data: { id: 'formatos-exe', label: 'Formatos tipo exe', url: '#' } },
         { data: { id: 'drivers', label: 'Drivers', url: '#' } },
         { data: { id: 'mcp', label: 'MCP', url: '#' } },
+        { data: { id: 'repositorio', label: 'Repositorio (o Repo)', url: 'https://github.com/' } },
+        { data: { id: 'github', label: 'GitHub', url: 'https://github.com/' } },
+        { data: { id: 'git', label: 'Git', url: 'https://git-scm.com/' } },
+
+        // Entornos de Desarrollo
+        { data: { id: 'docker', label: 'Docker', url: 'https://www.docker.com/' } },
+        { data: { id: 'venv', label: 'venv', url: 'https://docs.python.org/3/library/venv.html' } },
+        { data: { id: 'conda', label: 'Conda', url: 'https://docs.conda.io/' } },
         
         // Conexiones principales con el nodo raíz
         { data: { id: 'root-engines', source: 'root', target: 'engines' } },
@@ -667,6 +720,7 @@ function getMapElements() {
         { data: { id: 'root-soportes', source: 'root', target: 'soportes' } },
         { data: { id: 'root-protocolos', source: 'root', target: 'protocolos' } },
         { data: { id: 'root-software-multimedia', source: 'root', target: 'software-multimedia' } },
+        { data: { id: 'root-entornos', source: 'root', target: 'entornos' } },
         { data: { id: 'root-glosario', source: 'root', target: 'glosario' } }
     ];
 }
@@ -735,6 +789,7 @@ function getMapConnections() {
         { data: { id: 'languages-json', source: 'languages', target: 'json' } },
         { data: { id: 'languages-r', source: 'languages', target: 'r' } },
         { data: { id: 'languages-arduino', source: 'languages', target: 'arduino' } },
+        { data: { id: 'languages-assembler', source: 'languages', target: 'assembler' } },
         
         // Frontend Frameworks
         { data: { id: 'frontend-react', source: 'frontend', target: 'react' } },
@@ -771,6 +826,7 @@ function getMapConnections() {
         { data: { id: 'soportes-sonido', source: 'soportes', target: 'sonido' } },
         { data: { id: 'soportes-videojuegos', source: 'soportes', target: 'videojuegos' } },
         { data: { id: 'soportes-mapping', source: 'soportes', target: 'mapping' } },
+        { data: { id: 'soportes-nft', source: 'soportes', target: 'nft' } },
 
         // Protocolos de Comunicación
         { data: { id: 'protocolos-websockets', source: 'protocolos', target: 'websockets' } },
@@ -791,6 +847,12 @@ function getMapConnections() {
         { data: { id: 'software-multimedia-ableton', source: 'software-multimedia', target: 'ableton' } },
         { data: { id: 'software-multimedia-puredata', source: 'software-multimedia', target: 'puredata' } },
         { data: { id: 'software-multimedia-guipper', source: 'software-multimedia', target: 'guipper' } },
+        { data: { id: 'software-multimedia-gitbash', source: 'software-multimedia', target: 'gitbash' } },
+
+        // Entornos de Desarrollo
+        { data: { id: 'entornos-docker', source: 'entornos', target: 'docker' } },
+        { data: { id: 'entornos-venv', source: 'entornos', target: 'venv' } },
+        { data: { id: 'entornos-conda', source: 'entornos', target: 'conda' } },
         
         // Glosario
         { data: { id: 'glosario-livecoding', source: 'glosario', target: 'livecoding' } },
@@ -800,9 +862,11 @@ function getMapConnections() {
         { data: { id: 'glosario-consola', source: 'glosario', target: 'consola' } },
         { data: { id: 'glosario-script', source: 'glosario', target: 'script' } },
         { data: { id: 'glosario-compilado-interpretado', source: 'glosario', target: 'compilado-interpretado' } },
-        { data: { id: 'glosario-formatos-exe', source: 'glosario', target: 'formatos-exe' } },
         { data: { id: 'glosario-drivers', source: 'glosario', target: 'drivers' } },
         { data: { id: 'glosario-mcp', source: 'glosario', target: 'mcp' } },
+        { data: { id: 'glosario-repositorio', source: 'glosario', target: 'repositorio' } },
+        { data: { id: 'glosario-github', source: 'glosario', target: 'github' } },
+        { data: { id: 'glosario-git', source: 'glosario', target: 'git' } },
         
         // Algunas conexiones adicionales entre nodos relacionados (con clase 'secondary')
         { data: { id: 'three-glsl', source: 'three', target: 'glsl', type: 'secondary' } },
@@ -876,6 +940,21 @@ function getMapConnections() {
         { data: { id: 'videojuegos-javascript', source: 'videojuegos', target: 'javascript', type: 'secondary' } },
         { data: { id: 'videojuegos-three', source: 'videojuegos', target: 'three', type: 'secondary' } },
         { data: { id: 'vibecoding-ides', source: 'vibecoding', target: 'ides', type: 'secondary' } },
+        { data: { id: 'nft-p5', source: 'nft', target: 'p5', type: 'secondary' } },
+        { data: { id: 'nft-three', source: 'nft', target: 'three', type: 'secondary' } },
+        { data: { id: 'nft-javascript', source: 'nft', target: 'javascript', type: 'secondary' } },
+        { data: { id: 'nft-babylon', source: 'nft', target: 'babylon', type: 'secondary' } },
+        { data: { id: 'github-git', source: 'github', target: 'git', type: 'secondary' } },
+        { data: { id: 'github-repositorio', source: 'github', target: 'repositorio', type: 'secondary' } },
+        { data: { id: 'git-repositorio', source: 'git', target: 'repositorio', type: 'secondary' } },
+        { data: { id: 'gitbash-git', source: 'gitbash', target: 'git', type: 'secondary' } },
+        { data: { id: 'gitbash-nodejs', source: 'gitbash', target: 'nodejs', type: 'secondary' } },
+        { data: { id: 'gitbash-python', source: 'gitbash', target: 'python', type: 'secondary' } },
+        { data: { id: 'docker-python', source: 'docker', target: 'python', type: 'secondary' } },
+        { data: { id: 'docker-nodejs', source: 'docker', target: 'nodejs', type: 'secondary' } },
+        { data: { id: 'venv-python', source: 'venv', target: 'python', type: 'secondary' } },
+        { data: { id: 'conda-python', source: 'conda', target: 'python', type: 'secondary' } },
+        { data: { id: 'conda-r', source: 'conda', target: 'r', type: 'secondary' } },
         { data: { id: 'livecoding-hydra', source: 'livecoding', target: 'hydra', type: 'secondary' } },
         { data: { id: 'livecoding-javascript', source: 'livecoding', target: 'javascript', type: 'secondary' } },
         { data: { id: 'livecoding-p5', source: 'livecoding', target: 'p5', type: 'secondary' } },

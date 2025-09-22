@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Posiciones para categorías principales (primer anillo)
                 if (node.data('type') === 'category') {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'glosario'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'entornos', 'glosario'];
                     const index = categories.indexOf(node.id());
                     if (index !== -1) {
                         const angle = (2 * Math.PI * index) / categories.length;
@@ -134,19 +134,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
                     'python': 'languages', 'typescript': 'languages', 'java': 'languages', 'csharp': 'languages',
-                    'html': 'languages', 'css': 'languages', 'json': 'languages', 'r': 'languages', 'arduino': 'languages',
+                    'html': 'languages', 'css': 'languages', 'json': 'languages', 'r': 'languages', 'arduino': 'languages', 'assembler': 'languages',
                     'react': 'frontend', 'vue': 'frontend', 'svelte': 'frontend', 'angular': 'frontend', 'nextjs': 'frontend',
                     'chatgpt': 'llm', 'deepseek': 'llm', 'gemini': 'llm', 'kimi': 'llm', 'claude': 'llm',
                     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
-                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes', 'mapping': 'soportes',
+                    'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes', 'mapping': 'soportes', 'nft': 'soportes',
                     'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
-                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia',
-                    'livecoding': 'glosario', 'vibecoding': 'glosario', 'programacion': 'glosario', 'prompting': 'glosario', 'consola': 'glosario', 'script': 'glosario', 'compilado-interpretado': 'glosario', 'formatos-exe': 'glosario', 'drivers': 'glosario', 'mcp': 'glosario'
+                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia', 'gitbash': 'software-multimedia',
+                    'docker': 'entornos', 'venv': 'entornos', 'conda': 'entornos',
+                    'livecoding': 'glosario', 'vibecoding': 'glosario', 'programacion': 'glosario', 'prompting': 'glosario', 'consola': 'glosario', 'script': 'glosario', 'compilado-interpretado': 'glosario', 'drivers': 'glosario', 'mcp': 'glosario', 'repositorio': 'glosario', 'github': 'glosario', 'git': 'glosario'
                 };
                 
                 const parentCategory = categoryMap[node.id()];
                 if (parentCategory) {
-                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'glosario'];
+                    const categories = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'entornos', 'glosario'];
                     const categoryIndex = categories.indexOf(parentCategory);
                     
                     // Obtener nodos hermanos (misma categoría)
@@ -204,8 +205,8 @@ document.addEventListener('DOMContentLoaded', function() {
     infoBox.style.color = '#fff';
     infoBox.style.padding = '15px'; // Padding aumentado
     infoBox.style.borderRadius = '8px'; // Bordes más redondeados
-    infoBox.style.minWidth = '320px'; // Ancho mínimo
-    infoBox.style.maxWidth = '400px'; // Ancho máximo aumentado
+    infoBox.style.minWidth = '400px'; // Ancho mínimo aumentado
+    infoBox.style.maxWidth = '500px'; // Ancho máximo aumentado
     infoBox.style.boxShadow = '0 4px 20px rgba(255, 105, 180, 0.4), 0 0 15px rgba(138, 43, 226, 0.4)'; // Sombra con colores del tema
     infoBox.style.zIndex = '1000';
     infoBox.style.pointerEvents = 'none';
@@ -222,18 +223,19 @@ document.addEventListener('DOMContentLoaded', function() {
             color: #ff69b4; /* Color del tema para títulos */
             margin-top: 0;
             margin-bottom: 10px;
-            font-size: 18px;
+            font-size: ${CONFIG.popupTitleFontSize}px;
             border-bottom: 1px solid rgba(255, 105, 180, 0.3);
             padding-bottom: 5px;
         }
         #node-hover-info p {
             margin: 8px 0;
-            line-height: 1.4;
-            font-size: 14px;
+            line-height: 1.5;
+            font-size: ${CONFIG.popupTextFontSize}px;
         }
         #node-hover-info strong {
             color: #ff9edb; /* Color más claro y visible para etiquetas */
             font-weight: bold;
+            font-size: ${CONFIG.popupSubtitleFontSize}px;
         }
     `;
     document.head.appendChild(style);
