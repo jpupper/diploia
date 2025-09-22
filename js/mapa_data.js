@@ -13,12 +13,12 @@ const CONFIG = {
     primaryDistance: 200,       // Distancia de nodo central a categorías principales
     categoryDistancesMain: {     // Distancias personalizadas para cada categoría al nodo central
         'engines': 1200,          // Distancia de Motores Gráficos al nodo central
-        'frameworks': 800,       // Distancia de Frameworks Web al nodo central
+        'frameworks': 1000,       // Distancia de Frameworks Web al nodo central
         'ia': 500,              // Distancia de Herramientas IA al nodo central
         'shaders': 1000,         // Distancia de Shaders al nodo central
-        'db': 800,              // Distancia de Bases de Datos al nodo central
+        'db': 600,              // Distancia de Bases de Datos al nodo central
         'ides': 1200,            // Distancia de IDEs al nodo central
-        'languages': 600,       // Distancia de Lenguajes de Programación al nodo central
+        'languages': 1500,       // Distancia de Lenguajes de Programación al nodo central
         'llm': 1000,             // Distancia de LLM Models al nodo central
         'frontend': 500,        // Distancia de frameworks frontend al nodo central
         'os': 1000,              // Distancia de Sistemas Operativos al nodo central
@@ -34,7 +34,7 @@ const CONFIG = {
         'shaders': 200,         // Distancia de Shaders a sus herramientas
         'db': 200,              // Distancia de Bases de Datos a sus herramientas
         'ides': 200,           // Distancia de IDEs a sus herramientas
-        'languages': 200,      // Distancia de Lenguajes de Programación a sus herramientas
+        'languages': 300,      // Distancia de Lenguajes de Programación a sus herramientas
         'llm': 200,             // Distancia de LLM Models a sus herramientas
         'frontend': 200,        // Distancia de frameworks frontend a sus herramientas
         'os': 200,              // Distancia de Sistemas Operativos a sus elementos
