@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Posiciones para nodos secundarios (segundo anillo)
                 const categoryMap = {
                     'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines', 'openframeworks': 'engines',
-                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'nodejs': 'frameworks', 'websockets': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks', 'xampp': 'frameworks',
+                    'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'websockets': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks', 'xampp': 'frameworks',
                     'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
                     'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders', 'ejemplos-shaders': 'shaders', 'editor-shaders-live': 'shaders',
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes', 'mapping': 'soportes', 'nft': 'soportes',
                     'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
                     'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia', 'gitbash': 'software-multimedia',
-                    'docker': 'entornos', 'venv': 'entornos', 'conda': 'entornos',
+                    'docker': 'entornos', 'venv': 'entornos', 'conda': 'entornos', 'nodejs': 'entornos',
                     'livecoding': 'glosario', 'vibecoding': 'glosario', 'programacion': 'glosario', 'prompting': 'glosario', 'consola': 'glosario', 'script': 'glosario', 'compilado-interpretado': 'glosario', 'drivers': 'glosario', 'mcp': 'glosario', 'repositorio': 'glosario', 'github': 'glosario', 'git': 'glosario'
                 };
                 
