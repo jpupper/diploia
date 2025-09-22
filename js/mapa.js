@@ -213,18 +213,73 @@ document.addEventListener('DOMContentLoaded', function() {
     infoBox.style.transform = 'translateY(10px)';
     document.getElementById('cy').appendChild(infoBox);
     
-    // Iniciar animación para líneas discontinuas
-    setInterval(function() {
-        // Animar líneas discontinuas cambiando el patrón
-        cy.style()
-            .selector('edge[type="secondary"]')
-            .style({
-                'line-dash-offset': function(ele) {
-                    return (parseFloat(ele.style('line-dash-offset') || 0) + 1) % 12;
-                }
-            })
-            .update();
-    }, 100);
+    // Variables para la animación de líneas discontinuas
+    let dashOffset = 0;
+    let animationActive = true;
+    let dashAnimationId;
+    
+    // Función optimizada para animar líneas discontinuas
+    function animateDashLines() {
+        if (!animationActive) return;
+        
+        // Incrementar el offset
+        dashOffset = (dashOffset + 1) % 12;
+        
+        // Aplicar el nuevo offset usando CSS en lugar de actualizar cada línea individualmente
+        const styleSheet = document.styleSheets[0];
+        let dashRule = null;
+        
+        // Buscar si ya existe una regla para las líneas discontinuas
+        for (let i = 0; i < styleSheet.cssRules.length; i++) {
+            if (styleSheet.cssRules[i].selectorText === '.dash-animated') {
+                dashRule = styleSheet.cssRules[i];
+                break;
+            }
+        }
+        
+        // Si no existe, crear una nueva regla
+        if (!dashRule) {
+            const ruleIndex = styleSheet.insertRule('.dash-animated { line-dash-offset: 0; }', styleSheet.cssRules.length);
+            dashRule = styleSheet.cssRules[ruleIndex];
+        }
+        
+        // Actualizar el valor de line-dash-offset
+        dashRule.style.setProperty('line-dash-offset', dashOffset);
+        
+        // Programar la próxima animación
+        dashAnimationId = requestAnimationFrame(animateDashLines);
+    }
+    
+    // Agregar clase a todas las líneas discontinuas
+    cy.style()
+        .selector('edge[type="secondary"]')
+        .style({
+            'line-style': 'dashed',
+            'line-dash-pattern': [6, 3],
+            'line-color': 'rgba(138, 43, 226, 0.6)',
+            'target-arrow-color': '#8a2be2',
+            'transition-property': 'line-color, target-arrow-color, width, opacity',
+            'transition-duration': '0.3s'
+        })
+        .update();
+    
+    cy.$('edge[type="secondary"]').addClass('dash-animated');
+    
+    // Iniciar la animación
+    animateDashLines();
+    
+    // Detener la animación cuando la pestaña no esté visible para ahorrar recursos
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            animationActive = false;
+            if (dashAnimationId) {
+                cancelAnimationFrame(dashAnimationId);
+            }
+        } else {
+            animationActive = true;
+            animateDashLines();
+        }
+    });
     
     // Función para resaltar nodos conectados
     function highlightConnectedNodes(node) {
