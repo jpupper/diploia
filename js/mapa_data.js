@@ -1000,11 +1000,98 @@ function getMapConnections() {
         { data: { id: 'python-entornos', source: 'python', target: 'entornos', type: 'secondary' } },
         { data: { id: 'javascript-entornos', source: 'javascript', target: 'entornos', type: 'secondary' } },
         
-        // Conexiones con sistemas operativos
+        // Conexiones con sistemas operativos - Motores Gráficos
         { data: { id: 'unity-windows', source: 'unity', target: 'windows', type: 'secondary' } },
         { data: { id: 'unity-mac', source: 'unity', target: 'mac', type: 'secondary' } },
         { data: { id: 'unity-linux', source: 'unity', target: 'linux', type: 'secondary' } },
         { data: { id: 'unity-android', source: 'unity', target: 'android', type: 'secondary' } },
-        { data: { id: 'unity-ios', source: 'unity', target: 'ios', type: 'secondary' } }
+        { data: { id: 'unity-ios', source: 'unity', target: 'ios', type: 'secondary' } },
+        
+        { data: { id: 'unreal-windows', source: 'unreal', target: 'windows', type: 'secondary' } },
+        { data: { id: 'unreal-mac', source: 'unreal', target: 'mac', type: 'secondary' } },
+        { data: { id: 'unreal-linux', source: 'unreal', target: 'linux', type: 'secondary' } },
+        { data: { id: 'unreal-android', source: 'unreal', target: 'android', type: 'secondary' } },
+        { data: { id: 'unreal-ios', source: 'unreal', target: 'ios', type: 'secondary' } },
+        
+        { data: { id: 'godot-windows', source: 'godot', target: 'windows', type: 'secondary' } },
+        { data: { id: 'godot-mac', source: 'godot', target: 'mac', type: 'secondary' } },
+        { data: { id: 'godot-linux', source: 'godot', target: 'linux', type: 'secondary' } },
+        { data: { id: 'godot-android', source: 'godot', target: 'android', type: 'secondary' } },
+        { data: { id: 'godot-ios', source: 'godot', target: 'ios', type: 'secondary' } },
+        
+        { data: { id: 'touchdesigner-windows', source: 'touchdesigner', target: 'windows', type: 'secondary' } },
+        { data: { id: 'touchdesigner-mac', source: 'touchdesigner', target: 'mac', type: 'secondary' } },
+        
+        { data: { id: 'processing-windows', source: 'processing', target: 'windows', type: 'secondary' } },
+        { data: { id: 'processing-mac', source: 'processing', target: 'mac', type: 'secondary' } },
+        { data: { id: 'processing-linux', source: 'processing', target: 'linux', type: 'secondary' } },
+        { data: { id: 'processing-android', source: 'processing', target: 'android', type: 'secondary' } },
+        
+        { data: { id: 'openframeworks-windows', source: 'openframeworks', target: 'windows', type: 'secondary' } },
+        { data: { id: 'openframeworks-mac', source: 'openframeworks', target: 'mac', type: 'secondary' } },
+        { data: { id: 'openframeworks-linux', source: 'openframeworks', target: 'linux', type: 'secondary' } },
+        { data: { id: 'openframeworks-ios', source: 'openframeworks', target: 'ios', type: 'secondary' } },
+        
+        // Conexiones con sistemas operativos - Frameworks Web
+        { data: { id: 'p5-windows', source: 'p5', target: 'windows', type: 'secondary' } },
+        { data: { id: 'p5-mac', source: 'p5', target: 'mac', type: 'secondary' } },
+        { data: { id: 'p5-linux', source: 'p5', target: 'linux', type: 'secondary' } },
+        { data: { id: 'p5-android', source: 'p5', target: 'android', type: 'secondary' } },
+        { data: { id: 'p5-ios', source: 'p5', target: 'ios', type: 'secondary' } },
+        
+        { data: { id: 'three-windows', source: 'three', target: 'windows', type: 'secondary' } },
+        { data: { id: 'three-mac', source: 'three', target: 'mac', type: 'secondary' } },
+        { data: { id: 'three-linux', source: 'three', target: 'linux', type: 'secondary' } },
+        { data: { id: 'three-android', source: 'three', target: 'android', type: 'secondary' } },
+        { data: { id: 'three-ios', source: 'three', target: 'ios', type: 'secondary' } },
+        
+        { data: { id: 'babylon-windows', source: 'babylon', target: 'windows', type: 'secondary' } },
+        { data: { id: 'babylon-mac', source: 'babylon', target: 'mac', type: 'secondary' } },
+        { data: { id: 'babylon-linux', source: 'babylon', target: 'linux', type: 'secondary' } },
+        { data: { id: 'babylon-android', source: 'babylon', target: 'android', type: 'secondary' } },
+        { data: { id: 'babylon-ios', source: 'babylon', target: 'ios', type: 'secondary' } },
+        
+        { data: { id: 'tone-windows', source: 'tone', target: 'windows', type: 'secondary' } },
+        { data: { id: 'tone-mac', source: 'tone', target: 'mac', type: 'secondary' } },
+        { data: { id: 'tone-linux', source: 'tone', target: 'linux', type: 'secondary' } },
+        { data: { id: 'tone-android', source: 'tone', target: 'android', type: 'secondary' } },
+        { data: { id: 'tone-ios', source: 'tone', target: 'ios', type: 'secondary' } },
+        
+        { data: { id: 'hydra-windows', source: 'hydra', target: 'windows', type: 'secondary' } },
+        { data: { id: 'hydra-mac', source: 'hydra', target: 'mac', type: 'secondary' } },
+        { data: { id: 'hydra-linux', source: 'hydra', target: 'linux', type: 'secondary' } },
+        
+        { data: { id: 'xampp-windows', source: 'xampp', target: 'windows', type: 'secondary' } },
+        { data: { id: 'xampp-mac', source: 'xampp', target: 'mac', type: 'secondary' } },
+        { data: { id: 'xampp-linux', source: 'xampp', target: 'linux', type: 'secondary' } },
+        
+        // Conexiones con sistemas operativos - Software Multimediales
+        { data: { id: 'resolume-windows', source: 'resolume', target: 'windows', type: 'secondary' } },
+        { data: { id: 'resolume-mac', source: 'resolume', target: 'mac', type: 'secondary' } },
+        
+        { data: { id: 'blender-windows', source: 'blender', target: 'windows', type: 'secondary' } },
+        { data: { id: 'blender-mac', source: 'blender', target: 'mac', type: 'secondary' } },
+        { data: { id: 'blender-linux', source: 'blender', target: 'linux', type: 'secondary' } },
+        
+        { data: { id: 'paquete-adobe-windows', source: 'paquete-adobe', target: 'windows', type: 'secondary' } },
+        { data: { id: 'paquete-adobe-mac', source: 'paquete-adobe', target: 'mac', type: 'secondary' } },
+        
+        { data: { id: 'obs-windows', source: 'obs', target: 'windows', type: 'secondary' } },
+        { data: { id: 'obs-mac', source: 'obs', target: 'mac', type: 'secondary' } },
+        { data: { id: 'obs-linux', source: 'obs', target: 'linux', type: 'secondary' } },
+        
+        { data: { id: 'cinema4d-windows', source: 'cinema4d', target: 'windows', type: 'secondary' } },
+        { data: { id: 'cinema4d-mac', source: 'cinema4d', target: 'mac', type: 'secondary' } },
+        
+        { data: { id: 'ableton-windows', source: 'ableton', target: 'windows', type: 'secondary' } },
+        { data: { id: 'ableton-mac', source: 'ableton', target: 'mac', type: 'secondary' } },
+        
+        { data: { id: 'puredata-windows', source: 'puredata', target: 'windows', type: 'secondary' } },
+        { data: { id: 'puredata-mac', source: 'puredata', target: 'mac', type: 'secondary' } },
+        { data: { id: 'puredata-linux', source: 'puredata', target: 'linux', type: 'secondary' } },
+        
+        { data: { id: 'guipper-windows', source: 'guipper', target: 'windows', type: 'secondary' } },
+        
+        { data: { id: 'gitbash-windows', source: 'gitbash', target: 'windows', type: 'secondary' } }
     ];
 }
