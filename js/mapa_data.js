@@ -28,7 +28,7 @@ const CONFIG = {
         'soportes': 1800,        // Distancia de Soportes al nodo central
         'protocolos': 1400,      // Distancia de Protocolos de Comunicación al nodo central
         'software-multimedia': 1000, // Distancia de Software Multimediales al nodo central
-        'entornos': 1000,        // Distancia de Entornos de Desarrollo al nodo central
+        'entornos': 1500,        // Distancia de Entornos de Desarrollo al nodo central
         'glosario': 1700         // Distancia de Glosario al nodo central
     },
     categoryDistances: {         // Distancias personalizadas para cada categoría
