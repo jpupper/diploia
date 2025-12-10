@@ -542,7 +542,11 @@ const NODE_INFO = {
     'conda': `<h3>Conda</h3>
              <p>Sistema de gestión de paquetes y entornos multiplataforma, especialmente popular en ciencia de datos.</p>
              <p><strong>Se usa para:</strong> Crear entornos virtuales para Python, R y otros lenguajes, gestionar dependencias complejas.</p>
-             <p><strong>Disponibilidad:</strong> Open source, disponible a través de Anaconda o Miniconda.</p>`
+             <p><strong>Disponibilidad:</strong> Open source, disponible a través de Anaconda o Miniconda.</p>`,
+    'vps': `<h3>VPS (Virtual Private Server)</h3>
+            <p>Servidor virtual privado que funciona como un servidor dedicado dentro de un entorno compartido.</p>
+            <p><strong>Se usa para:</strong> Hosting de aplicaciones web, servidores de bases de datos, entornos de desarrollo y pruebas, despliegue de APIs.</p>
+            <p><strong>Disponibilidad:</strong> Servicios de pago con diferentes proveedores como DigitalOcean, AWS, Google Cloud, Azure, etc.</p>`
 };
 
 
@@ -705,6 +709,7 @@ function getMapElements() {
         { data: { id: 'docker', label: 'Docker', url: 'https://www.docker.com/' } },
         { data: { id: 'venv', label: 'venv', url: 'https://docs.python.org/3/library/venv.html' } },
         { data: { id: 'conda', label: 'Conda', url: 'https://docs.conda.io/' } },
+        { data: { id: 'vps', label: 'VPS', url: 'https://en.wikipedia.org/wiki/Virtual_private_server' } },
         
         // Conexiones principales con el nodo raíz
         { data: { id: 'root-engines', source: 'root', target: 'engines' } },
@@ -853,6 +858,7 @@ function getMapConnections() {
         { data: { id: 'entornos-venv', source: 'entornos', target: 'venv' } },
         { data: { id: 'entornos-conda', source: 'entornos', target: 'conda' } },
         { data: { id: 'entornos-nodejs', source: 'entornos', target: 'nodejs' } },
+        { data: { id: 'entornos-vps', source: 'entornos', target: 'vps' } },
         
         // Glosario
         { data: { id: 'glosario-livecoding', source: 'glosario', target: 'livecoding' } },
@@ -964,10 +970,13 @@ function getMapConnections() {
         { data: { id: 'mongodb-nodejs', source: 'mongodb', target: 'nodejs', type: 'secondary' } },
         { data: { id: 'react-nextjs', source: 'react', target: 'nextjs', type: 'secondary' } },
         { data: { id: 'typescript-angular', source: 'typescript', target: 'angular', type: 'secondary' } },
-        { data: { id: 'raspberry-pi-iot', source: 'raspberry-pi', target: 'ia', type: 'secondary' } },
+        { data: { id: 'raspberry-pi-entornos', source: 'raspberry-pi', target: 'entornos', type: 'secondary' } },
         { data: { id: 'python-ia', source: 'python', target: 'ia', type: 'secondary' } },
         { data: { id: 'blender-vr', source: 'blender', target: 'vr', type: 'secondary' } },
         { data: { id: 'docker-linux', source: 'docker', target: 'linux', type: 'secondary' } },
+        { data: { id: 'vps-nodejs', source: 'vps', target: 'nodejs', type: 'secondary' } },
+        { data: { id: 'vps-python', source: 'vps', target: 'python', type: 'secondary' } },
+        { data: { id: 'vps-linux', source: 'vps', target: 'linux', type: 'secondary' } },
         { data: { id: 'github-git', source: 'github', target: 'git', type: 'secondary' } },
         { data: { id: 'livecoding-hydra', source: 'livecoding', target: 'hydra', type: 'secondary' } },
         { data: { id: 'livecoding-javascript', source: 'livecoding', target: 'javascript', type: 'secondary' } },
@@ -987,7 +996,6 @@ function getMapConnections() {
         { data: { id: 'touchdesigner-software-multimedia', source: 'touchdesigner', target: 'software-multimedia', type: 'secondary' } },
         { data: { id: 'blender-engines', source: 'blender', target: 'engines', type: 'secondary' } },
         { data: { id: 'arduino-soportes', source: 'arduino', target: 'soportes', type: 'secondary' } },
-        { data: { id: 'raspberry-pi-entornos', source: 'raspberry-pi', target: 'entornos', type: 'secondary' } },
         { data: { id: 'xampp-entornos', source: 'xampp', target: 'entornos', type: 'secondary' } },
         { data: { id: 'git-entornos', source: 'git', target: 'entornos', type: 'secondary' } },
         { data: { id: 'github-entornos', source: 'github', target: 'entornos', type: 'secondary' } },

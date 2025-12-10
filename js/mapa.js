@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes', 'mapping': 'soportes', 'nft': 'soportes',
                     'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
                     'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia', 'gitbash': 'software-multimedia',
-                    'docker': 'entornos', 'venv': 'entornos', 'conda': 'entornos', 'nodejs': 'entornos',
+                    'docker': 'entornos', 'venv': 'entornos', 'conda': 'entornos', 'nodejs': 'entornos', 'vps': 'entornos',
                     'livecoding': 'glosario', 'vibecoding': 'glosario', 'programacion': 'glosario', 'prompting': 'glosario', 'consola': 'glosario', 'script': 'glosario', 'compilado-interpretado': 'glosario', 'drivers': 'glosario', 'mcp': 'glosario', 'repositorio': 'glosario', 'github': 'glosario', 'git': 'glosario'
                 };
                 
@@ -254,26 +254,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Incrementar el offset
         dashOffset = (dashOffset + 1) % 12;
         
-        // Aplicar el nuevo offset usando CSS en lugar de actualizar cada línea individualmente
-        const styleSheet = document.styleSheets[0];
-        let dashRule = null;
-        
-        // Buscar si ya existe una regla para las líneas discontinuas
-        for (let i = 0; i < styleSheet.cssRules.length; i++) {
-            if (styleSheet.cssRules[i].selectorText === '.dash-animated') {
-                dashRule = styleSheet.cssRules[i];
-                break;
-            }
-        }
-        
-        // Si no existe, crear una nueva regla
-        if (!dashRule) {
-            const ruleIndex = styleSheet.insertRule('.dash-animated { line-dash-offset: 0; }', styleSheet.cssRules.length);
-            dashRule = styleSheet.cssRules[ruleIndex];
-        }
-        
-        // Actualizar el valor de line-dash-offset
-        dashRule.style.setProperty('line-dash-offset', dashOffset);
+        // Aplicar el nuevo offset SOLO a los elementos con la clase dash-animated que también están destacados
+        cy.$('.dash-animated.highlighted').style('line-dash-offset', dashOffset);
         
         // Programar la próxima animación
         dashAnimationId = requestAnimationFrame(animateDashLines);
@@ -285,6 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .style({
             'line-style': 'dashed',
             'line-dash-pattern': [6, 3],
+            'line-dash-offset': 0,
             'line-color': 'rgba(138, 43, 226, 0.6)',
             'target-arrow-color': '#8a2be2',
             'transition-property': 'line-color, target-arrow-color, width, opacity',
@@ -348,6 +331,8 @@ document.addEventListener('DOMContentLoaded', function() {
     cy.on('tap', function(evt){
         if (evt.target === cy) {
             cy.elements().removeClass('highlighted faded');
+            // Asegurarse de que ninguna línea discontinua se anime cuando no hay selección
+            cy.$('.dash-animated').style('line-dash-offset', 0);
         }
     });
     
@@ -374,6 +359,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'opacity': 1,
             'z-index': 999
         });
+        
+        // Agregar clase highlighted para que se active la animación
+        connectedEdges.addClass('highlighted');
         
         // Resaltar nodos conectados
         var connectedNodes = node.neighborhood('node');
@@ -410,6 +398,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Restaurar estilos de bordes
         var connectedEdges = node.connectedEdges();
         connectedEdges.removeStyle('width line-color target-arrow-color opacity z-index');
+        
+        // Quitar la clase highlighted para detener la animación
+        connectedEdges.removeClass('highlighted');
         
         // Restaurar estilos de nodos conectados
         var connectedNodes = node.neighborhood('node');

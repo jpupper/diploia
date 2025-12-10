@@ -2,7 +2,10 @@ function createMenu() {
     const menuItems = [
         { text: 'Clases', url: 'index.html' },
         { text: 'Trabajo Práctico', url: 'trabajopractico.html' },
-        { text: 'Mapa de Herramientas', url: 'mapadeherramientas.html' }
+        { text: 'Mapa de Herramientas', url: 'mapadeherramientas.html' },
+        { text: 'Tutoriales', url: 'tutoriales.html' },
+        { text: 'Prompting', url: 'prompting.html' },
+        { text: 'Protocolo de Revisión', url: 'protocolo-revision.html' }
     ];
 
     const nav = document.createElement('nav');
@@ -27,6 +30,7 @@ function createMenu() {
 }
 
 function initMenu() {
+    const header = document.querySelector('header');
     const headerContainer = document.querySelector('header .container');
     if (!headerContainer) return;
 
@@ -35,7 +39,33 @@ function initMenu() {
         existingNav.remove();
     }
 
-    headerContainer.appendChild(createMenu());
+    const existingToggle = headerContainer.querySelector('.menu-toggle');
+    if (existingToggle) {
+        existingToggle.remove();
+    }
+
+    // Create hamburger button
+    const menuToggle = document.createElement('button');
+    menuToggle.className = 'menu-toggle';
+    menuToggle.innerHTML = '☰';
+    menuToggle.setAttribute('aria-label', 'Toggle menu');
+    
+    const menu = createMenu();
+    
+    // Add toggle functionality
+    menuToggle.addEventListener('click', () => {
+        menu.classList.toggle('active');
+    });
+
+    // Check if it's a compact header (like in mapadeherramientas.html)
+    const headerContent = headerContainer.querySelector('.header-content');
+    if (headerContent) {
+        headerContent.appendChild(menuToggle);
+        headerContent.appendChild(menu);
+    } else {
+        headerContainer.appendChild(menuToggle);
+        headerContainer.appendChild(menu);
+    }
 }
 
 // Initialize menu when DOM is loaded
