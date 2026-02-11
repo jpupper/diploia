@@ -73,6 +73,52 @@ main {
     border-radius: 0;
 }
 
+.anim-btn {
+    background: linear-gradient(135deg, #8a2be2, #ff69b4) !important;
+    border: 1px solid #ff69b4 !important;
+    color: #fff !important;
+    font-size: 1rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.anim-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.6);
+}
+
+.anim-btn.active {
+    animation: anim-btn-pulse 1.5s infinite;
+}
+
+@keyframes anim-btn-pulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(255, 105, 180, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 0 0 30px rgba(138, 43, 226, 0.4); }
+}
+
+#anim-category-label {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 10, 20, 0.9);
+    color: #ff69b4;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    z-index: 500;
+    border: 1px solid rgba(255, 105, 180, 0.5);
+    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.3);
+    display: none;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
 .node-info {
     position: fixed;
     bottom: 60px;
@@ -83,4 +129,84 @@ main {
     display: none;
     z-index: 200;
     max-width: 400px;
+}
+
+#fullscreen-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10000;
+    padding: 10px 20px;
+    background: rgba(10, 10, 20, 0.85);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 105, 180, 0.4);
+    backdrop-filter: blur(8px);
+}
+
+#fullscreen-controls .anim-btn {
+    pointer-events: auto;
+}
+
+#anim-info-panel {
+    position: fixed;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%) translateX(20px);
+    background: rgba(10, 10, 20, 0.95);
+    color: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    min-width: 340px;
+    max-width: 420px;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 30px rgba(255, 105, 180, 0.4), 0 0 20px rgba(138, 43, 226, 0.4);
+    z-index: 600;
+    border: 1px solid rgba(255, 105, 180, 0.5);
+    backdrop-filter: blur(8px);
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+}
+
+#anim-info-panel.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+#anim-info-panel h3 {
+    color: #ff69b4;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 20px;
+    border-bottom: 1px solid rgba(255, 105, 180, 0.3);
+    padding-bottom: 8px;
+}
+
+#anim-info-panel p {
+    margin: 8px 0;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+#anim-info-panel strong {
+    color: #ff9edb;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+#anim-info-panel ul {
+    margin: 5px 0;
+    padding-left: 20px;
+}
+
+#anim-info-panel li {
+    margin: 3px 0;
+    line-height: 1.4;
+    font-size: 14px;
 }

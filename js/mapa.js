@@ -502,4 +502,507 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Pantalla Completa';
         }
     }
+
+    // =============================================
+    // MODO ANIMACIÓN - Play / Stop
+    // =============================================
+    var animRunning = false;
+    var animCancelled = false;
+    var animTimeouts = [];
+
+    // Mapa de categoría -> hijos
+    var categoryChildrenMap = {
+        'engines': ['unity', 'unreal', 'godot', 'touchdesigner', 'processing', 'openframeworks'],
+        'frameworks': ['p5', 'three', 'babylon', 'tone', 'ml5', 'hydra', 'xampp'],
+        'ia': ['comfy', 'n8n', 'pinokio'],
+        'shaders': ['shadertoy', 'glsl', 'hlsl', 'bookofshaders', 'ejemplos-shaders', 'editor-shaders-live'],
+        'db': ['firebase', 'mongodb', 'sql'],
+        'ides': ['cursor', 'trae', 'v0', 'windsurf', 'visual-studio'],
+        'languages': ['cpp', 'csharp', 'php', 'javascript', 'python', 'typescript', 'java', 'html', 'css', 'json', 'r', 'arduino', 'assembler'],
+        'llm': ['chatgpt', 'deepseek', 'gemini', 'kimi', 'claude'],
+        'frontend': ['react', 'vue', 'svelte', 'angular', 'nextjs'],
+        'os': ['windows', 'linux', 'mac', 'android', 'ios'],
+        'soportes': ['pantalla-touch', 'instalaciones-fisicas', 'raspberry-pi', 'pantalla-led', 'proyector', 'sitio-web', 'compilado-apk', 'virtual-production', 'vr', 'ar', 'sonido', 'videojuegos', 'mapping', 'nft'],
+        'protocolos': ['websockets', 'spout', 'syphon', 'ndi', 'webrtc', 'osc', 'api', 'midi'],
+        'software-multimedia': ['resolume', 'blender', 'paquete-adobe', 'obs', 'cinema4d', 'ableton', 'puredata', 'guipper', 'gitbash'],
+        'entornos': ['docker', 'venv', 'conda', 'nodejs', 'vps'],
+        'glosario': ['livecoding', 'vibecoding', 'programacion', 'prompting', 'consola', 'script', 'compilado-interpretado', 'drivers', 'mcp', 'repositorio', 'github', 'git']
+    };
+
+    var categoryOrder = ['engines', 'frameworks', 'ia', 'shaders', 'db', 'ides', 'languages', 'llm', 'frontend', 'os', 'soportes', 'protocolos', 'software-multimedia', 'entornos', 'glosario'];
+
+    var playBtn = document.getElementById('anim-play');
+    var stopBtn = document.getElementById('anim-stop');
+    var categoryLabel = document.getElementById('anim-category-label');
+    var animInfoPanel = document.getElementById('anim-info-panel');
+
+    function showAnimInfo(nodeId) {
+        var info = NODE_INFO[nodeId];
+        if (info && animInfoPanel) {
+            animInfoPanel.innerHTML = info;
+            animInfoPanel.style.display = 'block';
+            animInfoPanel.offsetHeight;
+            animInfoPanel.classList.add('visible');
+        }
+    }
+
+    function hideAnimInfo() {
+        if (animInfoPanel) {
+            animInfoPanel.classList.remove('visible');
+            setTimeout(function() {
+                if (!animInfoPanel.classList.contains('visible')) {
+                    animInfoPanel.style.display = 'none';
+                }
+            }, 500);
+        }
+    }
+
+    function animDelay(ms) {
+        return new Promise(function(resolve) {
+            var t = setTimeout(function() {
+                if (animCancelled) return;
+                resolve();
+            }, ms);
+            animTimeouts.push(t);
+        });
+    }
+
+    function showCategoryLabel(text) {
+        categoryLabel.textContent = text;
+        categoryLabel.style.display = 'block';
+        categoryLabel.style.opacity = '1';
+    }
+
+    function hideCategoryLabel() {
+        categoryLabel.style.opacity = '0';
+        setTimeout(function() {
+            categoryLabel.style.display = 'none';
+        }, 400);
+    }
+
+    // Función para centrar la cámara en un nodo específico con zoom
+    function focusOnNode(node, padding) {
+        padding = padding || 180;
+        cy.stop(); // Detener animaciones previas de cy
+        cy.animate({
+            fit: { eles: node, padding: padding },
+            duration: CONFIG.animTransitionSpeed,
+            easing: 'ease-in-out'
+        });
+    }
+
+    async function runAnimation() {
+        animRunning = true;
+        animCancelled = false;
+        playBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
+        stopBtn.classList.add('active');
+        // También actualizar botones de fullscreen si existen
+        updateFullscreenAnimButtons(true);
+
+        // Guardar posiciones originales de todos los nodos
+        var originalPositions = {};
+        cy.nodes().forEach(function(n) {
+            originalPositions[n.id()] = { x: n.position('x'), y: n.position('y') };
+        });
+
+        // Paso 1: Preparar - ocultar todo
+        cy.elements().removeClass('highlighted faded');
+        cy.nodes().style('opacity', 1);
+        cy.edges().style('opacity', 1);
+
+        var allChildIds = [];
+        categoryOrder.forEach(function(catId) {
+            categoryChildrenMap[catId].forEach(function(childId) {
+                allChildIds.push(childId);
+            });
+        });
+
+        // Ocultar hijos y sus edges
+        allChildIds.forEach(function(childId) {
+            var node = cy.getElementById(childId);
+            if (node.length) {
+                node.style('opacity', 0);
+                node.connectedEdges().style('opacity', 0);
+            }
+        });
+
+        // Ocultar categorías inicialmente
+        categoryOrder.forEach(function(catId) {
+            var catNode = cy.getElementById(catId);
+            if (catNode.length) {
+                catNode.style('opacity', 0);
+                catNode.connectedEdges().style('opacity', 0);
+            }
+        });
+
+        // Centrar en root
+        focusOnNode(cy.getElementById('root'), 200);
+        showAnimInfo('root');
+
+        await animDelay(CONFIG.animCategoryDelay);
+        if (animCancelled) return;
+
+        hideAnimInfo();
+        await animDelay(500);
+        if (animCancelled) return;
+
+        // Paso 2: Iterar por cada categoría
+        for (var i = 0; i < categoryOrder.length; i++) {
+            if (animCancelled) return;
+
+            var catId = categoryOrder[i];
+            var catNode = cy.getElementById(catId);
+            var children = categoryChildrenMap[catId];
+
+            if (!catNode.length) continue;
+
+            // --- FASE 1: Mostrar y enfocar la CATEGORÍA ---
+            showCategoryLabel(catNode.data('label'));
+
+            // Mostrar el nodo categoría y su edge desde root
+            catNode.style('opacity', 1);
+            var rootEdge = cy.getElementById('root-' + catId);
+            if (rootEdge.length) {
+                rootEdge.style('opacity', 1);
+            }
+
+            // Highlight de la categoría
+            catNode.style({
+                'border-color': '#00ffff',
+                'border-width': '5px'
+            });
+
+            // Centrar cámara en la categoría
+            focusOnNode(catNode, 200);
+
+            await animDelay(CONFIG.animTransitionSpeed + 200);
+            if (animCancelled) return;
+
+            // Mostrar info panel de la categoría
+            showAnimInfo(catId);
+
+            // Esperar el tiempo configurado en la categoría
+            await animDelay(CONFIG.animCategoryDelay);
+            if (animCancelled) return;
+
+            // Restaurar estilo de categoría
+            catNode.removeStyle('border-color border-width');
+            hideAnimInfo();
+            await animDelay(400);
+            if (animCancelled) return;
+
+            // --- FASE 2: Expandir todos los hijos primero (rápido) ---
+            var catPos = catNode.position();
+            for (var j = 0; j < children.length; j++) {
+                var childId = children[j];
+                var childNode = cy.getElementById(childId);
+                if (!childNode.length) continue;
+
+                // Mover el hijo a la posición de la categoría
+                childNode.position({ x: catPos.x, y: catPos.y });
+                childNode.style('opacity', 1);
+
+                // Mostrar edge categoría -> hijo
+                var catEdge = cy.edges().filter(function(edge) {
+                    return edge.data('source') === catId && edge.data('target') === childId;
+                });
+                catEdge.style('opacity', 1);
+
+                // Animar hacia su posición original
+                var origPos = originalPositions[childId];
+                if (origPos) {
+                    childNode.animate({
+                        position: origPos,
+                        duration: CONFIG.animNodeExpansionSpeed,
+                        easing: 'ease-out'
+                    });
+                }
+            }
+
+            // Esperar a que se expandan
+            await animDelay(CONFIG.animNodeExpansionSpeed + 200);
+            if (animCancelled) return;
+
+            // --- FASE 3: Recorrer CADA hijo, centrar cámara y mostrar info ---
+            for (var j = 0; j < children.length; j++) {
+                if (animCancelled) return;
+
+                var childId = children[j];
+                var childNode = cy.getElementById(childId);
+                if (!childNode.length) continue;
+
+                // Highlight del hijo
+                childNode.style({
+                    'border-color': '#00ffff',
+                    'border-width': '5px'
+                });
+
+                // Centrar cámara en ESTE nodo hijo
+                focusOnNode(childNode, 250);
+
+                await animDelay(CONFIG.animTransitionSpeed + 100);
+                if (animCancelled) return;
+
+                // Mostrar info panel del hijo
+                showAnimInfo(childId);
+
+                // Esperar el tiempo configurado por nodo
+                await animDelay(CONFIG.animNodeDelay);
+                if (animCancelled) return;
+
+                // Ocultar info y restaurar estilo
+                hideAnimInfo();
+                childNode.removeStyle('border-color border-width');
+
+                await animDelay(300);
+                if (animCancelled) return;
+            }
+
+            // --- FASE 4: Vista general de la categoría completa ---
+            var catCollection = cy.collection().merge(catNode);
+            children.forEach(function(cId) {
+                catCollection = catCollection.merge(cy.getElementById(cId));
+            });
+
+            cy.stop();
+            cy.animate({
+                fit: { eles: catCollection, padding: 80 },
+                duration: CONFIG.animTransitionSpeed,
+                easing: 'ease-in-out'
+            });
+
+            await animDelay(CONFIG.animTransitionSpeed + 500);
+            if (animCancelled) return;
+
+            hideCategoryLabel();
+            await animDelay(500);
+            if (animCancelled) return;
+        }
+
+        // Final: Mostrar todo el mapa
+        hideCategoryLabel();
+        hideAnimInfo();
+        cy.stop();
+        cy.animate({
+            fit: { eles: cy.elements(), padding: 50 },
+            duration: 1200,
+            easing: 'ease-in-out'
+        });
+
+        await animDelay(1500);
+        stopAnimation();
+    }
+
+    function stopAnimation() {
+        animCancelled = true;
+        animRunning = false;
+
+        // Limpiar timeouts pendientes
+        animTimeouts.forEach(function(t) { clearTimeout(t); });
+        animTimeouts = [];
+
+        // Restaurar UI
+        playBtn.style.display = 'inline-block';
+        stopBtn.style.display = 'none';
+        stopBtn.classList.remove('active');
+        hideCategoryLabel();
+        hideAnimInfo();
+        updateFullscreenAnimButtons(false);
+
+        // Restaurar visibilidad de todos los nodos y edges
+        cy.nodes().style('opacity', 1);
+        cy.edges().style('opacity', 1);
+        cy.nodes().removeStyle('border-color border-width');
+        cy.elements().removeClass('highlighted faded');
+
+        // Fit todo
+        cy.stop();
+        cy.animate({
+            fit: { eles: cy.elements(), padding: 50 },
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    }
+
+    playBtn.addEventListener('click', function() {
+        if (!animRunning) {
+            runAnimation();
+        }
+    });
+
+    stopBtn.addEventListener('click', function() {
+        stopAnimation();
+    });
+
+    // =============================================
+    // CONTROLES EN FULLSCREEN
+    // =============================================
+    var fsControls = document.getElementById('fullscreen-controls');
+    var fsPlayBtn = document.getElementById('fs-anim-play');
+    var fsStopBtn = document.getElementById('fs-anim-stop');
+
+    function updateFullscreenAnimButtons(isPlaying) {
+        if (!fsPlayBtn || !fsStopBtn) return;
+        if (isPlaying) {
+            fsPlayBtn.style.display = 'none';
+            fsStopBtn.style.display = 'inline-block';
+            fsStopBtn.classList.add('active');
+        } else {
+            fsPlayBtn.style.display = 'inline-block';
+            fsStopBtn.style.display = 'none';
+            fsStopBtn.classList.remove('active');
+        }
+    }
+
+    // Mostrar/ocultar controles de fullscreen
+    function onFullscreenChange() {
+        if (fsControls) {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                fsControls.style.display = 'flex';
+            } else {
+                fsControls.style.display = 'none';
+            }
+        }
+    }
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('mozfullscreenchange', onFullscreenChange);
+    document.addEventListener('MSFullscreenChange', onFullscreenChange);
+
+    if (fsPlayBtn) {
+        fsPlayBtn.addEventListener('click', function() {
+            if (!animRunning) {
+                runAnimation();
+            }
+        });
+    }
+
+    if (fsStopBtn) {
+        fsStopBtn.addEventListener('click', function() {
+            stopAnimation();
+        });
+    }
+
+    var fsExitBtn = document.getElementById('fs-exit');
+    if (fsExitBtn) {
+        fsExitBtn.addEventListener('click', function() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        });
+    }
+
+    // =============================================
+    // DESCARGAR JSON CON TODA LA DATA DEL MAPA
+    // =============================================
+    function generateMapJSON() {
+        var nodes = {};
+        var elements = getMapElements();
+        var connections = getMapConnections();
+
+        // Recopilar todos los nodos
+        elements.forEach(function(el) {
+            if (el.data && el.data.id && !el.data.source) {
+                nodes[el.data.id] = {
+                    id: el.data.id,
+                    label: el.data.label || '',
+                    type: el.data.type || 'tool',
+                    url: el.data.url || null,
+                    info: null,
+                    connections: {
+                        parent: [],
+                        children: [],
+                        secondary: []
+                    }
+                };
+            }
+        });
+
+        // Agregar la info de NODE_INFO
+        Object.keys(NODE_INFO).forEach(function(nodeId) {
+            if (nodes[nodeId]) {
+                // Extraer texto plano del HTML
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = NODE_INFO[nodeId];
+                nodes[nodeId].info = tempDiv.textContent.trim().replace(/\s+/g, ' ');
+                nodes[nodeId].infoHTML = NODE_INFO[nodeId];
+            }
+        });
+
+        // Procesar conexiones de getMapElements (root -> categorías, categorías -> hijos)
+        elements.forEach(function(el) {
+            if (el.data && el.data.source && el.data.target) {
+                var src = el.data.source;
+                var tgt = el.data.target;
+                var type = el.data.type || 'primary';
+                if (nodes[src]) {
+                    nodes[src].connections.children.push({ id: tgt, type: type });
+                }
+                if (nodes[tgt]) {
+                    nodes[tgt].connections.parent.push({ id: src, type: type });
+                }
+            }
+        });
+
+        // Procesar conexiones de getMapConnections
+        connections.forEach(function(el) {
+            if (el.data && el.data.source && el.data.target) {
+                var src = el.data.source;
+                var tgt = el.data.target;
+                var type = el.data.type || 'primary';
+
+                if (type === 'secondary') {
+                    if (nodes[src]) {
+                        nodes[src].connections.secondary.push(tgt);
+                    }
+                    if (nodes[tgt]) {
+                        nodes[tgt].connections.secondary.push(src);
+                    }
+                } else {
+                    if (nodes[src]) {
+                        nodes[src].connections.children.push({ id: tgt, type: type });
+                    }
+                    if (nodes[tgt]) {
+                        nodes[tgt].connections.parent.push({ id: src, type: type });
+                    }
+                }
+            }
+        });
+
+        // Eliminar duplicados en secondary
+        Object.keys(nodes).forEach(function(nodeId) {
+            nodes[nodeId].connections.secondary = [...new Set(nodes[nodeId].connections.secondary)];
+        });
+
+        return {
+            exportDate: new Date().toISOString(),
+            totalNodes: Object.keys(nodes).length,
+            categories: categoryOrder,
+            categoryChildren: categoryChildrenMap,
+            config: CONFIG,
+            nodes: nodes
+        };
+    }
+
+    document.getElementById('download-json').addEventListener('click', function() {
+        var data = generateMapJSON();
+        var jsonStr = JSON.stringify(data, null, 2);
+        var blob = new Blob([jsonStr], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'mapa_herramientas_data.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
 });

@@ -9,18 +9,18 @@ const CONFIG = {
     nodeFontSize: 14,           // Tamaño de fuente para nodos normales
     categoryFontSize: 18,       // Tamaño de fuente para categorías
     rootFontSize: 20,           // Tamaño de fuente para el nodo raíz
-    popupTitleFontSize: 22,     // Tamaño de fuente para títulos en popups
-    popupSubtitleFontSize: 18,  // Tamaño de fuente para subtítulos en popups
-    popupTextFontSize: 16,      // Tamaño de fuente para texto en popups
+    popupTitleFontSize: 40,     // Tamaño de fuente para títulos en popups
+    popupSubtitleFontSize: 35,  // Tamaño de fuente para subtítulos en popups
+    popupTextFontSize: 30,      // Tamaño de fuente para texto en popups
     secondaryNodeDist: 120,      // Distancia entre nodos secundarios
     primaryDistance: 250,       // Distancia de nodo central a categorías principales
     categoryDistancesMain: {     // Distancias personalizadas para cada categoría al nodo central
         'engines': 1300,          // Distancia de Motores Gráficos al nodo central
-        'frameworks': 1300,       // Distancia de Frameworks Web al nodo central
+        'frameworks': 1500,       // Distancia de Frameworks Web al nodo central
         'ia': 700,              // Distancia de Herramientas IA al nodo central
-        'shaders': 1100,         // Distancia de Shaders al nodo central
+        'shaders': 1200,         // Distancia de Shaders al nodo central
         'db': 800,              // Distancia de Bases de Datos al nodo central
-        'ides': 1400,            // Distancia de IDEs al nodo central
+        'ides': 2000,            // Distancia de IDEs al nodo central
         'languages': 1600,       // Distancia de Lenguajes de Programación al nodo central
         'llm': 1200,             // Distancia de LLM Models al nodo central
         'frontend': 700,        // Distancia de frameworks frontend al nodo central
@@ -37,7 +37,7 @@ const CONFIG = {
         'ia': 180,              // Distancia de Herramientas IA a sus herramientas
         'shaders': 220,         // Distancia de Shaders a sus herramientas
         'db': 220,              // Distancia de Bases de Datos a sus herramientas
-        'ides': 250,           // Distancia de IDEs a sus herramientas
+        'ides': 220,           // Distancia de IDEs a sus herramientas
         'languages': 350,      // Distancia de Lenguajes de Programación a sus herramientas
         'llm': 220,             // Distancia de LLM Models a sus herramientas
         'frontend': 220,        // Distancia de frameworks frontend a sus herramientas
@@ -47,11 +47,20 @@ const CONFIG = {
         'software-multimedia': 220, // Distancia de Software Multimediales a sus elementos
         'entornos': 220,        // Distancia de Entornos de Desarrollo a sus elementos
         'glosario': 380         // Distancia de Glosario a sus elementos
-    }
+    },
+    // Configuración de tiempos para el modo Play (en milisegundos)
+    animCategoryDelay: 3000,    // Tiempo que la cámara se queda en cada categoría principal
+    animNodeDelay: 2500,        // Tiempo que la cámara se queda en cada nodo hijo
+    animTransitionSpeed: 800,   // Velocidad de transición de cámara entre nodos
+    animNodeExpansionSpeed: 400 // Velocidad de la animación de expansión de nodos hijos
 };
 
 // Descripciones de los nodos para mostrar en hover
 const NODE_INFO = {
+    // Nodo raíz
+    'root': `<h3>Arte Generativo y Código con IA</h3>
+             <p>Mapa interactivo de herramientas, tecnologías y conceptos para la creación de arte generativo y desarrollo con inteligencia artificial.</p>
+             <p><strong>Categorías:</strong> Motores Gráficos, Frameworks, IA, Shaders, Bases de Datos, IDEs, Lenguajes, LLMs, Frontend, Sistemas Operativos, Soportes, Protocolos, Software Multimedia, Entornos y Glosario.</p>`,
     // Descripciones de las categorías principales
     'engines': `<h3>Motores Gráficos</h3>
                 <p>Motores gráficos y entornos de desarrollo para crear aplicaciones interactivas, videojuegos y experiencias visuales.</p>
@@ -1098,6 +1107,7 @@ function getMapConnections() {
         { data: { id: 'puredata-mac', source: 'puredata', target: 'mac', type: 'secondary' } },
         { data: { id: 'puredata-linux', source: 'puredata', target: 'linux', type: 'secondary' } },
         
+        { data: { id: 'guipper-shaders', source: 'guipper', target: 'shaders', type: 'secondary' } },
         { data: { id: 'guipper-windows', source: 'guipper', target: 'windows', type: 'secondary' } },
         
         { data: { id: 'gitbash-windows', source: 'gitbash', target: 'windows', type: 'secondary' } }
