@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nube de Universos — Arte Generativo y Código con IA</title>
-    <link rel="stylesheet" href="../css/nube_universos.css" />
+    <link rel="stylesheet" href="nube_universos.css" />
 </head>
 
 <body>
@@ -24,11 +24,41 @@
         <p>Cargando universos…</p>
     </div>
 
+    <!-- ── Splash / Intro Screen ── -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="splash-subtitle">DIPLOMA EN ARTE GENERATIVO Y CÓDIGO CON IA</div>
+            <h1 class="splash-title">NUBE DE<br>UNIVERSOS</h1>
+            <p class="splash-desc">Explorá el mapa interactivo de tecnologías de software multimedia.<br>Navegá entre universos, descubrí herramientas y conectá conocimientos.</p>
+            <div class="splash-modes">
+                <div class="splash-mode">
+                    <span class="splash-mode-icon">🌐</span>
+                    <span><strong>Global</strong> — Orbitá entre categorías</span>
+                </div>
+                <div class="splash-mode">
+                    <span class="splash-mode-icon">🎥</span>
+                    <span><strong>Cámara</strong> — Seguí un planeta de cerca</span>
+                </div>
+                <div class="splash-mode">
+                    <span class="splash-mode-icon">🚀</span>
+                    <span><strong>Nave</strong> — Volá libre por el espacio</span>
+                </div>
+            </div>
+            <button id="splash-start" class="splash-btn">EXPLORAR</button>
+        </div>
+    </div>
+
     <div id="canvas-container"></div>
 
+    <!-- ── Orbit HUD ── -->
     <div id="hud">
         <div id="title-bar">
             <h1>Nube de Universos · Arte Generativo &amp; IA</h1>
+        </div>
+
+        <div id="selection-indicator">
+            <div class="sel-planet" id="sel-planet-text"></div>
+            <div class="sel-category" id="sel-category-text"></div>
         </div>
 
         <div id="universe-indicator">
@@ -53,11 +83,56 @@
         <div id="key-hint">
             <kbd>←</kbd> <kbd>→</kbd> Navegar universos<br />
             <kbd>↑</kbd> <kbd>↓</kbd> Zoom<br />
-            <kbd>Click</kbd> Seleccionar nodo<br />
+            <kbd>Click</kbd> Seleccionar · <kbd>DblClick</kbd> Seguir<br />
             <kbd>Arrastrar</kbd> Rotar<br />
-            <kbd>N</kbd> Mostrar/ocultar nombres
+            <kbd>N</kbd> Nombres · <kbd>V</kbd> Cámara · <kbd>F</kbd> Nave
         </div>
         <div id="hover-tooltip"></div>
+    </div>
+
+    <!-- ── View mode toggle ── -->
+    <div id="view-mode-toggle">
+        <button class="view-btn active" id="btn-view-global">Global</button>
+        <button class="view-btn" id="btn-view-camera">Cámara</button>
+        <button class="view-btn" id="btn-view-ship">Nave</button>
+    </div>
+
+    <!-- ── Camera follow hint ── -->
+    <div id="camera-hint">
+        <kbd>A</kbd> <kbd>D</kbd> Yaw · <kbd>W</kbd> <kbd>S</kbd> Pitch<br />
+        <kbd>Click</kbd> Capturar mouse · <kbd>Scroll</kbd> Distancia<br />
+        <kbd>V</kbd> o <kbd>Esc</kbd> Volver a Global
+    </div>
+
+    <!-- ── Ship HUD ── -->
+    <div id="ship-hud">
+        <!-- Neon cockpit frame -->
+        <div id="cockpit-frame">
+            <div class="cockpit-edge cockpit-top"></div>
+            <div class="cockpit-edge cockpit-bottom"></div>
+            <div class="cockpit-edge cockpit-left"></div>
+            <div class="cockpit-edge cockpit-right"></div>
+            <div class="cockpit-corner cockpit-tl"></div>
+            <div class="cockpit-corner cockpit-tr"></div>
+            <div class="cockpit-corner cockpit-bl"></div>
+            <div class="cockpit-corner cockpit-br"></div>
+        </div>
+        <div id="ship-crosshair"></div>
+        <div id="ship-speed">
+            <div class="speed-value" id="ship-speed-value">0</div>
+            <div class="speed-label">velocidad</div>
+        </div>
+        <div id="ship-throttle-bar">
+            <div id="ship-throttle-fill"></div>
+        </div>
+        <div id="ship-controls-hint">
+            <kbd>W</kbd> Acelerar · <kbd>S</kbd> Frenar<br />
+            <kbd>A</kbd> <kbd>D</kbd> Girar · <kbd>Shift</kbd> Turbo<br />
+            <kbd>Q</kbd> Subir · <kbd>E</kbd> Bajar<br />
+            <kbd>Mouse</kbd> Mirar · <kbd>Click</kbd> Capturar cursor<br />
+            <kbd>V</kbd> Volver a Global · <kbd>Esc</kbd> Soltar cursor
+        </div>
+        <div id="engine-fire"></div>
     </div>
 
     <script type="importmap">
@@ -69,7 +144,7 @@
     }
     </script>
 
-    <script type="module" src="../js/nube_universos.js"></script>
+    <script type="module" src="nube_universos.js"></script>
 </body>
 
 </html>
