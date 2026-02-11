@@ -3,6 +3,7 @@ function createMenu() {
         { text: 'Clases', url: 'index.html' },
         { text: 'Trabajo Práctico', url: 'trabajopractico.html' },
         { text: 'Mapa de Herramientas', url: 'mapadeherramientas.html' },
+        { text: 'Nube de Universos', url: 'nube_data/nube_universos.html' },
         { text: 'Tutoriales', url: 'tutoriales.html' },
         { text: 'Prompting', url: 'prompting.html' },
         { text: 'Protocolo de Revisión', url: 'protocolo-revision.html' }
@@ -11,15 +12,22 @@ function createMenu() {
     const nav = document.createElement('nav');
     nav.className = 'main-nav';
 
+    // Detectar si estamos en un subdirectorio para ajustar las URLs
+    const pathParts = window.location.pathname.split('/');
+    const currentFile = pathParts.pop() || 'index.html';
+    const currentDir = pathParts.pop() || '';
+    const isSubdir = currentDir && currentDir !== '' && currentDir !== 'diploia';
+    const basePrefix = isSubdir ? '../' : '';
+
     menuItems.forEach(item => {
         const link = document.createElement('a');
-        link.href = item.url;
+        link.href = basePrefix + item.url;
         link.className = 'nav-link';
         link.textContent = item.text;
         
         // Highlight current page
-        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-        if (currentPath === item.url) {
+        const itemFile = item.url.split('/').pop();
+        if (currentFile === itemFile) {
             link.classList.add('active');
         }
         

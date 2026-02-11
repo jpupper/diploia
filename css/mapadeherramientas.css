@@ -35,7 +35,35 @@ main {
 }
 
 #cy:fullscreen {
-    background-color: #121212;
+    background-color: #121212 !important;
+    background-image: url('../img/background.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: fixed !important;
+}
+
+#cy:-webkit-full-screen {
+    background-color: #121212 !important;
+    background-image: url('../img/background.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: fixed !important;
+}
+
+#cy:-moz-full-screen {
+    background-color: #121212 !important;
+    background-image: url('../img/background.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: fixed !important;
+}
+
+#cy:-ms-fullscreen {
+    background-color: #121212 !important;
+    background-image: url('../img/background.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: fixed !important;
 }
 
 .map-controls {

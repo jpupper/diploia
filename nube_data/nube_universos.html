@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nube de Universos — Arte Generativo y Código con IA</title>
+    <link rel="stylesheet" href="../css/nube_universos.css" />
+</head>
+
+<body>
+
+    <header class="nube-header">
+        <div class="container">
+            <div class="header-content">
+                <h1>Nube de Universos</h1>
+            </div>
+        </div>
+    </header>
+    <script src="../js/menu.js"></script>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Cargando universos…</p>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div id="hud">
+        <div id="title-bar">
+            <h1>Nube de Universos · Arte Generativo &amp; IA</h1>
+        </div>
+
+        <div id="universe-indicator">
+            <div class="cat-label" id="cat-label-text">—</div>
+            <div class="cat-count" id="cat-count-text"></div>
+        </div>
+
+        <div id="nav-arrows">
+            <button class="nav-btn" id="btn-prev" title="Universo anterior (←)">◀</button>
+            <button class="nav-btn" id="btn-zout" title="Alejar (↓)">−</button>
+            <button class="nav-btn" id="btn-zin" title="Acercar (↑)">+</button>
+            <button class="nav-btn" id="btn-next" title="Universo siguiente (→)">▶</button>
+        </div>
+
+        <div id="info-panel">
+            <button class="close-btn" id="info-close">✕</button>
+            <div id="info-content"></div>
+        </div>
+
+        <div id="cat-dots"></div>
+
+        <div id="key-hint">
+            <kbd>←</kbd> <kbd>→</kbd> Navegar universos<br />
+            <kbd>↑</kbd> <kbd>↓</kbd> Zoom<br />
+            <kbd>Click</kbd> Seleccionar nodo<br />
+            <kbd>Arrastrar</kbd> Rotar<br />
+            <kbd>N</kbd> Mostrar/ocultar nombres
+        </div>
+        <div id="hover-tooltip"></div>
+    </div>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
+
+    <script type="module" src="../js/nube_universos.js"></script>
+</body>
+
+</html>

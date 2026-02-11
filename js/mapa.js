@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'windows': 'os', 'linux': 'os', 'mac': 'os', 'android': 'os', 'ios': 'os',
                     'pantalla-touch': 'soportes', 'instalaciones-fisicas': 'soportes', 'raspberry-pi': 'soportes', 'pantalla-led': 'soportes', 'proyector': 'soportes', 'sitio-web': 'soportes', 'compilado-apk': 'soportes', 'virtual-production': 'soportes', 'vr': 'soportes', 'ar': 'soportes', 'sonido': 'soportes', 'videojuegos': 'soportes', 'mapping': 'soportes', 'nft': 'soportes',
                     'websockets': 'protocolos', 'spout': 'protocolos', 'syphon': 'protocolos', 'ndi': 'protocolos', 'webrtc': 'protocolos', 'osc': 'protocolos', 'api': 'protocolos', 'midi': 'protocolos',
-                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia', 'gitbash': 'software-multimedia',
+                    'resolume': 'software-multimedia', 'blender': 'software-multimedia', 'paquete-adobe': 'software-multimedia', 'obs': 'software-multimedia', 'cinema4d': 'software-multimedia', 'ableton': 'software-multimedia', 'puredata': 'software-multimedia', 'guipper': 'software-multimedia', 'gitbash': 'software-multimedia', 'vdmx': 'software-multimedia', 'vuo': 'software-multimedia',
                     'docker': 'entornos', 'venv': 'entornos', 'conda': 'entornos', 'nodejs': 'entornos', 'vps': 'entornos',
                     'livecoding': 'glosario', 'vibecoding': 'glosario', 'programacion': 'glosario', 'prompting': 'glosario', 'consola': 'glosario', 'script': 'glosario', 'compilado-interpretado': 'glosario', 'drivers': 'glosario', 'mcp': 'glosario', 'repositorio': 'glosario', 'github': 'glosario', 'git': 'glosario'
                 };
@@ -330,28 +330,64 @@ document.addEventListener('DOMContentLoaded', function() {
         connectedEdges.addClass('highlighted');
     }
     
-    // Agregar interactividad para abrir enlaces, mostrar información y resaltar conexiones
+    // Variable para rastrear el nodo seleccionado (click)
+    var selectedNode = null;
+
+    // Función para generar el HTML del infoBox con título clickeable
+    function buildInfoHTML(nodeId) {
+        var info = NODE_INFO[nodeId];
+        if (!info) return '';
+        var node = cy.getElementById(nodeId);
+        var url = node.data('url');
+        // Si hay URL y el info tiene un <h3>, hacemos el título clickeable
+        if (url && url !== '#') {
+            info = info.replace(/<h3>(.*?)<\/h3>/, '<h3><a href="' + url + '" target="_blank" style="color: #ff69b4; text-decoration: underline; cursor: pointer; pointer-events: auto;">$1 🔗</a></h3>');
+        }
+        return info;
+    }
+
+    // Agregar interactividad: click = seleccionar nodo (NO abre URL)
     cy.on('tap', 'node', function(evt){
+        if (animRunning) return;
         var node = evt.target;
         highlightConnectedNodes(node);
-        
-        var url = node.data('url');
-        if (url) {
-            window.open(url, '_blank');
+        selectedNode = node;
+
+        // Mostrar infoBox con título clickeable (NO abrir URL)
+        var nodeId = node.id();
+        var infoHTML = buildInfoHTML(nodeId);
+        if (infoHTML) {
+            infoBox.innerHTML = infoHTML;
+            infoBox.style.pointerEvents = 'auto';
+            infoBox.style.display = 'block';
+            infoBox.style.opacity = 0;
+            setTimeout(function() {
+                infoBox.style.opacity = 1;
+            }, 10);
         }
     });
     
-    // Quitar resaltado al hacer clic en el fondo
+    // Quitar resaltado y deseleccionar al hacer clic en el fondo
     cy.on('tap', function(evt){
         if (evt.target === cy) {
+            selectedNode = null;
             cy.elements().removeClass('highlighted faded');
             // Asegurarse de que ninguna línea discontinua se anime cuando no hay selección
             cy.$('.dash-animated').style('line-dash-offset', 0);
+            // Ocultar infoBox
+            infoBox.style.opacity = 0;
+            infoBox.style.pointerEvents = 'none';
+            setTimeout(function() {
+                if (infoBox.style.opacity === '0') {
+                    infoBox.style.display = 'none';
+                }
+            }, 300);
         }
     });
     
     // Mostrar información al hacer hover sobre un nodo y resaltar conexiones
     cy.on('mouseover', 'node', function(evt){
+        if (animRunning) return;
         var node = evt.target;
         var nodeId = node.id();
         var nodeInfo = NODE_INFO[nodeId];
@@ -386,7 +422,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         if (nodeInfo) { // Mostrar info para todos los nodos
-            infoBox.innerHTML = nodeInfo;
+            var infoHTML = buildInfoHTML(nodeId);
+            infoBox.innerHTML = infoHTML;
+            infoBox.style.pointerEvents = 'auto';
             infoBox.style.display = 'block';
             infoBox.style.opacity = 0;
             
@@ -398,6 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     cy.on('mouseout', 'node', function(evt){
+        if (animRunning) return;
         var node = evt.target;
         
         // Restaurar estilos originales
@@ -414,13 +453,24 @@ document.addEventListener('DOMContentLoaded', function() {
         var connectedNodes = node.neighborhood('node');
         connectedNodes.removeStyle('border-color border-width z-index');
         
-        // Ocultar infoBox con animación
-        infoBox.style.opacity = 0;
-        setTimeout(function() {
-            if (infoBox.style.opacity === '0') {
-                infoBox.style.display = 'none';
+        // Ocultar infoBox con animación SOLO si no hay nodo seleccionado
+        if (!selectedNode) {
+            infoBox.style.opacity = 0;
+            infoBox.style.pointerEvents = 'none';
+            setTimeout(function() {
+                if (infoBox.style.opacity === '0') {
+                    infoBox.style.display = 'none';
+                }
+            }, 300);
+        } else {
+            // Si hay un nodo seleccionado, restaurar su info
+            var selId = selectedNode.id();
+            var selHTML = buildInfoHTML(selId);
+            if (selHTML) {
+                infoBox.innerHTML = selHTML;
+                infoBox.style.pointerEvents = 'auto';
             }
-        }, 300);
+        }
     });
     
     // Controles de zoom
@@ -495,10 +545,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateFullscreenButton() {
         var button = document.getElementById('fullscreen');
-        if (document.fullscreenElement) {
+        var cyElem = document.getElementById('cy');
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
             button.textContent = 'Salir';
+            cyElem.style.backgroundColor = '#121212';
+            cyElem.style.backgroundImage = "url('img/background.png')";
+            cyElem.style.backgroundSize = 'cover';
+            cyElem.style.backgroundPosition = 'center';
         } else {
             button.textContent = 'Pantalla Completa';
+            cyElem.style.backgroundColor = '';
+            cyElem.style.backgroundImage = '';
+            cyElem.style.backgroundSize = '';
+            cyElem.style.backgroundPosition = '';
         }
     }
 
@@ -523,7 +582,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'os': ['windows', 'linux', 'mac', 'android', 'ios'],
         'soportes': ['pantalla-touch', 'instalaciones-fisicas', 'raspberry-pi', 'pantalla-led', 'proyector', 'sitio-web', 'compilado-apk', 'virtual-production', 'vr', 'ar', 'sonido', 'videojuegos', 'mapping', 'nft'],
         'protocolos': ['websockets', 'spout', 'syphon', 'ndi', 'webrtc', 'osc', 'api', 'midi'],
-        'software-multimedia': ['resolume', 'blender', 'paquete-adobe', 'obs', 'cinema4d', 'ableton', 'puredata', 'guipper', 'gitbash'],
+        'software-multimedia': ['resolume', 'blender', 'paquete-adobe', 'obs', 'cinema4d', 'ableton', 'puredata', 'guipper', 'gitbash', 'vdmx', 'vuo'],
         'entornos': ['docker', 'venv', 'conda', 'nodejs', 'vps'],
         'glosario': ['livecoding', 'vibecoding', 'programacion', 'prompting', 'consola', 'script', 'compilado-interpretado', 'drivers', 'mcp', 'repositorio', 'github', 'git']
     };
@@ -600,6 +659,13 @@ document.addEventListener('DOMContentLoaded', function() {
         stopBtn.classList.add('active');
         // También actualizar botones de fullscreen si existen
         updateFullscreenAnimButtons(true);
+
+        // Cerrar cualquier desplegable/hover abierto por el mouse
+        infoBox.style.opacity = 0;
+        infoBox.style.display = 'none';
+        cy.nodes().removeStyle('border-width border-color background-color z-index');
+        cy.edges().removeStyle('width line-color target-arrow-color opacity z-index');
+        cy.elements().removeClass('highlighted faded');
 
         // Guardar posiciones originales de todos los nodos
         var originalPositions = {};

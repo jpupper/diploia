@@ -567,7 +567,15 @@ const NODE_INFO = {
     'vps': `<h3>VPS (Virtual Private Server)</h3>
             <p>Servidor virtual privado que funciona como un servidor dedicado dentro de un entorno compartido.</p>
             <p><strong>Se usa para:</strong> Hosting de aplicaciones web, servidores de bases de datos, entornos de desarrollo y pruebas, despliegue de APIs.</p>
-            <p><strong>Disponibilidad:</strong> Servicios de pago con diferentes proveedores como DigitalOcean, AWS, Google Cloud, Azure, etc.</p>`
+            <p><strong>Disponibilidad:</strong> Servicios de pago con diferentes proveedores como DigitalOcean, AWS, Google Cloud, Azure, etc.</p>`,
+    'vdmx': `<h3>VDMX</h3>
+             <p>Software de VJ y mezcla de video en tiempo real para macOS.</p>
+             <p><strong>Se usa para:</strong> Performances audiovisuales, VJ, instalaciones interactivas, mapping, mezcla de video en vivo.</p>
+             <p><strong>Disponibilidad:</strong> Software comercial exclusivo para macOS.</p>`,
+    'vuo': `<h3>Vuo</h3>
+            <p>Entorno de programación visual para crear composiciones multimedia interactivas en tiempo real.</p>
+            <p><strong>Se usa para:</strong> Instalaciones interactivas, visuales en vivo, prototipos multimedia, arte generativo.</p>
+            <p><strong>Disponibilidad:</strong> Versión Community gratuita y versión Pro de pago. Exclusivo para macOS.</p>`
 };
 
 
@@ -714,6 +722,8 @@ function getMapElements() {
         { data: { id: 'puredata', label: 'Pure Data', url: 'https://puredata.info/' } },
         { data: { id: 'guipper', label: 'Guipper', url: 'https://jeyder.com.ar/guipper/' } },
         { data: { id: 'gitbash', label: 'Git Bash', url: 'https://gitforwindows.org/' } },
+        { data: { id: 'vdmx', label: 'VDMX', url: 'https://www.vidvox.net/' } },
+        { data: { id: 'vuo', label: 'Vuo', url: 'https://vuo.org/' } },
         
         // Glosario
         { data: { id: 'livecoding', label: 'Livecoding', url: '#' } },
@@ -879,6 +889,8 @@ function getMapConnections() {
         { data: { id: 'software-multimedia-puredata', source: 'software-multimedia', target: 'puredata' } },
         { data: { id: 'software-multimedia-guipper', source: 'software-multimedia', target: 'guipper' } },
         { data: { id: 'software-multimedia-gitbash', source: 'software-multimedia', target: 'gitbash' } },
+        { data: { id: 'software-multimedia-vdmx', source: 'software-multimedia', target: 'vdmx' } },
+        { data: { id: 'software-multimedia-vuo', source: 'software-multimedia', target: 'vuo' } },
 
         // Entornos de Desarrollo
         { data: { id: 'entornos-docker', source: 'entornos', target: 'docker' } },
@@ -1128,6 +1140,20 @@ function getMapConnections() {
         { data: { id: 'guipper-windows', source: 'guipper', target: 'windows', type: 'secondary' } },
         
         { data: { id: 'gitbash-windows', source: 'gitbash', target: 'windows', type: 'secondary' } },
+        
+        // Conexiones VDMX
+        { data: { id: 'vdmx-mac', source: 'vdmx', target: 'mac', type: 'secondary' } },
+        { data: { id: 'vdmx-midi', source: 'vdmx', target: 'midi', type: 'secondary' } },
+        { data: { id: 'vdmx-osc', source: 'vdmx', target: 'osc', type: 'secondary' } },
+        { data: { id: 'vdmx-syphon', source: 'vdmx', target: 'syphon', type: 'secondary' } },
+        { data: { id: 'vdmx-ndi', source: 'vdmx', target: 'ndi', type: 'secondary' } },
+        
+        // Conexiones VUO
+        { data: { id: 'vuo-mac', source: 'vuo', target: 'mac', type: 'secondary' } },
+        { data: { id: 'vuo-midi', source: 'vuo', target: 'midi', type: 'secondary' } },
+        { data: { id: 'vuo-osc', source: 'vuo', target: 'osc', type: 'secondary' } },
+        { data: { id: 'vuo-syphon', source: 'vuo', target: 'syphon', type: 'secondary' } },
+        { data: { id: 'vuo-ndi', source: 'vuo', target: 'ndi', type: 'secondary' } },
         
         // Conexiones de Prompting con IA
         { data: { id: 'prompting-ia', source: 'prompting', target: 'ia', type: 'secondary' } },
