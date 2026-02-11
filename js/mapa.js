@@ -216,8 +216,8 @@ document.addEventListener('DOMContentLoaded', function() {
     infoBox.style.opacity = 0;
     infoBox.style.border = '1px solid rgba(255, 105, 180, 0.5)';
     infoBox.style.backdropFilter = 'blur(8px)';
-    // Posición fija: lado izquierdo, centrado verticalmente
-    infoBox.style.left = '30px';
+    // Posición fija: lado derecho, centrado verticalmente (igual que modo play)
+    infoBox.style.right = '30px';
     infoBox.style.top = '50%';
     infoBox.style.transform = 'translateY(-50%)';
     

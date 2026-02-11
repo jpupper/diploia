@@ -9,9 +9,9 @@ const CONFIG = {
     nodeFontSize: 14,           // Tamaño de fuente para nodos normales
     categoryFontSize: 18,       // Tamaño de fuente para categorías
     rootFontSize: 20,           // Tamaño de fuente para el nodo raíz
-    popupTitleFontSize: 40,     // Tamaño de fuente para títulos en popups
-    popupSubtitleFontSize: 35,  // Tamaño de fuente para subtítulos en popups
-    popupTextFontSize: 30,      // Tamaño de fuente para texto en popups
+    popupTitleFontSize: 35,     // Tamaño de fuente para títulos en popups
+    popupSubtitleFontSize: 30,  // Tamaño de fuente para subtítulos en popups
+    popupTextFontSize: 28,      // Tamaño de fuente para texto en popups
     secondaryNodeDist: 120,      // Distancia entre nodos secundarios
     primaryDistance: 250,       // Distancia de nodo central a categorías principales
     categoryDistancesMain: {     // Distancias personalizadas para cada categoría al nodo central
