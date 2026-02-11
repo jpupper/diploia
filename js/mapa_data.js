@@ -190,6 +190,18 @@ const NODE_INFO = {
                 <p>Asistente de IA enfocado en automatización y ejecución de tareas.</p>
                 <p><strong>Se usa para:</strong> Automatización de flujos de trabajo, ejecución de scripts, integración de sistemas.</p>
                 <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'clawbot': `<h3>Clawbot (OpenClaw)</h3>
+                <p>Plataforma de IA abierta para la creación y despliegue de agentes inteligentes.</p>
+                <p><strong>Se usa para:</strong> Creación de agentes de IA, automatización inteligente, asistentes personalizados.</p>
+                <p><strong>Disponibilidad:</strong> Open source.</p>`,
+    'moltbook': `<h3>Moltbook</h3>
+                 <p>Plataforma de IA para la creación y gestión de contenido inteligente.</p>
+                 <p><strong>Se usa para:</strong> Gestión de conocimiento con IA, creación de contenido, organización inteligente.</p>
+                 <p><strong>Disponibilidad:</strong> Servicio con versión gratuita.</p>`,
+    'antigravity': `<h3>Antigravity</h3>
+                    <p>IDE con asistencia de inteligencia artificial para desarrollo de software.</p>
+                    <p><strong>Se usa para:</strong> Desarrollo de software, programación asistida por IA, generación de código.</p>
+                    <p><strong>Disponibilidad:</strong> Servicio con versión gratuita.</p>`,
     'p5': `<h3>P5.js</h3>
            <p>Biblioteca JavaScript para programación creativa con enfoque en artes visuales.</p>
            <p><strong>Se usa para:</strong> Arte generativo, visualizaciones interactivas, educación en programación.</p>
@@ -605,6 +617,8 @@ function getMapElements() {
         { data: { id: 'comfy', label: 'ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI' } },
         { data: { id: 'n8n', label: 'n8n', url: 'https://n8n.io/' } },
         { data: { id: 'pinokio', label: 'Pinokio', url: 'https://pinokio.computer/' } },
+        { data: { id: 'clawbot', label: 'Clawbot', url: 'https://openclaw.ai/' } },
+        { data: { id: 'moltbook', label: 'Moltbook', url: 'https://www.moltbook.com/' } },
         
         // IDEs
         { data: { id: 'cursor', label: 'Cursor', url: 'https://cursor.sh/' } },
@@ -612,6 +626,7 @@ function getMapElements() {
         { data: { id: 'v0', label: 'v0.dev', url: 'https://v0.dev/' } },
         { data: { id: 'windsurf', label: 'Windsurf', url: 'https://www.windsurf.io/' } },
         { data: { id: 'visual-studio', label: 'Visual Studio', url: 'https://visualstudio.microsoft.com/' } },
+        { data: { id: 'antigravity', label: 'Antigravity', url: 'https://antigravity.dev/' } },
         
         // Shaders
         { data: { id: 'shadertoy', label: 'ShaderToy', url: 'https://www.shadertoy.com/' } },
@@ -768,6 +783,8 @@ function getMapConnections() {
         { data: { id: 'ia-comfy', source: 'ia', target: 'comfy' } },
         { data: { id: 'ia-n8n', source: 'ia', target: 'n8n' } },
         { data: { id: 'ia-pinokio', source: 'ia', target: 'pinokio' } },
+        { data: { id: 'ia-clawbot', source: 'ia', target: 'clawbot' } },
+        { data: { id: 'ia-moltbook', source: 'ia', target: 'moltbook' } },
         
         // IDEs
         { data: { id: 'ides-cursor', source: 'ides', target: 'cursor' } },
@@ -775,6 +792,7 @@ function getMapConnections() {
         { data: { id: 'ides-v0', source: 'ides', target: 'v0' } },
         { data: { id: 'ides-windsurf', source: 'ides', target: 'windsurf' } },
         { data: { id: 'ides-visual-studio', source: 'ides', target: 'visual-studio' } },
+        { data: { id: 'ides-antigravity', source: 'ides', target: 'antigravity' } },
         
         // Shaders
         { data: { id: 'shaders-shadertoy', source: 'shaders', target: 'shadertoy' } },
@@ -1026,7 +1044,6 @@ function getMapConnections() {
         
         { data: { id: 'unreal-windows', source: 'unreal', target: 'windows', type: 'secondary' } },
         { data: { id: 'unreal-mac', source: 'unreal', target: 'mac', type: 'secondary' } },
-        { data: { id: 'unreal-linux', source: 'unreal', target: 'linux', type: 'secondary' } },
         { data: { id: 'unreal-android', source: 'unreal', target: 'android', type: 'secondary' } },
         { data: { id: 'unreal-ios', source: 'unreal', target: 'ios', type: 'secondary' } },
         
@@ -1110,6 +1127,25 @@ function getMapConnections() {
         { data: { id: 'guipper-shaders', source: 'guipper', target: 'shaders', type: 'secondary' } },
         { data: { id: 'guipper-windows', source: 'guipper', target: 'windows', type: 'secondary' } },
         
-        { data: { id: 'gitbash-windows', source: 'gitbash', target: 'windows', type: 'secondary' } }
+        { data: { id: 'gitbash-windows', source: 'gitbash', target: 'windows', type: 'secondary' } },
+        
+        // Conexiones de Prompting con IA
+        { data: { id: 'prompting-ia', source: 'prompting', target: 'ia', type: 'secondary' } },
+        { data: { id: 'prompting-comfy', source: 'prompting', target: 'comfy', type: 'secondary' } },
+        { data: { id: 'prompting-n8n', source: 'prompting', target: 'n8n', type: 'secondary' } },
+        { data: { id: 'prompting-pinokio', source: 'prompting', target: 'pinokio', type: 'secondary' } },
+        { data: { id: 'prompting-clawbot', source: 'prompting', target: 'clawbot', type: 'secondary' } },
+        { data: { id: 'prompting-moltbook', source: 'prompting', target: 'moltbook', type: 'secondary' } },
+        { data: { id: 'prompting-chatgpt', source: 'prompting', target: 'chatgpt', type: 'secondary' } },
+        { data: { id: 'prompting-deepseek', source: 'prompting', target: 'deepseek', type: 'secondary' } },
+        { data: { id: 'prompting-gemini', source: 'prompting', target: 'gemini', type: 'secondary' } },
+        { data: { id: 'prompting-kimi', source: 'prompting', target: 'kimi', type: 'secondary' } },
+        { data: { id: 'prompting-claude', source: 'prompting', target: 'claude', type: 'secondary' } },
+        { data: { id: 'prompting-llm', source: 'prompting', target: 'llm', type: 'secondary' } },
+        { data: { id: 'prompting-cursor', source: 'prompting', target: 'cursor', type: 'secondary' } },
+        { data: { id: 'prompting-windsurf', source: 'prompting', target: 'windsurf', type: 'secondary' } },
+        { data: { id: 'prompting-trae', source: 'prompting', target: 'trae', type: 'secondary' } },
+        { data: { id: 'prompting-v0', source: 'prompting', target: 'v0', type: 'secondary' } },
+        { data: { id: 'prompting-antigravity', source: 'prompting', target: 'antigravity', type: 'secondary' } }
     ];
 }

@@ -128,8 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const categoryMap = {
                     'unity': 'engines', 'unreal': 'engines', 'godot': 'engines', 'touchdesigner': 'engines', 'processing': 'engines', 'openframeworks': 'engines',
                     'p5': 'frameworks', 'three': 'frameworks', 'babylon': 'frameworks', 'tone': 'frameworks', 'websockets': 'frameworks', 'ml5': 'frameworks', 'hydra': 'frameworks', 'xampp': 'frameworks',
-                    'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia',
-                    'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides',
+                    'comfy': 'ia', 'n8n': 'ia', 'pinokio': 'ia', 'clawbot': 'ia', 'moltbook': 'ia',
+                    'cursor': 'ides', 'trae': 'ides', 'v0': 'ides', 'windsurf': 'ides', 'visual-studio': 'ides', 'antigravity': 'ides',
                     'shadertoy': 'shaders', 'glsl': 'shaders', 'hlsl': 'shaders', 'bookofshaders': 'shaders', 'ejemplos-shaders': 'shaders', 'editor-shaders-live': 'shaders',
                     'firebase': 'db', 'mongodb': 'db', 'sql': 'db',
                     'cpp': 'languages', 'php': 'languages', 'javascript': 'languages', 
@@ -196,36 +196,41 @@ document.addEventListener('DOMContentLoaded', function() {
         wheelSensitivity: 0.1  // Reducir la sensibilidad del zoom con la rueda
     });
     
-    // Crear el elemento para mostrar información al hacer hover
+    // Crear el elemento para mostrar información al hacer hover (posición fija)
     const infoBox = document.createElement('div');
     infoBox.id = 'node-hover-info';
     infoBox.style.position = 'absolute';
     infoBox.style.display = 'none';
-    infoBox.style.backgroundColor = 'rgba(10, 10, 20, 0.9)'; // Fondo más oscuro y menos transparente
+    infoBox.style.backgroundColor = 'rgba(10, 10, 20, 0.95)';
     infoBox.style.color = '#fff';
-    infoBox.style.padding = '15px'; // Padding aumentado
-    infoBox.style.borderRadius = '8px'; // Bordes más redondeados
-    infoBox.style.minWidth = '400px'; // Ancho mínimo aumentado
-    infoBox.style.maxWidth = '500px'; // Ancho máximo aumentado
-    infoBox.style.boxShadow = '0 4px 20px rgba(255, 105, 180, 0.4), 0 0 15px rgba(138, 43, 226, 0.4)'; // Sombra con colores del tema
-    infoBox.style.zIndex = '1000';
+    infoBox.style.padding = '20px 25px';
+    infoBox.style.borderRadius = '12px';
+    infoBox.style.minWidth = '340px';
+    infoBox.style.maxWidth = '420px';
+    infoBox.style.maxHeight = '70vh';
+    infoBox.style.overflowY = 'auto';
+    infoBox.style.boxShadow = '0 4px 30px rgba(255, 105, 180, 0.4), 0 0 20px rgba(138, 43, 226, 0.4)';
+    infoBox.style.zIndex = '600';
     infoBox.style.pointerEvents = 'none';
     infoBox.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
     infoBox.style.opacity = 0;
-    infoBox.style.transform = 'translateY(10px)';
-    infoBox.style.border = '1px solid rgba(255, 105, 180, 0.5)'; // Borde con color del tema
-    infoBox.style.backdropFilter = 'blur(5px)'; // Efecto de desenfoque
+    infoBox.style.border = '1px solid rgba(255, 105, 180, 0.5)';
+    infoBox.style.backdropFilter = 'blur(8px)';
+    // Posición fija: lado izquierdo, centrado verticalmente
+    infoBox.style.left = '30px';
+    infoBox.style.top = '50%';
+    infoBox.style.transform = 'translateY(-50%)';
     
     // Estilos para los elementos internos del infoBox
     const style = document.createElement('style');
     style.textContent = `
         #node-hover-info h3 {
-            color: #ff69b4; /* Color del tema para títulos */
+            color: #ff69b4;
             margin-top: 0;
             margin-bottom: 10px;
             font-size: ${CONFIG.popupTitleFontSize}px;
             border-bottom: 1px solid rgba(255, 105, 180, 0.3);
-            padding-bottom: 5px;
+            padding-bottom: 8px;
         }
         #node-hover-info p {
             margin: 8px 0;
@@ -233,9 +238,18 @@ document.addEventListener('DOMContentLoaded', function() {
             font-size: ${CONFIG.popupTextFontSize}px;
         }
         #node-hover-info strong {
-            color: #ff9edb; /* Color más claro y visible para etiquetas */
+            color: #ff9edb;
             font-weight: bold;
             font-size: ${CONFIG.popupSubtitleFontSize}px;
+        }
+        #node-hover-info ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        #node-hover-info li {
+            margin: 3px 0;
+            line-height: 1.4;
+            font-size: ${CONFIG.popupTextFontSize}px;
         }
     `;
     document.head.appendChild(style);
@@ -372,19 +386,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         if (nodeInfo) { // Mostrar info para todos los nodos
-            // Usar innerHTML en lugar de textContent para permitir HTML
             infoBox.innerHTML = nodeInfo;
             infoBox.style.display = 'block';
             infoBox.style.opacity = 0;
             
-            // Posicionar cerca del cursor
-            infoBox.style.left = (evt.renderedPosition.x + 20) + 'px';
-            infoBox.style.top = (evt.renderedPosition.y + 20) + 'px';
-            
-            // Animar la aparición del infoBox
+            // Animar la aparición del infoBox (posición fija, no sigue al cursor)
             setTimeout(function() {
                 infoBox.style.opacity = 1;
-                infoBox.style.transform = 'translateY(0)';
             }, 10);
         }
     });
@@ -408,20 +416,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Ocultar infoBox con animación
         infoBox.style.opacity = 0;
-        infoBox.style.transform = 'translateY(10px)';
         setTimeout(function() {
             if (infoBox.style.opacity === '0') {
                 infoBox.style.display = 'none';
             }
         }, 300);
-    });
-    
-    // Actualizar posición del infoBox al mover el mouse
-    cy.on('mousemove', 'node', function(evt){
-        if (infoBox.style.display === 'block') {
-            infoBox.style.left = (evt.renderedPosition.x + 20) + 'px';
-            infoBox.style.top = (evt.renderedPosition.y + 20) + 'px';
-        }
     });
     
     // Controles de zoom
@@ -514,10 +513,10 @@ document.addEventListener('DOMContentLoaded', function() {
     var categoryChildrenMap = {
         'engines': ['unity', 'unreal', 'godot', 'touchdesigner', 'processing', 'openframeworks'],
         'frameworks': ['p5', 'three', 'babylon', 'tone', 'ml5', 'hydra', 'xampp'],
-        'ia': ['comfy', 'n8n', 'pinokio'],
+        'ia': ['comfy', 'n8n', 'pinokio', 'clawbot', 'moltbook'],
         'shaders': ['shadertoy', 'glsl', 'hlsl', 'bookofshaders', 'ejemplos-shaders', 'editor-shaders-live'],
         'db': ['firebase', 'mongodb', 'sql'],
-        'ides': ['cursor', 'trae', 'v0', 'windsurf', 'visual-studio'],
+        'ides': ['cursor', 'trae', 'v0', 'windsurf', 'visual-studio', 'antigravity'],
         'languages': ['cpp', 'csharp', 'php', 'javascript', 'python', 'typescript', 'java', 'html', 'css', 'json', 'r', 'arduino', 'assembler'],
         'llm': ['chatgpt', 'deepseek', 'gemini', 'kimi', 'claude'],
         'frontend': ['react', 'vue', 'svelte', 'angular', 'nextjs'],
@@ -535,6 +534,13 @@ document.addEventListener('DOMContentLoaded', function() {
     var stopBtn = document.getElementById('anim-stop');
     var categoryLabel = document.getElementById('anim-category-label');
     var animInfoPanel = document.getElementById('anim-info-panel');
+
+    // Aplicar tamaños de fuente desde CONFIG usando CSS variables
+    if (animInfoPanel) {
+        animInfoPanel.style.setProperty('--anim-title-size', CONFIG.popupTitleFontSize + 'px');
+        animInfoPanel.style.setProperty('--anim-subtitle-size', CONFIG.popupSubtitleFontSize + 'px');
+        animInfoPanel.style.setProperty('--anim-text-size', CONFIG.popupTextFontSize + 'px');
+    }
 
     function showAnimInfo(nodeId) {
         var info = NODE_INFO[nodeId];
@@ -568,16 +574,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showCategoryLabel(text) {
-        categoryLabel.textContent = text;
-        categoryLabel.style.display = 'block';
-        categoryLabel.style.opacity = '1';
+        // Desactivado - ya no se usa en el modo play
     }
 
     function hideCategoryLabel() {
-        categoryLabel.style.opacity = '0';
-        setTimeout(function() {
-            categoryLabel.style.display = 'none';
-        }, 400);
+        // Desactivado - ya no se usa en el modo play
     }
 
     // Función para centrar la cámara en un nodo específico con zoom
@@ -658,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!catNode.length) continue;
 
             // --- FASE 1: Mostrar y enfocar la CATEGORÍA ---
-            showCategoryLabel(catNode.data('label'));
+            // (Etiqueta de categoría removida - solo se muestra el info panel)
 
             // Mostrar el nodo categoría y su edge desde root
             catNode.style('opacity', 1);
@@ -775,13 +776,13 @@ document.addEventListener('DOMContentLoaded', function() {
             await animDelay(CONFIG.animTransitionSpeed + 500);
             if (animCancelled) return;
 
-            hideCategoryLabel();
+            // (hideCategoryLabel removido)
             await animDelay(500);
             if (animCancelled) return;
         }
 
         // Final: Mostrar todo el mapa
-        hideCategoryLabel();
+        // (hideCategoryLabel removido)
         hideAnimInfo();
         cy.stop();
         cy.animate({
@@ -1005,4 +1006,146 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     });
+
+    // =============================================
+    // BUSCADOR DE NODOS
+    // =============================================
+    var searchInput = document.getElementById('search-input');
+    var searchResults = document.getElementById('search-results');
+
+    // Construir índice de búsqueda con label + info texto plano
+    var searchIndex = [];
+    cy.nodes().forEach(function(node) {
+        var nodeId = node.id();
+        var label = node.data('label') || '';
+        var infoText = '';
+        if (NODE_INFO[nodeId]) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = NODE_INFO[nodeId];
+            infoText = tempDiv.textContent.trim();
+        }
+        searchIndex.push({
+            id: nodeId,
+            label: label,
+            infoText: infoText,
+            searchText: (label + ' ' + infoText).toLowerCase()
+        });
+    });
+
+    function performSearch(query) {
+        if (!query || query.length < 2) {
+            searchResults.classList.remove('visible');
+            searchResults.innerHTML = '';
+            return;
+        }
+
+        var q = query.toLowerCase();
+        var matches = searchIndex.filter(function(item) {
+            return item.searchText.indexOf(q) !== -1;
+        }).slice(0, 10); // Máximo 10 resultados
+
+        if (matches.length === 0) {
+            searchResults.innerHTML = '<div class="search-result-item"><span style="color:rgba(255,255,255,0.5);">Sin resultados</span></div>';
+            searchResults.classList.add('visible');
+            return;
+        }
+
+        searchResults.innerHTML = '';
+        matches.forEach(function(match) {
+            var item = document.createElement('div');
+            item.className = 'search-result-item';
+
+            // Extraer un fragmento de info relevante
+            var snippet = '';
+            if (match.infoText) {
+                var idx = match.infoText.toLowerCase().indexOf(q);
+                if (idx !== -1) {
+                    var start = Math.max(0, idx - 30);
+                    var end = Math.min(match.infoText.length, idx + q.length + 50);
+                    snippet = (start > 0 ? '...' : '') + match.infoText.substring(start, end) + (end < match.infoText.length ? '...' : '');
+                } else {
+                    snippet = match.infoText.substring(0, 80) + (match.infoText.length > 80 ? '...' : '');
+                }
+            }
+
+            item.innerHTML = '<div class="result-label">' + match.label + '</div>' +
+                (snippet ? '<div class="result-info">' + snippet + '</div>' : '');
+
+            item.addEventListener('click', function() {
+                navigateToNode(match.id);
+                searchInput.value = '';
+                searchResults.classList.remove('visible');
+                searchResults.innerHTML = '';
+            });
+
+            searchResults.appendChild(item);
+        });
+
+        searchResults.classList.add('visible');
+    }
+
+    function navigateToNode(nodeId) {
+        var node = cy.getElementById(nodeId);
+        if (!node.length) return;
+
+        // Limpiar estados previos
+        cy.elements().removeClass('highlighted faded');
+        cy.nodes().removeStyle('border-color border-width');
+
+        // Highlight del nodo encontrado
+        node.style({
+            'border-color': '#00ffff',
+            'border-width': '5px'
+        });
+
+        // Centrar cámara en el nodo
+        cy.stop();
+        cy.animate({
+            fit: { eles: node, padding: 200 },
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+
+        // Mostrar info del nodo
+        var nodeInfo = NODE_INFO[nodeId];
+        if (nodeInfo) {
+            infoBox.innerHTML = nodeInfo;
+            infoBox.style.display = 'block';
+            setTimeout(function() {
+                infoBox.style.opacity = 1;
+            }, 10);
+        }
+
+        // Quitar highlight después de 3 segundos
+        setTimeout(function() {
+            node.removeStyle('border-color border-width');
+        }, 3000);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            performSearch(this.value);
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                searchResults.classList.remove('visible');
+                searchResults.innerHTML = '';
+                searchInput.blur();
+            }
+            if (e.key === 'Enter') {
+                var firstResult = searchResults.querySelector('.search-result-item');
+                if (firstResult) {
+                    firstResult.click();
+                }
+            }
+        });
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#search-container')) {
+                searchResults.classList.remove('visible');
+            }
+        });
+    }
 });
