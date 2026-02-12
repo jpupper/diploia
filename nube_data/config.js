@@ -98,7 +98,7 @@ export const CONFIG = {
     // ── Camera / Orbit View ──────────────────────────────────
     camera: {
         fov:               60,
-        near:              1,
+        near:              0.1,
         far:               50000,
         initialPosition:   { x: 0, y: 200, z: 9000 },
         // Global home position — camera always returns here (0,0 = center)
@@ -147,6 +147,25 @@ export const CONFIG = {
         mouseSensitivity:  0.002,
         pitchMin:          -Math.PI / 2 + 0.1,
         pitchMax:          Math.PI / 2 - 0.1,
+        respawnDistance:    15000,   // if ship is farther than this from origin, respawn at center
+        // Model rotation offset (radians) — tweak to fix initial orientation
+        offsetRotX:        0,
+        offsetRotY:        Math.PI,
+        offsetRotZ:        0,
+        // Model position offset relative to camera (for "ship in front" view)
+        modelOffsetX:      0,
+        modelOffsetY:      -1.5,
+        modelOffsetZ:      -8.0,
+        modelScale:        0.4,
+    },
+
+    // ── Game Scoring ───────────────────────────────────────────
+    game: {
+        pointsRouteVisit:   150,    // points for visiting an official route planet
+        pointsRandomVisit:  50,     // points for visiting a random (non-route) planet
+        pointsPerCorrect:   200,    // points per correct quiz answer
+        pointsPerWrong:     -50,    // points per wrong quiz answer
+        evalTimePerQuestion: 30,    // seconds allowed per evaluation question
     },
 
     // ── Selection Visual ─────────────────────────────────────
@@ -159,6 +178,18 @@ export const CONFIG = {
         hoverSelectedScale: 1.35,
     },
 
+    // ── Energy Field (selected planet aura) ─────────────────
+    energyField: {
+        innerRadius:       1.6,    // multiplier of planet radius
+        outerRadius:       2.2,    // multiplier of planet radius
+        color:             null,   // null = use planet/category color
+        innerOpacity:      0.18,
+        outerOpacity:      0.07,
+        pulseSpeed:        2.5,    // pulse animation speed
+        pulseAmplitude:    0.3,    // how much opacity varies
+        rotationSpeed:     0.8,    // rotation speed (rad/s)
+    },
+
     // ── Scene ────────────────────────────────────────────────
     scene: {
         fogColor:          0x06060e,
@@ -166,6 +197,17 @@ export const CONFIG = {
         ambientColor:      0x111122,
         ambientIntensity:  0.5,
         toneExposure:      1.2,
+    },
+
+    // ── Waypoint Line (game mode next-planet indicator) ─────
+    waypoint: {
+        color:             0x00ffcc,
+        opacity:           0.6,
+        dashSize:          40,
+        gapSize:           20,
+        glowColor:         0x00ffcc,
+        glowOpacity:       0.25,
+        pulseSpeed:        3.0,     // pulse speed for the line
     },
 
     // ── Connection Lines ─────────────────────────────────────

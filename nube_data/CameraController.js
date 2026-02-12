@@ -39,6 +39,9 @@ export class CameraController {
         this.shipPitch = 0;
         this.pointerLocked = false;
 
+        // Ship model reference (set externally after GLTF load)
+        this.shipModel = null;
+
         // Warp (ship mode teleport to planet)
         this.warping = false;
         this.warpTarget = null;
@@ -215,12 +218,11 @@ export class CameraController {
             ? 4 * t * t * t
             : 1 - Math.pow(-2 * t + 2, 3) / 2;
         this.camera.position.lerpVectors(this.warpStart, this.warpTarget, ease);
-        // Always look at the planet itself (not the stop point)
         this.camera.lookAt(this.warpLookAt);
         // Update shipYaw/shipPitch to match facing direction toward planet
-        const dir = new THREE.Vector3().subVectors(this.warpLookAt, this.camera.position).normalize();
-        this.shipYaw = Math.atan2(dir.x, dir.z);
-        this.shipPitch = Math.asin(Math.max(-1, Math.min(1, dir.y)));
+        const faceDir = new THREE.Vector3().subVectors(this.warpLookAt, this.camera.position).normalize();
+        this.shipYaw = Math.atan2(faceDir.x, faceDir.z);
+        this.shipPitch = Math.asin(Math.max(-1, Math.min(1, faceDir.y)));
         if (t >= 1) {
             this.warping = false;
             this.shipVelocity.set(0, 0, 0);
@@ -228,6 +230,43 @@ export class CameraController {
             return false;
         }
         return true;
+    }
+
+    initShipWithModel(preserveVelocity = false) {
+        // Same FPS controls as cabin, but ship model is attached to camera
+        if (!preserveVelocity) this.initShip();
+        if (this.shipModel) {
+            const S = this.cfg.ship;
+            // Remove from scene, add as child of camera
+            this.shipModel.parent?.remove(this.shipModel);
+            this.camera.add(this.shipModel);
+            // Position model in front of camera using config offsets
+            this.shipModel.position.set(
+                S.modelOffsetX || 0,
+                S.modelOffsetY || -0.4,
+                S.modelOffsetZ || -3.0
+            );
+            // Apply config rotation offsets
+            this.shipModel.rotation.set(
+                S.offsetRotX || 0,
+                S.offsetRotY || Math.PI,
+                S.offsetRotZ || 0
+            );
+            // Scale down for cockpit-front view
+            const sc = S.modelScale || 0.15;
+            this.shipModel.scale.set(sc, sc, sc);
+            this.shipModel.visible = true;
+        }
+    }
+
+    detachShipModel(scene) {
+        // Move ship model back to scene (out of camera)
+        if (this.shipModel && this.shipModel.parent === this.camera) {
+            this.camera.remove(this.shipModel);
+            scene.add(this.shipModel);
+            this.shipModel.scale.set(15, 15, 15);
+            this.shipModel.visible = false;
+        }
     }
 
     onMouseMoveShip(e) {

@@ -1,9 +1,11 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { CONFIG } from './config.js';
 import { Planet } from './Planet.js';
 import { Connection } from './Connection.js';
 import { CameraController } from './CameraController.js';
 import { EnergyParticleSystem } from './EnergyParticleSystem.js';
+import { GameManager } from './GameManager.js';
 
 const CFG = CONFIG;
 const CAT_COLORS = CFG.categoryColors;
@@ -36,6 +38,9 @@ class Universe {
         this._shipTraceConnections = [];
         this._mouseDownPos = { x: 0, y: 0 };
         this._isDrag = false;
+        this.shipModel = null;
+        this.game = null;
+        this.THREE = THREE;
     }
 
     async init() {
@@ -77,6 +82,9 @@ class Universe {
         document.getElementById('cat-count-text').textContent = `${this.categories.length} universos`;
         this.cam.goHome(true);
 
+        this.loadShipModel();
+        this.game = new GameManager(this);
+        this.game.bindUI();
         this.bindEvents();
         this.showSplash();
         this.animate();
@@ -85,6 +93,48 @@ class Universe {
     registerPlanet(p) { this.planets.set(p.id, p); this.meshToPlanet.set(p.mesh, p); this.allMeshes.push(p.mesh); }
     getPlanetByMesh(m) { return this.meshToPlanet.get(m) || null; }
     getPlanetById(id) { return this.planets.get(id) || null; }
+    isShipMode() { return this.currentView === 'ship' || this.currentView === 'shipCabin'; }
+
+    toggleShipCabin() {
+        if (this.currentView === 'ship') {
+            this.setViewMode('shipCabin');
+        } else if (this.currentView === 'shipCabin') {
+            this.setViewMode('ship');
+        }
+    }
+
+    // ── Load Ship Model ──
+    loadShipModel() {
+        const loader = new GLTFLoader();
+        loader.load('assets/scene.gltf', (gltf) => {
+            this.shipModel = gltf.scene;
+            this.shipModel.scale.set(15, 15, 15);
+            this.shipModel.visible = false;
+            // Key light (warm white, from above-front)
+            const keyLight = new THREE.DirectionalLight(0xffeedd, 3.0);
+            keyLight.position.set(5, 10, 10);
+            this.shipModel.add(keyLight);
+            // Fill light (cool, from below-side to soften shadows)
+            const fillLight = new THREE.DirectionalLight(0xaaccff, 1.0);
+            fillLight.position.set(-5, -3, -5);
+            this.shipModel.add(fillLight);
+            // Point light close to ship for ambient glow
+            const ambientPoint = new THREE.PointLight(0xffffff, 1.5, 80);
+            ambientPoint.position.set(0, 5, 0);
+            this.shipModel.add(ambientPoint);
+            // Preserve original textures — only tweak envMapIntensity for better PBR
+            this.shipModel.traverse((child) => {
+                if (child.isMesh && child.material) {
+                    child.material.envMapIntensity = 0.4;
+                    child.material.needsUpdate = true;
+                }
+            });
+            this.scene.add(this.shipModel);
+            this.cam.shipModel = this.shipModel;
+        }, undefined, (err) => {
+            console.warn('Could not load ship model:', err);
+        });
+    }
 
     // ── Active Planet ──
     setActivePlanet(planet) {
@@ -427,21 +477,30 @@ class Universe {
             return;
         }
         const prevView = this.currentView;
+        const isShipToggle = (prevView === 'ship' && mode === 'shipCabin') || (prevView === 'shipCabin' && mode === 'ship');
         this.currentView = mode;
         document.querySelectorAll('#view-mode-toggle .neon-btn').forEach(b => b.classList.remove('active'));
         if (mode === 'global') document.getElementById('btn-view-global').classList.add('active');
         else if (mode === 'camera') document.getElementById('btn-view-camera').classList.add('active');
         else if (mode === 'ship') document.getElementById('btn-view-ship').classList.add('active');
+        else if (mode === 'shipCabin') document.getElementById('btn-view-ship-cabin').classList.add('active');
 
         const orbitHud = document.getElementById('hud');
         const shipHud = document.getElementById('ship-hud');
         const cameraHint = document.getElementById('camera-hint');
         this.updateCategoryDotsMode(mode);
 
-        if (prevView === 'ship' && mode !== 'ship') {
+        const isShipLike = (m) => m === 'ship' || m === 'shipCabin';
+        if (isShipLike(prevView) && !isShipLike(mode)) {
             this.clearShipAimedLines();
             if (this.shipHoveredMesh) { const hp = this.getPlanetByMesh(this.shipHoveredMesh); if (hp) hp.unhover(); }
             this.shipHoveredMesh = null;
+            this.cam.detachShipModel(this.scene);
+            if (this.shipModel) this.shipModel.visible = false;
+        }
+        if (isShipToggle) {
+            this.cam.detachShipModel(this.scene);
+            if (this.shipModel) this.shipModel.visible = false;
         }
 
         const navArrows = document.getElementById('nav-arrows');
@@ -453,6 +512,11 @@ class Universe {
             orbitHud.style.display = ''; shipHud.classList.remove('visible');
             if (cameraHint) cameraHint.classList.remove('visible');
             if (document.pointerLockElement) document.exitPointerLock();
+            // Restore cockpit elements that may have been hidden by 3rd person mode
+            const cockpitFrame = document.getElementById('cockpit-frame');
+            if (cockpitFrame) cockpitFrame.style.display = '';
+            const crosshair = document.getElementById('ship-crosshair');
+            if (crosshair) crosshair.style.display = '';
             this.clearActivePlanet(); this.closeInfoPanel(); this.particles.clear();
             this.cam.isTransitioning = false;
             // Always return to center (Arte Generativo)
@@ -487,7 +551,30 @@ class Universe {
             this.cam.controls.enabled = false;
             orbitHud.style.display = 'none'; shipHud.classList.add('visible');
             if (cameraHint) cameraHint.classList.remove('visible');
-            this.cam.initShip();
+            this.cam.initShipWithModel(isShipToggle);
+            // Hide cockpit frame in 3rd person (you see the ship model instead)
+            const cockpitFrame = document.getElementById('cockpit-frame');
+            if (cockpitFrame) cockpitFrame.style.display = 'none';
+            const crosshair = document.getElementById('ship-crosshair');
+            if (crosshair) crosshair.style.display = '';
+            const modeLabel = document.getElementById('ship-mode-label');
+            if (modeLabel) modeLabel.textContent = 'NAVE';
+            if (navArrows) navArrows.style.display = 'none';
+            if (universeInd) universeInd.style.display = 'none';
+            if (keyHint) keyHint.style.display = 'none';
+        } else if (mode === 'shipCabin') {
+            this.cam.controls.enabled = false;
+            orbitHud.style.display = 'none'; shipHud.classList.add('visible');
+            if (cameraHint) cameraHint.classList.remove('visible');
+            if (!isShipToggle) this.cam.initShip();
+            if (this.shipModel) this.shipModel.visible = false;
+            // Show cockpit frame in 1st person
+            const cockpitFrame = document.getElementById('cockpit-frame');
+            if (cockpitFrame) cockpitFrame.style.display = '';
+            const crosshair = document.getElementById('ship-crosshair');
+            if (crosshair) crosshair.style.display = '';
+            const modeLabel = document.getElementById('ship-mode-label');
+            if (modeLabel) modeLabel.textContent = 'CABINA';
             if (navArrows) navArrows.style.display = 'none';
             if (universeInd) universeInd.style.display = 'none';
             if (keyHint) keyHint.style.display = 'none';
@@ -582,7 +669,7 @@ class Universe {
     }
 
     updateShipRaycast() {
-        if (this.currentView !== 'ship') return;
+        if (!this.isShipMode()) return;
         if (!this.tooltip) this.tooltip = document.getElementById('hover-tooltip');
         this.raycaster.setFromCamera(new THREE.Vector2(0,0), this.camera);
         const hits = this.raycaster.intersectObjects(this.allMeshes);
@@ -601,6 +688,10 @@ class Universe {
                 this.showInfoPanel(planet.node);
                 this.updateSelectionIndicator(planet);
                 const ch = document.getElementById('ship-crosshair'); if (ch) ch.classList.add('locked');
+                // Game mode: register visit when close enough
+                if (this.game && this.game.state === 'exploration' && hits[0].distance < 200) {
+                    this.game.onPlanetReached(planet);
+                }
             }
         } else {
             if (this.shipHoveredMesh) this.clearShipAimedLines();
@@ -615,6 +706,19 @@ class Universe {
         if (this._shipTraceConnections.length > 0) {
             const dt = this.clock.getDelta ? 0.016 : 0.016; // approximate dt for ship traces
             this._shipTraceConnections.forEach(conn => conn.updateTrace(0.016));
+        }
+    }
+
+    // ── Ship Respawn ──
+    checkShipRespawn() {
+        const maxDist = CFG.ship.respawnDistance || 15000;
+        if (this.camera.position.length() > maxDist) {
+            this.cam.shipVelocity.set(0, 0, 0);
+            this.cam.shipThrottle = 0;
+            this.cam.shipYaw = 0;
+            this.cam.shipPitch = 0;
+            this.camera.position.set(0, 200, 50);
+            this.showWarpFlash();
         }
     }
 
@@ -638,6 +742,7 @@ class Universe {
         document.getElementById('btn-view-global').addEventListener('click', () => this.setViewMode('global'));
         document.getElementById('btn-view-camera').addEventListener('click', () => this.setViewMode('camera'));
         document.getElementById('btn-view-ship').addEventListener('click', () => this.setViewMode('ship'));
+        document.getElementById('btn-view-ship-cabin').addEventListener('click', () => this.setViewMode('shipCabin'));
 
         document.getElementById('btn-show-connections').addEventListener('click', () => {
             this.showAllConnections = !this.showAllConnections;
@@ -670,10 +775,17 @@ class Universe {
         if (k === 'q') this.keys.q = true; if (k === 'e') this.keys.e = true;
         if (k === 'shift') this.keys.shift = true; if (k === ' ') this.keys.space = true;
 
-        if (this.currentView === 'ship') {
+        if (this.isShipMode()) {
             if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
             if (k === 'escape' && document.pointerLockElement) document.exitPointerLock();
-            if (k === 'v') this.setViewMode('global');
+            if (k === 'n') {
+                if (this.game && this.game.state === 'exploration') {
+                    this.game.toggleCamera();
+                } else {
+                    this.toggleShipCabin();
+                }
+            }
+            if (k === 'v' && !(this.game && this.game.state === 'exploration')) this.setViewMode('global');
             return;
         }
         if (this.currentView === 'camera') {
@@ -689,6 +801,7 @@ class Universe {
             case 'n': case 'N': this.labelsVisible = !this.labelsVisible; this.allLabelSprites.forEach(s => s.visible = this.labelsVisible); break;
             case 'v': case 'V': if (this.activePlanet) this.setViewMode('camera'); break;
             case 'f': case 'F': this.setViewMode('ship'); break;
+            case 'g': case 'G': this.setViewMode('shipCabin'); break;
         }
     }
 
@@ -701,7 +814,7 @@ class Universe {
     }
 
     onClick(e) {
-        if (this.currentView === 'ship') { this.renderer.domElement.requestPointerLock(); return; }
+        if (this.isShipMode()) { this.renderer.domElement.requestPointerLock(); return; }
 
         // Suppress click if it was a drag (mouse moved > 5px)
         const dx = e.clientX - this._mouseDownPos.x;
@@ -763,7 +876,7 @@ class Universe {
         // Cancel pending single-click so it doesn't interfere
         if (this._clickTimer) { clearTimeout(this._clickTimer); this._clickTimer = null; }
 
-        if (this.currentView === 'ship') {
+        if (this.isShipMode()) {
             // Ship mode: warp to aimed planet
             this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
             const hits = this.raycaster.intersectObjects(this.allMeshes);
@@ -778,6 +891,9 @@ class Universe {
                 this.showWarpFlash();
                 this.cam.startWarp(targetPos, stopDist, () => {
                     this.particles.spawn(planet);
+                    if (this.game && this.game.state === 'exploration') {
+                        this.game.onPlanetReached(planet);
+                    }
                 });
             }
             return;
@@ -871,7 +987,7 @@ class Universe {
     onMouseMove(e) {
         if (!this.tooltip) this.tooltip = document.getElementById('hover-tooltip');
 
-        if (this.currentView === 'ship' && this.cam.pointerLocked) {
+        if (this.isShipMode() && this.cam.pointerLocked) {
             this.cam.onMouseMoveShip(e); return;
         }
         if (this.currentView === 'camera' && this.cam.mouseDown) {
@@ -922,7 +1038,13 @@ class Universe {
                 if (startBtn) {
                     startBtn.addEventListener('click', () => {
                         splash.classList.remove('visible');
-                        setTimeout(() => splash.remove(), 800);
+                    });
+                }
+                const gameBtn = document.getElementById('splash-game');
+                if (gameBtn) {
+                    gameBtn.addEventListener('click', () => {
+                        splash.classList.remove('visible');
+                        setTimeout(() => this.game.startGame(), 600);
                     });
                 }
             }
@@ -978,8 +1100,15 @@ class Universe {
         // Particles
         this.particles.update(dt, this.camera.position);
 
+        // Update energy field animation on active planet
+        if (this.activePlanet) {
+            this.activePlanet.updateEnergyField(this.animTime);
+        }
+
         // View-specific updates
-        if (this.currentView === 'ship') {
+        if (this.isShipMode()) {
+            // Respawn ship at center if too far away
+            this.checkShipRespawn();
             if (this.cam.warping) {
                 // Warp animation in progress
                 this.cam.updateWarp(dt);
@@ -1023,6 +1152,11 @@ class Universe {
 
         // Update connection trace animations
         this.connections.forEach(conn => conn.updateTrace(dt));
+
+        // Update game waypoint line position
+        if (this.game && this.game.state === 'exploration') {
+            this.game.updateWaypointLinePosition();
+        }
 
         this.renderer.render(this.scene, this.camera);
     }

@@ -41,10 +41,17 @@
                 </div>
                 <div class="splash-mode">
                     <span class="splash-mode-icon">🚀</span>
-                    <span><strong>Nave</strong> — Volá libre por el espacio con WASD</span>
+                    <span><strong>Nave</strong> — Tercera persona, volá viendo tu nave</span>
+                </div>
+                <div class="splash-mode">
+                    <span class="splash-mode-icon">🎯</span>
+                    <span><strong>Cabina</strong> — Primera persona desde la cabina</span>
                 </div>
             </div>
-            <button id="splash-start" class="splash-btn">EXPLORAR</button>
+            <div class="splash-buttons">
+                <button id="splash-start" class="splash-btn">EXPLORAR</button>
+                <button id="splash-game" class="splash-btn splash-btn-game">JUGAR</button>
+            </div>
         </div>
     </div>
 
@@ -101,6 +108,7 @@
         <button class="neon-btn active" id="btn-view-global">Global</button>
         <button class="neon-btn" id="btn-view-camera">Orbital</button>
         <button class="neon-btn neon-orange" id="btn-view-ship">Nave</button>
+        <button class="neon-btn neon-orange" id="btn-view-ship-cabin">Cabina</button>
     </div>
 
     <!-- ── Connections toggle (left side) ── -->
@@ -129,6 +137,7 @@
             <div class="cockpit-corner cockpit-br"></div>
         </div>
         <div id="ship-crosshair"></div>
+        <div id="ship-mode-label">NAVE</div>
         <div id="ship-speed">
             <div class="speed-value" id="ship-speed-value">0</div>
             <div class="speed-label">velocidad</div>
@@ -141,9 +150,113 @@
             <kbd>A</kbd> <kbd>D</kbd> Girar · <kbd>Shift</kbd> Turbo<br />
             <kbd>Q</kbd> Subir · <kbd>E</kbd> Bajar<br />
             <kbd>Mouse</kbd> Mirar · <kbd>Click</kbd> Capturar cursor<br />
-            <kbd>V</kbd> Volver a Global · <kbd>Esc</kbd> Soltar cursor
+            <kbd>N</kbd> Nave/Cabina · <kbd>V</kbd> Global · <kbd>Esc</kbd> Soltar cursor
         </div>
         <div id="engine-fire"></div>
+    </div>
+
+    <!-- ── Game HUD (visible during game exploration phase) ── -->
+    <div id="game-hud">
+        <div id="game-timer">2:00</div>
+        <div id="game-score-display">0 PTS</div>
+        <div id="game-visited">Planetas: 0</div>
+        <div id="game-combo"></div>
+        <div id="game-waypoint-hint"></div>
+        <button id="game-cam-toggle" class="neon-btn neon-orange">Cabina</button>
+    </div>
+    <div id="game-waypoint-arrow"></div>
+    <div id="game-points-popup"></div>
+    <div id="game-discovery-flash"></div>
+
+    <!-- ── Evaluation Screen ── -->
+    <div id="eval-screen">
+        <div class="eval-content">
+            <div class="eval-header">EVALUACI&Oacute;N</div>
+            <div id="eval-progress">Pregunta 1 de 5</div>
+            <div id="eval-timer">30</div>
+            <div class="eval-question-label">&iquest;A qu&eacute; herramienta corresponde esta descripci&oacute;n?</div>
+            <div id="eval-description"></div>
+            <div id="eval-options"></div>
+            <div id="eval-feedback" class="eval-feedback"></div>
+        </div>
+    </div>
+
+    <!-- ── Time Up Overlay ── -->
+    <div id="time-up-overlay">
+        <div class="time-up-content">
+            <div class="time-up-icon">&#x23F0;</div>
+            <div class="time-up-title">TIEMPO AGOTADO</div>
+            <div class="time-up-subtitle">REPORTE DE INFORMACI&Oacute;N RECOLECTADA</div>
+        </div>
+    </div>
+
+    <!-- ── Congratulations Overlay (before evaluation) ── -->
+    <div id="congrats-overlay">
+        <div class="congrats-content">
+            <div class="congrats-stars">&#x2728;</div>
+            <div class="congrats-title">MISI&Oacute;N COMPLETADA</div>
+            <div class="congrats-message">Felicitaciones por recorrer la galaxia, viajero espacial.</div>
+            <div class="congrats-sub">Vamos a constatar la informaci&oacute;n que recolectaste en tu viaje.</div>
+            <div class="congrats-planets-count">
+                <span class="congrats-count-number" id="congrats-planet-count">0</span>
+                <span class="congrats-count-label">planetas explorados</span>
+            </div>
+            <div class="congrats-hint">Preparando evaluaci&oacute;n...</div>
+        </div>
+    </div>
+
+    <!-- ── Results Screen ── -->
+    <div id="results-screen">
+        <div class="results-content">
+            <div class="results-title">REPORTE DE MISI&Oacute;N</div>
+            <div class="results-stats">
+                <div class="results-stat">
+                    <div class="results-stat-value" id="results-visited">0</div>
+                    <div class="results-stat-label">Planetas visitados</div>
+                </div>
+                <div class="results-stat">
+                    <div class="results-stat-value route" id="results-route-count">0</div>
+                    <div class="results-stat-label">Ruta oficial</div>
+                </div>
+                <div class="results-stat">
+                    <div class="results-stat-value random" id="results-random-count">0</div>
+                    <div class="results-stat-label">Descubrimientos</div>
+                </div>
+            </div>
+            <div class="results-stats" style="margin-top:8px;">
+                <div class="results-stat">
+                    <div class="results-stat-value correct" id="results-correct">0</div>
+                    <div class="results-stat-label">Correctas</div>
+                </div>
+                <div class="results-stat">
+                    <div class="results-stat-value wrong" id="results-wrong">0</div>
+                    <div class="results-stat-label">Incorrectas</div>
+                </div>
+            </div>
+            <div class="results-score-container">
+                <div class="results-score-label">PUNTAJE FINAL</div>
+                <div class="results-score-value" id="results-score">0</div>
+            </div>
+            <div class="results-buttons">
+                <button id="results-replay" class="splash-btn splash-btn-game">JUGAR DE NUEVO</button>
+                <button id="results-explore" class="splash-btn">VER RANKING</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Ranking Screen ── -->
+    <div id="ranking-screen">
+        <div class="ranking-content">
+            <div class="ranking-title">RANKING ESTELAR</div>
+            <div class="ranking-input-row">
+                <input type="text" id="ranking-name-input" class="ranking-input" placeholder="Tu nombre..." maxlength="20" />
+                <button id="ranking-submit" class="splash-btn splash-btn-game ranking-submit-btn">GUARDAR</button>
+            </div>
+            <div id="ranking-list" class="ranking-list"></div>
+            <div class="ranking-buttons">
+                <button id="ranking-close" class="splash-btn">VOLVER</button>
+            </div>
+        </div>
     </div>
 
     <script type="importmap">
