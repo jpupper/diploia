@@ -596,22 +596,26 @@ header.nube-header .menu-toggle:hover {
     position: fixed;
     top: 140px;
     right: 24px;
-    width: 420px;
+    width: 480px;
     max-height: calc(100vh - 200px);
     overflow-y: auto;
     pointer-events: auto;
-    background: rgba(2, 8, 18, 0.94);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 255, 255, 0.12);
-    border-left: 2px solid rgba(0, 255, 255, 0.25);
-    border-radius: 2px;
+    background: linear-gradient(160deg, rgba(2, 12, 28, 0.96), rgba(0, 6, 14, 0.98));
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(0, 255, 255, 0.15);
+    border-left: 3px solid rgba(0, 255, 255, 0.35);
+    border-radius: 4px;
     padding: 0;
     opacity: 0;
     transform: scaleY(0.01) scaleX(0.6);
     transform-origin: top right;
     transition: opacity 0.15s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 20;
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.06), inset 0 0 40px rgba(0, 255, 255, 0.015);
+    box-shadow:
+        0 0 40px rgba(0, 255, 255, 0.08),
+        0 0 80px rgba(0, 255, 255, 0.03),
+        inset 0 0 60px rgba(0, 255, 255, 0.02),
+        inset 0 1px 0 rgba(0, 255, 255, 0.1);
 }
 
 #info-panel::before {
@@ -620,8 +624,9 @@ header.nube-header .menu-toggle:hover {
     top: 0;
     left: 0;
     right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(0, 255, 255, 0.5), rgba(0, 255, 255, 0.15), transparent);
+    height: 2px;
+    background: linear-gradient(90deg, rgba(0, 255, 255, 0.7), rgba(0, 255, 255, 0.3), rgba(108, 180, 255, 0.15), transparent);
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
 }
 
 #info-panel::after {
@@ -630,8 +635,9 @@ header.nube-header .menu-toggle:hover {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(0, 255, 255, 0.3), rgba(0, 255, 255, 0.08), transparent);
+    height: 2px;
+    background: linear-gradient(90deg, rgba(0, 255, 255, 0.4), rgba(0, 255, 255, 0.1), transparent);
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);
 }
 
 #info-panel.visible {
@@ -640,63 +646,85 @@ header.nube-header .menu-toggle:hover {
 }
 
 #info-panel .panel-inner {
-    padding: 28px 28px 24px;
+    padding: 32px 32px 28px;
     position: relative;
 }
 
-/* Subtle static left-side neon accent instead of moving scanline */
+/* Animated neon scanline accent */
 #info-panel.visible .panel-scanline {
     position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 2px;
-    background: linear-gradient(180deg, rgba(0, 255, 255, 0.4), rgba(0, 255, 255, 0.08), rgba(0, 255, 255, 0.3));
-    box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);
+    width: 3px;
+    background: linear-gradient(180deg, rgba(0, 255, 255, 0.6), rgba(0, 255, 255, 0.1), rgba(0, 255, 255, 0.5));
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.25), 0 0 24px rgba(0, 255, 255, 0.1);
     pointer-events: none;
+    animation: panel-scanline-pulse 3s ease-in-out infinite;
+}
+
+@keyframes panel-scanline-pulse {
+    0%, 100% { opacity: 0.7; box-shadow: 0 0 12px rgba(0, 255, 255, 0.25); }
+    50% { opacity: 1; box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 0 40px rgba(0, 255, 255, 0.15); }
 }
 
 #info-panel h3 {
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin-bottom: 8px;
+    font-size: 1.65rem;
+    font-weight: 700;
+    margin-bottom: 14px;
     color: #00ffff;
-    text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-    letter-spacing: 1px;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.2);
+    letter-spacing: 1.5px;
+    line-height: 1.3;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+    padding-bottom: 12px;
 }
 
 #info-panel p {
-    font-size: 0.88rem;
-    line-height: 1.55;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 8px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.78);
+    margin-bottom: 12px;
+}
+
+#info-panel p strong {
+    color: rgba(0, 255, 255, 0.85);
+    font-weight: 600;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.2);
 }
 
 #info-panel a {
     color: #6cb4ff;
     text-decoration: none;
+    font-size: 1rem;
+    padding: 6px 0;
+    display: inline-block;
+    transition: all 0.2s ease;
+    text-shadow: 0 0 8px rgba(108, 180, 255, 0.3);
 }
 
 #info-panel a:hover {
-    text-decoration: underline;
+    color: #8ecaff;
+    text-decoration: none;
+    text-shadow: 0 0 15px rgba(108, 180, 255, 0.6);
 }
 
 #info-panel .close-btn {
     position: absolute;
-    top: 12px;
-    right: 14px;
-    background: rgba(0, 10, 20, 0.8);
-    border: 1px solid rgba(0, 255, 255, 0.2);
-    color: rgba(0, 255, 255, 0.6);
-    font-size: 1rem;
+    top: 14px;
+    right: 16px;
+    background: rgba(0, 10, 20, 0.9);
+    border: 1px solid rgba(0, 255, 255, 0.25);
+    color: rgba(0, 255, 255, 0.7);
+    font-size: 1.1rem;
     cursor: pointer;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 2px;
-    transition: all 0.2s;
+    border-radius: 4px;
+    transition: all 0.25s ease;
     z-index: 2;
 }
 
@@ -708,14 +736,25 @@ header.nube-header .menu-toggle:hover {
 
 #info-panel .tag {
     display: inline-block;
-    padding: 3px 10px;
-    background: rgba(0, 255, 255, 0.05);
-    border: 1px solid rgba(0, 255, 255, 0.15);
-    border-radius: 2px;
-    font-size: 0.72rem;
-    color: rgba(0, 255, 255, 0.6);
-    margin: 2px 3px;
-    text-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+    padding: 6px 14px;
+    background: rgba(0, 255, 255, 0.06);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: rgba(0, 255, 255, 0.75);
+    margin: 3px 4px;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.35);
+    transition: all 0.2s ease;
+    cursor: default;
+}
+
+#info-panel .tag:hover {
+    background: rgba(0, 255, 255, 0.12);
+    border-color: rgba(0, 255, 255, 0.4);
+    color: #00ffff;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
+    text-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
 }
 
 /* Category dots */

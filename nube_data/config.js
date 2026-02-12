@@ -78,6 +78,8 @@ export const CONFIG = {
     // ── Universe Layout ──────────────────────────────────────
     layout: {
         ringRadius:        1800,    // distance of categories from sun
+        categoryZMin:      -2000,   // min random Y offset for each category group
+        categoryZMax:       2000,   // max random Y offset for each category group
     },
 
     // ── Starfield ────────────────────────────────────────────
@@ -127,9 +129,9 @@ export const CONFIG = {
         lerpSpeed:         0.08,    // how fast camera catches up to planet
         mouseSensitivity:  0.003,   // mouse look sensitivity
         maxRotationSpeed:  2.5,     // max angular velocity (rad/s) for orbital rotation
-        zoomSpeed:         8,       // Q/E zoom speed (units/s) in orbital mode
-        zoomMin:           20,      // min follow distance
-        zoomMax:           400,     // max follow distance
+        zoomSpeed:         20,      // Q/E zoom speed (units/s) in orbital mode
+        zoomMin:           10,      // min follow distance
+        zoomMax:           2000,    // max follow distance
     },
 
     // ── Spaceship (NAVE mode) ────────────────────────────────
@@ -180,6 +182,10 @@ export const CONFIG = {
         activeGlowOpacity:     0.85,
         activeGlowColor:       0x00ffff,
         activeLineWidth:       3,
+        // Energy sphere trace animation
+        traceDuration:         5.5,    // seconds for sphere to travel the connection (higher = slower)
+        traceSphereRadius:     10,     // radius of the energy sphere
+        traceSphereGlowMult:   2.5,    // glow sphere radius = traceSphereRadius * this multiplier
     },
 
     // ── Reverse Force ──────────────────────────────────────────

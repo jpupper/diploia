@@ -56,12 +56,6 @@
             <h1>Nube de Universos · Arte Generativo &amp; IA</h1>
         </div>
 
-        <div id="selection-indicator">
-            <div class="sel-category" id="sel-category-text"></div>
-            <div class="sel-divider"></div>
-            <div class="sel-planet" id="sel-planet-text"></div>
-        </div>
-
         <div id="universe-indicator">
             <div class="cat-label" id="cat-label-text">—</div>
             <div class="cat-count" id="cat-count-text"></div>
@@ -83,6 +77,13 @@
             <kbd>Arrastrar</kbd> Rotar<br />
             <kbd>N</kbd> Nombres · <kbd>V</kbd> Cámara · <kbd>F</kbd> Nave
         </div>
+    </div>
+
+    <!-- ── Selection indicator (outside hud so it's visible in ALL modes including ship) ── -->
+    <div id="selection-indicator">
+        <div class="sel-category" id="sel-category-text"></div>
+        <div class="sel-divider"></div>
+        <div class="sel-planet" id="sel-planet-text"></div>
     </div>
 
     <!-- ── Info panel (outside hud so it's visible in all modes) ── -->
@@ -109,8 +110,8 @@
 
     <!-- ── Camera follow hint ── -->
     <div id="camera-hint">
-        <kbd>Mouse</kbd> Rotar vista · <kbd>Scroll</kbd> Distancia<br />
-        <kbd>A</kbd> <kbd>D</kbd> Yaw · <kbd>W</kbd> <kbd>S</kbd> Pitch<br />
+        <kbd>Click</kbd> Ir a planeta · <kbd>Scroll</kbd> <kbd>+</kbd> <kbd>−</kbd> Distancia<br />
+        <kbd>Mouse</kbd> Rotar vista · <kbd>A</kbd> <kbd>D</kbd> Yaw · <kbd>W</kbd> <kbd>S</kbd> Pitch<br />
         <kbd>V</kbd> o <kbd>Esc</kbd> Volver a Global
     </div>
 

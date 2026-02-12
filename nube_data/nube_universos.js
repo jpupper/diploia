@@ -1,531 +1,12 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CONFIG } from './config.js';
+import { Planet } from './Planet.js';
+import { Connection } from './Connection.js';
+import { CameraController } from './CameraController.js';
+import { EnergyParticleSystem } from './EnergyParticleSystem.js';
 
 const CFG = CONFIG;
 const CAT_COLORS = CFG.categoryColors;
-
-// ═══════════════════════════════════════════════
-//  CLASS: Planet (represents any node: sun, nucleus, tool)
-// ═══════════════════════════════════════════════
-class Planet {
-    constructor(mesh, node, category = null) {
-        this.mesh = mesh;
-        this.node = node;
-        this.category = category;
-        this.isActive = false;
-        this._origEmissive = mesh.material ? mesh.material.emissiveIntensity : 0;
-        this._origScale = mesh.scale.clone();
-        this.type = node.type || 'tool';
-    }
-
-    get id() { return this.node.id; }
-    get label() { return this.node.label || this.node.id; }
-
-    activate() {
-        this.isActive = true;
-        if (this.mesh.material) {
-            this.mesh.material.emissiveIntensity = CFG.selection.emissiveIntensity;
-        }
-        this.mesh.scale.copy(this._origScale).multiplyScalar(CFG.selection.scaleFactor);
-    }
-
-    deactivate() {
-        this.isActive = false;
-        if (this.mesh.material) {
-            this.mesh.material.emissiveIntensity = this._origEmissive;
-        }
-        this.mesh.scale.copy(this._origScale);
-    }
-
-    hover() {
-        if (!this.mesh.material) return;
-        if (this.isActive) {
-            this.mesh.material.emissiveIntensity = CFG.selection.hoverSelectedEmissive;
-            this.mesh.scale.copy(this._origScale).multiplyScalar(CFG.selection.hoverSelectedScale);
-        } else {
-            this.mesh.material.emissiveIntensity = CFG.selection.hoverEmissive;
-            this.mesh.scale.copy(this._origScale).multiplyScalar(CFG.selection.hoverScale);
-        }
-    }
-
-    unhover() {
-        if (!this.mesh.material) return;
-        if (this.isActive) {
-            this.mesh.material.emissiveIntensity = CFG.selection.emissiveIntensity;
-            this.mesh.scale.copy(this._origScale).multiplyScalar(CFG.selection.scaleFactor);
-        } else {
-            this.mesh.material.emissiveIntensity = this._origEmissive;
-            this.mesh.scale.copy(this._origScale);
-        }
-    }
-
-    getWorldPosition() {
-        const v = new THREE.Vector3();
-        this.mesh.getWorldPosition(v);
-        return v;
-    }
-
-    getConnectedIds() {
-        const sec = this.node.connections?.secondary || [];
-        const children = (this.node.connections?.children || []).map(c => c.id || c);
-        return [...sec, ...children];
-    }
-}
-
-// ═══════════════════════════════════════════════
-//  CLASS: Connection
-// ═══════════════════════════════════════════════
-class Connection {
-    constructor(line, fromPlanet, toPlanet, type = 'primary', color = null) {
-        this.line = line;
-        this.from = fromPlanet;
-        this.to = toPlanet;
-        this.type = type;
-        this.color = color;
-        this.glowLine = null;
-        // Energy sphere tracing state
-        this.tracing = false;
-        this.traceProgress = 0;
-        this.traceDuration = 0.6;
-        this.traceSphere = null;
-        this.traceFromPlanet = null;
-        this._savedOpacity = 0;
-    }
-
-    updatePositions() {
-        const sp = this.from.getWorldPosition();
-        const tp = this.to.getWorldPosition();
-        const p = this.line.geometry.attributes.position.array;
-        p[0] = sp.x; p[1] = sp.y; p[2] = sp.z;
-        p[3] = tp.x; p[4] = tp.y; p[5] = tp.z;
-        this.line.geometry.attributes.position.needsUpdate = true;
-        if (this.glowLine) {
-            const gp = this.glowLine.geometry.attributes.position.array;
-            gp[0] = sp.x; gp[1] = sp.y; gp[2] = sp.z;
-            gp[3] = tp.x; gp[4] = tp.y; gp[5] = tp.z;
-            this.glowLine.geometry.attributes.position.needsUpdate = true;
-        }
-    }
-
-    setOpacity(opacity) { this.line.material.opacity = opacity; }
-    show() { this.line.visible = true; }
-    hide() {
-        this.line.visible = false;
-        if (this.glowLine) this.glowLine.visible = false;
-        this.stopTrace();
-    }
-
-    showGlow(scene) {
-        if (this.glowLine) { this.glowLine.visible = true; return; }
-        const sp = this.from.getWorldPosition();
-        const tp = this.to.getWorldPosition();
-        const geo = new THREE.BufferGeometry().setFromPoints([sp, tp]);
-        const mat = new THREE.LineBasicMaterial({
-            color: CFG.connections.activeGlowColor, transparent: true,
-            opacity: CFG.connections.activeGlowOpacity,
-            blending: THREE.AdditiveBlending, depthWrite: false,
-            linewidth: CFG.connections.activeLineWidth,
-        });
-        this.glowLine = new THREE.Line(geo, mat);
-        scene.add(this.glowLine);
-    }
-
-    hideGlow() { if (this.glowLine) this.glowLine.visible = false; }
-    involvesId(id) { return this.from.id === id || this.to.id === id; }
-    involvesPlanet(planet) { return this.from === planet || this.to === planet; }
-
-    // Start energy sphere trace animation from activePlanet toward the other end
-    startTrace(scene, activePlanet) {
-        this.tracing = true;
-        this.traceProgress = 0;
-        this.traceFromPlanet = (this.from === activePlanet) ? this.from : this.to;
-        const toPlanet = (this.traceFromPlanet === this.from) ? this.to : this.from;
-        // Hide the line initially — it draws progressively
-        this._savedOpacity = this.line.material.opacity;
-        this.line.material.opacity = 0;
-        if (this.glowLine) this.glowLine.visible = false;
-        // Create energy sphere
-        if (!this.traceSphere) {
-            const sphereColor = this.color ? new THREE.Color(this.color) : new THREE.Color(CFG.connections.activeGlowColor);
-            const sGeo = new THREE.SphereGeometry(4, 12, 12);
-            const sMat = new THREE.MeshBasicMaterial({
-                color: sphereColor, transparent: true, opacity: 0.9,
-                blending: THREE.AdditiveBlending, depthWrite: false,
-            });
-            this.traceSphere = new THREE.Mesh(sGeo, sMat);
-            // Add glow around sphere
-            const glowGeo = new THREE.SphereGeometry(10, 8, 8);
-            const glowMat = new THREE.MeshBasicMaterial({
-                color: sphereColor, transparent: true, opacity: 0.25,
-                blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide,
-            });
-            this.traceSphere.add(new THREE.Mesh(glowGeo, glowMat));
-            scene.add(this.traceSphere);
-        }
-        this.traceSphere.visible = true;
-        const startPos = this.traceFromPlanet.getWorldPosition();
-        this.traceSphere.position.copy(startPos);
-    }
-
-    // Update trace animation each frame; returns true if still tracing
-    updateTrace(dt) {
-        if (!this.tracing) return false;
-        this.traceProgress += dt / this.traceDuration;
-        if (this.traceProgress >= 1) this.traceProgress = 1;
-        const t = this.traceProgress;
-        // Ease out
-        const ease = 1 - Math.pow(1 - t, 3);
-        const sp = this.traceFromPlanet.getWorldPosition();
-        const toPlanet = (this.traceFromPlanet === this.from) ? this.to : this.from;
-        const tp = toPlanet.getWorldPosition();
-        // Move sphere along the line
-        const currentPos = sp.clone().lerp(tp, ease);
-        this.traceSphere.position.copy(currentPos);
-        // Progressively reveal the line behind the sphere
-        this.line.material.opacity = this._savedOpacity * ease;
-        // Update line geometry to draw only the traced portion
-        const p = this.line.geometry.attributes.position.array;
-        p[0] = sp.x; p[1] = sp.y; p[2] = sp.z;
-        p[3] = currentPos.x; p[4] = currentPos.y; p[5] = currentPos.z;
-        this.line.geometry.attributes.position.needsUpdate = true;
-        this.line.visible = true;
-        if (t >= 1) {
-            // Trace complete — restore full line and hide sphere
-            this.tracing = false;
-            this.line.material.opacity = this._savedOpacity;
-            // Restore full line endpoints
-            p[3] = tp.x; p[4] = tp.y; p[5] = tp.z;
-            this.line.geometry.attributes.position.needsUpdate = true;
-            if (this.glowLine) this.glowLine.visible = true;
-            this.traceSphere.visible = false;
-            return false;
-        }
-        return true;
-    }
-
-    stopTrace() {
-        this.tracing = false;
-        if (this.traceSphere) this.traceSphere.visible = false;
-    }
-}
-
-// ═══════════════════════════════════════════════
-//  CLASS: CameraController
-// ═══════════════════════════════════════════════
-class CameraController {
-    constructor(camera, renderer, cfg) {
-        this.camera = camera;
-        this.cfg = cfg;
-        this.controls = new OrbitControls(camera, renderer.domElement);
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = cfg.camera.orbitDamping;
-        this.controls.rotateSpeed = cfg.camera.orbitRotateSpeed;
-        this.controls.minDistance = cfg.camera.orbitMinDistance;
-        this.controls.maxDistance = cfg.camera.orbitMaxDistance;
-        this.controls.enablePan = false;
-
-        this.targetPos = new THREE.Vector3();
-        this.targetLookAt = new THREE.Vector3();
-        this.currentLookAt = new THREE.Vector3();
-        this.isTransitioning = false;
-        this.zoomLevel = 1;
-
-        // Follow
-        this.followYaw = 0;
-        this.followPitch = 0.3;
-        this.followDistance = cfg.follow.distance;
-        this.followYawVel = 0;
-        this.followPitchVel = 0;
-        this.mouseDown = false;
-        this.lastMouseX = 0;
-        this.lastMouseY = 0;
-
-        // Ship
-        this.shipVelocity = new THREE.Vector3();
-        this.shipThrottle = 0;
-        this.shipYaw = 0;
-        this.shipPitch = 0;
-        this.pointerLocked = false;
-
-        // Warp (ship mode teleport to planet)
-        this.warping = false;
-        this.warpTarget = null;
-        this.warpStart = null;
-        this.warpTime = 0;
-        this.warpDuration = 1.2;       // seconds
-        this.warpCallback = null;
-    }
-
-    goHome(instant = false) {
-        const home = this.cfg.camera.homePosition;
-        const dist = this.cfg.camera.navDistMultiplier * this.zoomLevel;
-        this.targetPos.set(home.x, dist * 1.2, home.y);
-        this.targetLookAt.set(home.x, 0, home.y);
-        if (instant) {
-            this.camera.position.copy(this.targetPos);
-            this.controls.target.copy(this.targetLookAt);
-            this.currentLookAt.copy(this.targetLookAt);
-            this.controls.update();
-        } else {
-            this.currentLookAt.copy(this.controls.target);
-            this.isTransitioning = true;
-        }
-    }
-
-    navigateTo(position, instant = false) {
-        const dist = this.cfg.camera.navDistMultiplier * this.zoomLevel;
-        this.targetPos.set(position.x, dist * 1.2, position.z);
-        this.targetLookAt.copy(position);
-        if (instant) {
-            this.camera.position.copy(this.targetPos);
-            this.controls.target.copy(this.targetLookAt);
-            this.currentLookAt.copy(this.targetLookAt);
-            this.controls.update();
-        } else {
-            this.currentLookAt.copy(this.controls.target);
-            this.isTransitioning = true;
-        }
-    }
-
-    adjustZoom(delta) {
-        const old = this.zoomLevel;
-        this.zoomLevel = Math.max(this.cfg.camera.zoomMin, Math.min(this.cfg.camera.zoomMax, this.zoomLevel + delta));
-        return this.zoomLevel !== old;
-    }
-
-    updateTransition(activePlanet) {
-        if (!this.isTransitioning) return;
-        this.camera.position.lerp(this.targetPos, this.cfg.camera.transitionSpeed);
-        this.currentLookAt.lerp(this.targetLookAt, this.cfg.camera.transitionSpeed);
-        this.controls.target.copy(this.currentLookAt);
-        if (!activePlanet || activePlanet.mesh.userData.orbitRadius === undefined) {
-            if (this.camera.position.distanceTo(this.targetPos) < 2) this.isTransitioning = false;
-        }
-    }
-
-    initFollowFrom(targetWorldPos) {
-        this.followYawVel = 0;
-        this.followPitchVel = 0;
-        this.mouseDown = false;
-        const diff = new THREE.Vector3().subVectors(this.camera.position, targetWorldPos);
-        this.followYaw = Math.atan2(diff.x, diff.z);
-        this.followPitch = Math.atan2(diff.y, Math.sqrt(diff.x * diff.x + diff.z * diff.z));
-        this.followDistance = diff.length();
-    }
-
-    updateFollow(dt, targetWorldPos, keys) {
-        const F = this.cfg.follow;
-        if (keys.a) this.followYawVel += F.yawSpeed * dt;
-        if (keys.d) this.followYawVel -= F.yawSpeed * dt;
-        if (keys.w) this.followPitchVel += F.pitchSpeed * dt;
-        if (keys.s) this.followPitchVel -= F.pitchSpeed * dt;
-        // Q/E zoom in orbital mode
-        const zSpeed = F.zoomSpeed || 8;
-        if (keys.e) this.followDistance = Math.max(F.zoomMin || 20, this.followDistance - zSpeed * dt * 10);
-        if (keys.q) this.followDistance = Math.min(F.zoomMax || 400, this.followDistance + zSpeed * dt * 10);
-
-        // Clamp rotation speed to maxRotationSpeed
-        const maxRot = F.maxRotationSpeed || 2.5;
-        this.followYawVel = Math.max(-maxRot, Math.min(maxRot, this.followYawVel));
-        this.followPitchVel = Math.max(-maxRot, Math.min(maxRot, this.followPitchVel));
-
-        this.followYaw += this.followYawVel;
-        this.followPitch += this.followPitchVel;
-        this.followPitch = Math.max(F.pitchMin, Math.min(F.pitchMax, this.followPitch));
-
-        const decay = this.mouseDown ? 0.85 : 0.92;
-        this.followYawVel *= decay;
-        this.followPitchVel *= decay;
-        if (Math.abs(this.followYawVel) < 0.0001) this.followYawVel = 0;
-        if (Math.abs(this.followPitchVel) < 0.0001) this.followPitchVel = 0;
-
-        const camOffset = new THREE.Vector3(
-            Math.sin(this.followYaw) * Math.cos(this.followPitch) * this.followDistance,
-            Math.sin(this.followPitch) * this.followDistance,
-            Math.cos(this.followYaw) * Math.cos(this.followPitch) * this.followDistance
-        );
-        const desiredPos = targetWorldPos.clone().add(camOffset);
-        this.camera.position.lerp(desiredPos, F.lerpSpeed);
-        this.camera.lookAt(targetWorldPos);
-    }
-
-    initShip() {
-        const dir = new THREE.Vector3();
-        this.camera.getWorldDirection(dir);
-        this.shipYaw = Math.atan2(dir.x, dir.z);
-        this.shipPitch = Math.asin(Math.max(-1, Math.min(1, dir.y)));
-        this.shipVelocity.set(0, 0, 0);
-        this.shipThrottle = 0;
-    }
-
-    updateShip(dt, keys) {
-        const S = this.cfg.ship;
-        if (keys.w || keys.space) {
-            this.shipThrottle = Math.min(1, this.shipThrottle + dt * S.throttleAccelRate);
-        } else if (keys.s) {
-            this.shipThrottle = Math.max(-0.3, this.shipThrottle - dt * S.throttleBrakeRate);
-        } else {
-            this.shipThrottle *= S.throttleDecay;
-            if (Math.abs(this.shipThrottle) < 0.01) this.shipThrottle = 0;
-        }
-        // Mouse-controlled yaw when pointer locked; keyboard yaw only when not locked
-        if (!this.pointerLocked) {
-            // Without pointer lock, A/D still rotate
-            if (keys.a) this.shipYaw += S.turnSpeed * dt;
-            if (keys.d) this.shipYaw -= S.turnSpeed * dt;
-        }
-        const forward = new THREE.Vector3(
-            Math.sin(this.shipYaw) * Math.cos(this.shipPitch),
-            Math.sin(this.shipPitch),
-            Math.cos(this.shipYaw) * Math.cos(this.shipPitch)
-        );
-        // Right vector for strafing (A/D move sideways)
-        const right = new THREE.Vector3(
-            Math.cos(this.shipYaw), 0, -Math.sin(this.shipYaw)
-        ).normalize();
-        // Forward thrust
-        this.shipVelocity.add(forward.clone().multiplyScalar(this.shipThrottle * S.acceleration * dt));
-        // Strafe: A = left, D = right
-        if (keys.a) this.shipVelocity.add(right.clone().multiplyScalar(S.acceleration * 0.6 * dt));
-        if (keys.d) this.shipVelocity.add(right.clone().multiplyScalar(-S.acceleration * 0.6 * dt));
-        if (keys.shift) this.shipVelocity.add(forward.clone().multiplyScalar(S.acceleration * S.boostMultiplier * dt));
-        if (keys.q) this.shipVelocity.y += S.acceleration * dt;
-        if (keys.e) this.shipVelocity.y -= S.acceleration * dt;
-        // dt-based drag so speed isn't frame-rate dependent and can actually reach maxSpeed
-        const dragFactor = Math.pow(S.drag, dt * 60);
-        this.shipVelocity.multiplyScalar(dragFactor);
-        const speed = this.shipVelocity.length();
-        if (speed > S.maxSpeed) this.shipVelocity.normalize().multiplyScalar(S.maxSpeed);
-        this.camera.position.add(this.shipVelocity.clone().multiplyScalar(dt));
-        this.camera.lookAt(this.camera.position.clone().add(forward));
-        return { speed, throttle: this.shipThrottle };
-    }
-
-    startWarp(targetPos, stopDistance, callback) {
-        this.warping = true;
-        this.warpStart = this.camera.position.clone();
-        // Stop at stopDistance from the planet along the approach direction
-        const dir = new THREE.Vector3().subVectors(targetPos, this.warpStart).normalize();
-        this.warpTarget = targetPos.clone().sub(dir.multiplyScalar(stopDistance));
-        this.warpLookAt = targetPos.clone();
-        this.warpTime = 0;
-        this.warpCallback = callback || null;
-        this.shipVelocity.set(0, 0, 0);
-        this.shipThrottle = 0;
-    }
-
-    updateWarp(dt) {
-        if (!this.warping) return false;
-        this.warpTime += dt;
-        const t = Math.min(this.warpTime / this.warpDuration, 1);
-        // Ease-in-out with a sharp acceleration feel
-        const ease = t < 0.5
-            ? 4 * t * t * t
-            : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        this.camera.position.lerpVectors(this.warpStart, this.warpTarget, ease);
-        // Always look at the planet itself (not the stop point)
-        this.camera.lookAt(this.warpLookAt);
-        // Update shipYaw/shipPitch to match facing direction toward planet
-        const dir = new THREE.Vector3().subVectors(this.warpLookAt, this.camera.position).normalize();
-        this.shipYaw = Math.atan2(dir.x, dir.z);
-        this.shipPitch = Math.asin(Math.max(-1, Math.min(1, dir.y)));
-        if (t >= 1) {
-            this.warping = false;
-            this.shipVelocity.set(0, 0, 0);
-            if (this.warpCallback) this.warpCallback();
-            return false;
-        }
-        return true;
-    }
-
-    onMouseMoveShip(e) {
-        const S = this.cfg.ship;
-        this.shipYaw -= e.movementX * S.mouseSensitivity;
-        this.shipPitch -= e.movementY * S.mouseSensitivity;
-        this.shipPitch = Math.max(S.pitchMin, Math.min(S.pitchMax, this.shipPitch));
-    }
-
-    onMouseMoveFollow(dx, dy) {
-        this.followYawVel -= dx * this.cfg.follow.mouseSensitivity * 2;
-        this.followPitchVel += dy * this.cfg.follow.mouseSensitivity * 2;
-    }
-}
-
-// ═══════════════════════════════════════════════
-//  CLASS: EnergyParticleSystem
-// ═══════════════════════════════════════════════
-class EnergyParticleSystem {
-    constructor(scene) {
-        this.scene = scene;
-        this.points = null;
-        this.data = [];
-        this.count = 60;
-    }
-
-    spawn(planet) {
-        this.clear();
-        const wp = planet.getWorldPosition();
-        let color = 0x00ffff;
-        if (planet.category) color = CAT_COLORS[planet.category] || 0x00ffff;
-        else if (planet.type === 'category') color = CAT_COLORS[planet.id] || 0x00ffff;
-
-        const geo = new THREE.BufferGeometry();
-        const positions = new Float32Array(this.count * 3);
-        const sizes = new Float32Array(this.count);
-        this.data = [];
-
-        for (let i = 0; i < this.count; i++) {
-            const off = new THREE.Vector3((Math.random()-0.5)*10,(Math.random()-0.5)*10,(Math.random()-0.5)*10);
-            positions[i*3] = wp.x+off.x; positions[i*3+1] = wp.y+off.y; positions[i*3+2] = wp.z+off.z;
-            sizes[i] = 1.5 + Math.random()*3;
-            this.data.push({ origin: wp.clone().add(off), speed: 40+Math.random()*80, delay: Math.random()*0.8, life: 0, maxLife: 1+Math.random()*0.5, alive: true });
-        }
-        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-        const mat = new THREE.PointsMaterial({ color, size: 3, transparent: true, opacity: 0.8, sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false });
-        this.points = new THREE.Points(geo, mat);
-        this.scene.add(this.points);
-    }
-
-    clear() {
-        if (this.points) {
-            this.scene.remove(this.points);
-            this.points.geometry.dispose();
-            this.points.material.dispose();
-            this.points = null;
-            this.data = [];
-        }
-    }
-
-    update(dt, camPos) {
-        if (!this.points || this.data.length === 0) return;
-        const posA = this.points.geometry.getAttribute('position');
-        const sizeA = this.points.geometry.getAttribute('size');
-        let allDead = true;
-        for (let i = 0; i < this.data.length; i++) {
-            const p = this.data[i];
-            if (!p.alive) continue;
-            p.life += dt;
-            if (p.life < p.delay) { allDead = false; continue; }
-            const t = (p.life - p.delay) / p.maxLife;
-            if (t >= 1) { p.alive = false; sizeA.array[i] = 0; continue; }
-            allDead = false;
-            const dir = new THREE.Vector3().subVectors(camPos, p.origin).normalize();
-            const dist = p.speed * (p.life - p.delay);
-            const pos = p.origin.clone().add(dir.multiplyScalar(dist));
-            const spiral = (p.life - p.delay) * 4;
-            pos.x += Math.sin(spiral+i)*3*(1-t);
-            pos.y += Math.cos(spiral+i*1.3)*3*(1-t);
-            posA.array[i*3] = pos.x; posA.array[i*3+1] = pos.y; posA.array[i*3+2] = pos.z;
-            sizeA.array[i] = (1.5+Math.random()*2)*(1-t*t);
-        }
-        posA.needsUpdate = true;
-        sizeA.needsUpdate = true;
-        this.points.material.opacity = 0.8;
-        if (allDead) this.clear();
-    }
-}
 
 // ═══════════════════════════════════════════════
 //  CLASS: Universe (main application)
@@ -550,6 +31,11 @@ class Universe {
         this.shipAimedLines = []; this.shipHoveredMesh = null;
         this.keys = { w:false, s:false, a:false, d:false, q:false, e:false, shift:false, space:false };
         this.hoveredPlanet = null; this.tooltip = null;
+        this._orbitalWarping = false;
+        this._clickTimer = null;
+        this._shipTraceConnections = [];
+        this._mouseDownPos = { x: 0, y: 0 };
+        this._isDrag = false;
     }
 
     async init() {
@@ -762,7 +248,10 @@ class Universe {
             const node = this.DATA.nodes[catId]; if (!node) return;
             const angle = (i/catCount)*Math.PI*2 - Math.PI/2;
             const cx = Math.cos(angle)*ringRadius; const cz = Math.sin(angle)*ringRadius;
-            const group = new THREE.Group(); group.position.set(cx, 0, cz);
+            const zMin = CFG.layout.categoryZMin !== undefined ? CFG.layout.categoryZMin : -2000;
+            const zMax = CFG.layout.categoryZMax !== undefined ? CFG.layout.categoryZMax : 2000;
+            const randomZ = zMin + Math.random() * (zMax - zMin);
+            const group = new THREE.Group(); group.position.set(cx, randomZ, cz);
             this.scene.add(group);
             const color = new THREE.Color(CAT_COLORS[catId] || 0xffffff);
 
@@ -913,6 +402,13 @@ class Universe {
     }
 
     adjustZoom(delta) {
+        if (this.currentView === 'camera') {
+            // Orbital mode: adjust follow distance to zoom in/out from selected planet
+            const F = this.cam.cfg.follow;
+            const step = (F.zoomMax - F.zoomMin) * 0.08;
+            this.cam.followDistance = Math.max(F.zoomMin, Math.min(F.zoomMax, this.cam.followDistance + delta * step * 10));
+            return;
+        }
         if (this.currentView !== 'global') return;
         if (!this.cam.adjustZoom(delta)) return;
         const catId = this.categories[this.currentCatIndex];
@@ -948,6 +444,10 @@ class Universe {
             this.shipHoveredMesh = null;
         }
 
+        const navArrows = document.getElementById('nav-arrows');
+        const universeInd = document.getElementById('universe-indicator');
+        const keyHint = document.getElementById('key-hint');
+
         if (mode === 'global') {
             this.cam.controls.enabled = true;
             orbitHud.style.display = ''; shipHud.classList.remove('visible');
@@ -962,17 +462,40 @@ class Universe {
             document.getElementById('cat-count-text').textContent = `${this.categories.length} universos`;
             this.updateCategoryDots();
             this.cam.goHome();
+            // Show all global HUD elements
+            if (navArrows) navArrows.style.display = '';
+            if (universeInd) universeInd.style.display = '';
+            if (keyHint) keyHint.style.display = '';
         } else if (mode === 'camera') {
             this.cam.controls.enabled = false;
             orbitHud.style.display = ''; shipHud.classList.remove('visible');
             if (cameraHint) cameraHint.classList.add('visible');
             if (document.pointerLockElement) document.exitPointerLock();
             if (this.activePlanet) this.cam.initFollowFrom(this.activePlanet.getWorldPosition());
+            // Hide prev/next and universe label, but keep +/- zoom visible
+            if (universeInd) universeInd.style.display = 'none';
+            if (keyHint) keyHint.style.display = 'none';
+            // Rearrange nav-arrows: hide prev/next, show only zoom buttons
+            if (navArrows) {
+                navArrows.style.display = '';
+                document.getElementById('btn-prev').style.display = 'none';
+                document.getElementById('btn-next').style.display = 'none';
+                document.getElementById('btn-zin').style.display = '';
+                document.getElementById('btn-zout').style.display = '';
+            }
         } else if (mode === 'ship') {
             this.cam.controls.enabled = false;
             orbitHud.style.display = 'none'; shipHud.classList.add('visible');
             if (cameraHint) cameraHint.classList.remove('visible');
             this.cam.initShip();
+            if (navArrows) navArrows.style.display = 'none';
+            if (universeInd) universeInd.style.display = 'none';
+            if (keyHint) keyHint.style.display = 'none';
+        }
+        // Restore prev/next visibility when going back to global
+        if (mode === 'global') {
+            document.getElementById('btn-prev').style.display = '';
+            document.getElementById('btn-next').style.display = '';
         }
     }
 
@@ -1013,23 +536,48 @@ class Universe {
 
     hideSelectionIndicator() { document.getElementById('selection-indicator').classList.remove('visible'); }
 
-    // ── Ship Aimed Lines ──
+    // ── Ship Aimed Lines (now uses trace animations) ──
     clearShipAimedLines() {
         this.shipAimedLines.forEach(l => { this.scene.remove(l); l.geometry.dispose(); l.material.dispose(); });
         this.shipAimedLines = [];
+        // Stop and clean up ship trace connections
+        this._shipTraceConnections.forEach(conn => {
+            conn.stopTrace();
+            conn.hide();
+            if (conn.traceSphere) { this.scene.remove(conn.traceSphere); conn.traceSphere = null; }
+            this.scene.remove(conn.line);
+            conn.line.geometry.dispose(); conn.line.material.dispose();
+            if (conn.glowLine) { this.scene.remove(conn.glowLine); conn.glowLine.geometry.dispose(); conn.glowLine.material.dispose(); }
+        });
+        this._shipTraceConnections = [];
     }
 
     buildShipAimedLines(planet) {
         this.clearShipAimedLines();
-        const sec = planet.node.connections?.secondary || []; if (sec.length === 0) return;
+        const C = CFG.connections;
+        // Gather target IDs: secondary connections + children (for categories)
+        const targetIds = [];
+        const sec = planet.node.connections?.secondary || [];
+        targetIds.push(...sec);
+        // If this is a category, also include its children
+        const children = this.DATA.categoryChildren[planet.id] || [];
+        targetIds.push(...children);
+        if (targetIds.length === 0) return;
         const sp = planet.getWorldPosition();
-        sec.forEach(targetId => {
+        // Determine color for the connections
+        let connColor = planet.category ? (CAT_COLORS[planet.category] || 0x00ffff) : (CAT_COLORS[planet.id] || 0x00ffff);
+        targetIds.forEach(targetId => {
             const tp = this.getPlanetById(targetId); if (!tp) return;
             const tpos = tp.getWorldPosition();
             const lineGeo = new THREE.BufferGeometry().setFromPoints([sp, tpos]);
-            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false, linewidth: 2 });
+            const lineMat = new THREE.LineBasicMaterial({ color: connColor, transparent: true, opacity: C.primaryActiveOpacity, blending: THREE.AdditiveBlending, depthWrite: false, linewidth: 2 });
             const line = new THREE.Line(lineGeo, lineMat);
-            this.scene.add(line); this.shipAimedLines.push(line);
+            this.scene.add(line);
+            this.shipAimedLines.push(line);
+            // Create a temporary Connection object for the trace animation
+            const conn = new Connection(line, planet, tp, 'primary', connColor);
+            conn.startTrace(this.scene, planet);
+            this._shipTraceConnections.push(conn);
         });
     }
 
@@ -1051,6 +599,7 @@ class Universe {
                 this.tooltip.style.left = (innerWidth/2+30)+'px'; this.tooltip.style.top = (innerHeight/2-12)+'px';
                 this.tooltip.classList.add('visible');
                 this.showInfoPanel(planet.node);
+                this.updateSelectionIndicator(planet);
                 const ch = document.getElementById('ship-crosshair'); if (ch) ch.classList.add('locked');
             }
         } else {
@@ -1059,20 +608,13 @@ class Universe {
             if (this.tooltip) this.tooltip.classList.remove('visible');
             const ch = document.getElementById('ship-crosshair'); if (ch) ch.classList.remove('locked');
             this.closeInfoPanel();
+            if (!this.activePlanet) this.hideSelectionIndicator();
         }
 
-        if (this.shipHoveredMesh && this.shipAimedLines.length > 0) {
-            const planet = this.getPlanetByMesh(this.shipHoveredMesh); if (!planet) return;
-            const sec = planet.node.connections?.secondary || [];
-            const sp = planet.getWorldPosition(); let li = 0;
-            sec.forEach(targetId => {
-                const tp = this.getPlanetById(targetId);
-                if (!tp || li >= this.shipAimedLines.length) return;
-                const tpos = tp.getWorldPosition();
-                const p = this.shipAimedLines[li].geometry.attributes.position.array;
-                p[0]=sp.x; p[1]=sp.y; p[2]=sp.z; p[3]=tpos.x; p[4]=tpos.y; p[5]=tpos.z;
-                this.shipAimedLines[li].geometry.attributes.position.needsUpdate = true; li++;
-            });
+        // Update ship trace animations (sphere traveling along connections)
+        if (this._shipTraceConnections.length > 0) {
+            const dt = this.clock.getDelta ? 0.016 : 0.016; // approximate dt for ship traces
+            this._shipTraceConnections.forEach(conn => conn.updateTrace(0.016));
         }
     }
 
@@ -1161,8 +703,23 @@ class Universe {
     onClick(e) {
         if (this.currentView === 'ship') { this.renderer.domElement.requestPointerLock(); return; }
 
-        this.mouse.x = (e.clientX/innerWidth)*2-1;
-        this.mouse.y = -(e.clientY/innerHeight)*2+1;
+        // Suppress click if it was a drag (mouse moved > 5px)
+        const dx = e.clientX - this._mouseDownPos.x;
+        const dy = e.clientY - this._mouseDownPos.y;
+        if (Math.sqrt(dx * dx + dy * dy) > 5) return;
+
+        // Delay single-click to avoid conflict with double-click
+        if (this._clickTimer) { clearTimeout(this._clickTimer); this._clickTimer = null; }
+        const clickX = e.clientX, clickY = e.clientY;
+        this._clickTimer = setTimeout(() => {
+            this._clickTimer = null;
+            this._handleSingleClick(clickX, clickY);
+        }, 250);
+    }
+
+    _handleSingleClick(clientX, clientY) {
+        this.mouse.x = (clientX/innerWidth)*2-1;
+        this.mouse.y = -(clientY/innerHeight)*2+1;
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const hits = this.raycaster.intersectObjects(this.allMeshes);
 
@@ -1170,23 +727,42 @@ class Universe {
             const mesh = hits[0].object;
             const planet = this.getPlanetByMesh(mesh);
             if (!planet) return;
-            if (this.activePlanet === planet) {
-                this.clearActivePlanet(); this.closeInfoPanel();
-                if (this.currentView === 'camera') this.setViewMode('global');
-            } else {
+
+            if (this.currentView === 'camera') {
+                // ORBITAL MODE: always warp to clicked planet (even if same)
                 this.setActivePlanet(planet);
                 this.showInfoPanel(planet.node);
-                if (this.currentView === 'global') this.setViewMode('camera');
-                else if (this.currentView === 'camera') this.cam.initFollowFrom(planet.getWorldPosition());
+                const targetPos = planet.getWorldPosition();
+                const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
+                const stopDist = Math.max(pRadius * 5, 60);
+                this.showWarpFlash();
+                this._orbitalWarping = true;
+                this.cam.startWarp(targetPos, stopDist, () => {
+                    this._orbitalWarping = false;
+                    this.cam.initFollowFrom(planet.getWorldPosition());
+                    this.particles.spawn(planet);
+                });
+            } else if (this.currentView === 'global') {
+                // GLOBAL MODE: select planet, show info, move camera close
+                if (this.activePlanet === planet) {
+                    this.clearActivePlanet(); this.closeInfoPanel();
+                } else {
+                    this.setActivePlanet(planet);
+                    this.showInfoPanel(planet.node);
+                }
             }
         } else {
-            if (this.currentView === 'camera') return;
+            // Clicked empty space
+            if (this.currentView === 'camera') return; // do nothing in orbital
             this.clearActivePlanet(); this.closeInfoPanel();
         }
     }
 
     onDoubleClick(e) {
         e.preventDefault();
+        // Cancel pending single-click so it doesn't interfere
+        if (this._clickTimer) { clearTimeout(this._clickTimer); this._clickTimer = null; }
+
         if (this.currentView === 'ship') {
             // Ship mode: warp to aimed planet
             this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
@@ -1197,29 +773,54 @@ class Universe {
                 const targetPos = planet.getWorldPosition();
                 this.setActivePlanet(planet);
                 this.showInfoPanel(planet.node);
-                // Calculate stop distance: 5x the planet's radius so we don't crash
                 const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
                 const stopDist = Math.max(pRadius * 5, 60);
-                // Show warp flash overlay
                 this.showWarpFlash();
                 this.cam.startWarp(targetPos, stopDist, () => {
-                    // Warp complete — particles burst
                     this.particles.spawn(planet);
                 });
             }
             return;
         }
-        if (this.currentView !== 'global') return;
-        this.mouse.x = (e.clientX/innerWidth)*2-1;
-        this.mouse.y = -(e.clientY/innerHeight)*2+1;
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-        const hits = this.raycaster.intersectObjects(this.allMeshes);
-        if (hits.length > 0) {
-            const planet = this.getPlanetByMesh(hits[0].object);
-            if (!planet) return;
-            this.setActivePlanet(planet);
-            this.showInfoPanel(planet.node);
-            this.setViewMode('camera');
+
+        // Double-click in camera (orbital) mode: warp to clicked planet
+        if (this.currentView === 'camera') {
+            this.mouse.x = (e.clientX/innerWidth)*2-1;
+            this.mouse.y = -(e.clientY/innerHeight)*2+1;
+            this.raycaster.setFromCamera(this.mouse, this.camera);
+            const hits = this.raycaster.intersectObjects(this.allMeshes);
+            if (hits.length > 0) {
+                const planet = this.getPlanetByMesh(hits[0].object);
+                if (!planet) return;
+                this.setActivePlanet(planet);
+                this.showInfoPanel(planet.node);
+                const targetPos = planet.getWorldPosition();
+                const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
+                const stopDist = Math.max(pRadius * 5, 60);
+                this.showWarpFlash();
+                this._orbitalWarping = true;
+                this.cam.startWarp(targetPos, stopDist, () => {
+                    this._orbitalWarping = false;
+                    this.cam.initFollowFrom(planet.getWorldPosition());
+                    this.particles.spawn(planet);
+                });
+            }
+            return;
+        }
+
+        // Double-click in global mode: select and switch to camera
+        if (this.currentView === 'global') {
+            this.mouse.x = (e.clientX/innerWidth)*2-1;
+            this.mouse.y = -(e.clientY/innerHeight)*2+1;
+            this.raycaster.setFromCamera(this.mouse, this.camera);
+            const hits = this.raycaster.intersectObjects(this.allMeshes);
+            if (hits.length > 0) {
+                const planet = this.getPlanetByMesh(hits[0].object);
+                if (!planet) return;
+                this.setActivePlanet(planet);
+                this.showInfoPanel(planet.node);
+                this.setViewMode('camera');
+            }
         }
     }
 
@@ -1248,6 +849,8 @@ class Universe {
     }
 
     onMouseDown(e) {
+        this._mouseDownPos = { x: e.clientX, y: e.clientY };
+        this._isDrag = false;
         if (this.currentView === 'camera') {
             this.cam.mouseDown = true;
             this.cam.lastMouseX = e.clientX;
@@ -1257,6 +860,12 @@ class Universe {
 
     onMouseUp() {
         if (this.currentView === 'camera') this.cam.mouseDown = false;
+    }
+
+    _checkDrag(e) {
+        const dx = e.clientX - this._mouseDownPos.x;
+        const dy = e.clientY - this._mouseDownPos.y;
+        return Math.sqrt(dx * dx + dy * dy) > 5;
     }
 
     onMouseMove(e) {
@@ -1391,7 +1000,9 @@ class Universe {
                 this.updateShipRaycast();
             }
         } else if (this.currentView === 'camera') {
-            if (this.activePlanet) {
+            if (this._orbitalWarping && this.cam.warping) {
+                this.cam.updateWarp(dt);
+            } else if (this.activePlanet) {
                 this.cam.updateFollow(dt, this.activePlanet.getWorldPosition(), this.keys);
             }
         } else {
