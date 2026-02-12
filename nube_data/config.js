@@ -128,8 +128,8 @@ export const CONFIG = {
 
     // ── Spaceship (NAVE mode) ────────────────────────────────
     ship: {
-        maxSpeed:          800,
-        acceleration:      400,
+        maxSpeed:          3000,
+        acceleration:      1000,
         drag:              0.97,
         turnSpeed:         2.0,
         boostMultiplier:   2,

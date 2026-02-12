@@ -33,11 +33,11 @@
             <div class="splash-modes">
                 <div class="splash-mode">
                     <span class="splash-mode-icon">🌐</span>
-                    <span><strong>Global</strong> — Orbitá entre categorías</span>
+                    <span><strong>Global</strong> — Vista superior de todos los universos</span>
                 </div>
                 <div class="splash-mode">
-                    <span class="splash-mode-icon">🎥</span>
-                    <span><strong>Cámara</strong> — Seguí un planeta de cerca</span>
+                    <span class="splash-mode-icon">🔭</span>
+                    <span><strong>Orbital</strong> — Orbitá alrededor de un planeta</span>
                 </div>
                 <div class="splash-mode">
                     <span class="splash-mode-icon">🚀</span>
@@ -57,8 +57,8 @@
         </div>
 
         <div id="selection-indicator">
-            <div class="sel-planet" id="sel-planet-text"></div>
             <div class="sel-category" id="sel-category-text"></div>
+            <div class="sel-planet" id="sel-planet-text"></div>
         </div>
 
         <div id="universe-indicator">
@@ -73,11 +73,6 @@
             <button class="nav-btn" id="btn-next" title="Universo siguiente (→)">▶</button>
         </div>
 
-        <div id="info-panel">
-            <button class="close-btn" id="info-close">✕</button>
-            <div id="info-content"></div>
-        </div>
-
         <div id="cat-dots"></div>
 
         <div id="key-hint">
@@ -87,20 +82,34 @@
             <kbd>Arrastrar</kbd> Rotar<br />
             <kbd>N</kbd> Nombres · <kbd>V</kbd> Cámara · <kbd>F</kbd> Nave
         </div>
-        <div id="hover-tooltip"></div>
     </div>
+
+    <!-- ── Info panel (outside hud so it's visible in all modes) ── -->
+    <div id="info-panel">
+        <div class="panel-scanline"></div>
+        <div class="panel-inner">
+            <button class="close-btn" id="info-close">✕</button>
+            <div id="info-content"></div>
+        </div>
+    </div>
+    <div id="hover-tooltip"></div>
 
     <!-- ── View mode toggle ── -->
     <div id="view-mode-toggle">
-        <button class="view-btn active" id="btn-view-global">Global</button>
-        <button class="view-btn" id="btn-view-camera">Cámara</button>
-        <button class="view-btn" id="btn-view-ship">Nave</button>
+        <button class="neon-btn active" id="btn-view-global">Global</button>
+        <button class="neon-btn" id="btn-view-camera">Orbital</button>
+        <button class="neon-btn neon-orange" id="btn-view-ship">Nave</button>
+    </div>
+
+    <!-- ── Connections toggle (left side) ── -->
+    <div id="connections-toggle">
+        <button class="neon-btn" id="btn-show-connections">Conexiones</button>
     </div>
 
     <!-- ── Camera follow hint ── -->
     <div id="camera-hint">
+        <kbd>Mouse</kbd> Rotar vista · <kbd>Scroll</kbd> Distancia<br />
         <kbd>A</kbd> <kbd>D</kbd> Yaw · <kbd>W</kbd> <kbd>S</kbd> Pitch<br />
-        <kbd>Click</kbd> Capturar mouse · <kbd>Scroll</kbd> Distancia<br />
         <kbd>V</kbd> o <kbd>Esc</kbd> Volver a Global
     </div>
 

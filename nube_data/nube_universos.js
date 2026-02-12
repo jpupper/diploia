@@ -52,6 +52,18 @@ let currentView = VIEW_GLOBAL;
 let followYaw = 0;
 let followPitch = 0.3;
 let followDistance = CFG.follow.distance;
+let followYawVelocity = 0;
+let followPitchVelocity = 0;
+let lastMouseX = 0;
+let lastMouseY = 0;
+let cameraMouseDown = false;
+
+// ── Show All Connections toggle ──
+let showAllConnections = false;
+
+// ── Ship aimed mesh (for neon connection highlight) ──
+let shipAimedMesh = null;
+let shipAimedLines = [];
 
 // ── Spaceship state (NAVE mode) ──
 let shipVelocity = new THREE.Vector3();
@@ -116,6 +128,8 @@ async function init() {
     renderer.domElement.addEventListener('click', onClick);
     renderer.domElement.addEventListener('dblclick', onDoubleClick);
     renderer.domElement.addEventListener('mousemove', onMouseMove);
+    renderer.domElement.addEventListener('mousedown', onMouseDown);
+    renderer.domElement.addEventListener('mouseup', onMouseUp);
 
     document.getElementById('btn-prev').addEventListener('click', (e) => { e.stopPropagation(); navigateToCategory(currentCatIndex - 1); });
     document.getElementById('btn-next').addEventListener('click', (e) => { e.stopPropagation(); navigateToCategory(currentCatIndex + 1); });
@@ -128,7 +142,13 @@ async function init() {
     document.getElementById('btn-view-camera').addEventListener('click', () => setViewMode(VIEW_CAMERA));
     document.getElementById('btn-view-ship').addEventListener('click', () => setViewMode(VIEW_SHIP));
 
-    // Pointer lock for ship/camera mode
+    // Show All Connections toggle
+    document.getElementById('btn-show-connections').addEventListener('click', () => {
+        showAllConnections = !showAllConnections;
+        document.getElementById('btn-show-connections').classList.toggle('active', showAllConnections);
+    });
+
+    // Pointer lock for ship mode only
     document.addEventListener('pointerlockchange', () => {
         pointerLocked = document.pointerLockElement === renderer.domElement;
     });
@@ -180,12 +200,14 @@ function setViewMode(mode) {
         return;
     }
 
+    const prevView = currentView;
     currentView = mode;
 
     // Update buttons
-    document.getElementById('btn-view-global').classList.toggle('active', mode === VIEW_GLOBAL);
-    document.getElementById('btn-view-camera').classList.toggle('active', mode === VIEW_CAMERA);
-    document.getElementById('btn-view-ship').classList.toggle('active', mode === VIEW_SHIP);
+    document.querySelectorAll('#view-mode-toggle .neon-btn').forEach(b => b.classList.remove('active'));
+    if (mode === VIEW_GLOBAL) document.getElementById('btn-view-global').classList.add('active');
+    else if (mode === VIEW_CAMERA) document.getElementById('btn-view-camera').classList.add('active');
+    else if (mode === VIEW_SHIP) document.getElementById('btn-view-ship').classList.add('active');
 
     const orbitHud = document.getElementById('hud');
     const shipHud = document.getElementById('ship-hud');
@@ -194,12 +216,28 @@ function setViewMode(mode) {
     // Update category dots visibility — always-visible labels in camera mode
     updateCategoryDotsMode(mode);
 
+    // Clean up ship aimed lines when leaving ship mode
+    if (prevView === VIEW_SHIP && mode !== VIEW_SHIP) {
+        clearShipAimedLines();
+        if (shipHoveredMesh && shipHoveredMesh.material) {
+            shipHoveredMesh.material.emissiveIntensity = shipHoveredMesh.userData._origEmissive || CFG.planet.emissiveIntensity;
+            if (shipHoveredMesh.userData._origScale) shipHoveredMesh.scale.copy(shipHoveredMesh.userData._origScale);
+        }
+        shipHoveredMesh = null;
+    }
+
     if (mode === VIEW_GLOBAL) {
         controls.enabled = true;
         orbitHud.style.display = '';
         shipHud.classList.remove('visible');
         if (cameraHint) cameraHint.classList.remove('visible');
         if (document.pointerLockElement) document.exitPointerLock();
+        // Deselect and return to top-down
+        deselectMesh();
+        closeInfoPanel();
+        clearEnergyParticles();
+        isTransitioning = false;
+        navigateToCategory(currentCatIndex);
     } else if (mode === VIEW_CAMERA) {
         controls.enabled = false;
         orbitHud.style.display = '';
@@ -207,6 +245,9 @@ function setViewMode(mode) {
         if (cameraHint) cameraHint.classList.add('visible');
         if (document.pointerLockElement) document.exitPointerLock();
         // Initialize follow angles from current camera direction relative to planet
+        followYawVelocity = 0;
+        followPitchVelocity = 0;
+        cameraMouseDown = false;
         if (selectedMesh) {
             const wp = new THREE.Vector3();
             selectedMesh.getWorldPosition(wp);
@@ -422,12 +463,17 @@ function buildUniverses() {
             if (!childNode) return;
 
             const orbitRadius = O.baseRadius + (ci % 3) * O.radiusStep + Math.random() * O.radiusRandom;
-            const orbitAngle = (ci / childCount) * Math.PI * 2;
-            const orbitTilt = (Math.random() - 0.5) * O.tiltRange;
+            // Spherical distribution with random offsets for unique positions
+            const goldenRatio = (1 + Math.sqrt(5)) / 2;
+            const theta = (2 * Math.PI * ci) / goldenRatio + (Math.random() - 0.5) * 0.8;
+            const basePhi = Math.acos(1 - (2 * (ci + 0.5)) / childCount);
+            const phi = basePhi + (Math.random() - 0.5) * 0.6; // random vertical spread
+            const orbitAngle = theta;
+            const orbitTilt = phi - Math.PI / 2;
 
-            const px = Math.cos(orbitAngle) * orbitRadius;
-            const py = Math.sin(orbitTilt) * orbitRadius * O.verticalFactor;
-            const pz = Math.sin(orbitAngle) * orbitRadius;
+            const px = Math.sin(phi) * Math.cos(theta) * orbitRadius;
+            const py = Math.cos(phi) * orbitRadius;
+            const pz = Math.sin(phi) * Math.sin(theta) * orbitRadius;
 
             const pGeo = new THREE.SphereGeometry(P.radius, 24, 24);
             const pColor = color.clone().lerp(new THREE.Color(0xffffff), P.colorLerpToWhite);
@@ -603,11 +649,8 @@ function navigateToCategory(index, instant = false) {
 
     const pos = catObj.group.position;
     const dist = CFG.camera.navDistMultiplier * zoomLevel;
-    targetCamPos.set(
-        pos.x + dist * CFG.camera.navOffsetX,
-        pos.y + dist * CFG.camera.navOffsetY,
-        pos.z + dist * CFG.camera.navOffsetZ
-    );
+    // Top-down view: camera directly above looking down
+    targetCamPos.set(pos.x, dist * 1.2, pos.z);
     targetCamLookAt.copy(pos);
 
     if (instant) {
@@ -633,11 +676,8 @@ function adjustZoom(delta) {
 
     const pos = catObj.group.position;
     const dist = CFG.camera.navDistMultiplier * zoomLevel;
-    targetCamPos.set(
-        pos.x + dist * CFG.camera.navOffsetX,
-        pos.y + dist * CFG.camera.navOffsetY,
-        pos.z + dist * CFG.camera.navOffsetZ
-    );
+    // Top-down view
+    targetCamPos.set(pos.x, dist * 1.2, pos.z);
     targetCamLookAt.copy(pos);
     currentLookAt.copy(controls.target);
     isTransitioning = true;
@@ -696,8 +736,6 @@ function deselectMesh() {
     }
     selectedMesh = null;
     hideSelectionIndicator();
-    // If in camera mode and we deselect, go back to global
-    if (currentView === VIEW_CAMERA) setViewMode(VIEW_GLOBAL);
 }
 
 function updateSelectionIndicator(mesh) {
@@ -803,8 +841,7 @@ function onClick(e) {
         return;
     }
     if (currentView === VIEW_CAMERA) {
-        // In camera mode, click to request pointer lock for mouse look
-        renderer.domElement.requestPointerLock();
+        // Camera mode uses free mouse, no pointer lock needed
         return;
     }
 
@@ -822,19 +859,10 @@ function onClick(e) {
         } else {
             selectMesh(mesh);
             if (node) showInfoPanel(node);
-            // Fly camera toward selected
-            const worldPos = new THREE.Vector3();
-            mesh.getWorldPosition(worldPos);
-            targetCamLookAt.copy(worldPos);
-            const sphereGeo = mesh.geometry;
-            let radius = 30;
-            if (sphereGeo && sphereGeo.parameters) radius = sphereGeo.parameters.radius || 30;
-            const dist = radius * 6;
-            const dir = new THREE.Vector3().subVectors(camera.position, worldPos).normalize();
-            targetCamPos.copy(worldPos).add(dir.multiplyScalar(dist));
-            targetCamPos.y += dist * 0.2;
-            currentLookAt.copy(controls.target);
-            isTransitioning = true;
+            // Spawn energy particles toward camera
+            spawnEnergyParticles(mesh);
+            // Auto-switch to Orbital mode
+            setViewMode(VIEW_CAMERA);
         }
     } else {
         deselectMesh();
@@ -854,13 +882,27 @@ function onDoubleClick(e) {
         selectMesh(mesh);
         const node = meshToNode.get(mesh);
         if (node) showInfoPanel(node);
-        // Enter camera mode on double click
+        spawnEnergyParticles(mesh);
         setViewMode(VIEW_CAMERA);
     }
 }
 
 let hoveredMesh = null;
 let tooltip = null;
+
+function onMouseDown(e) {
+    if (currentView === VIEW_CAMERA) {
+        cameraMouseDown = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    }
+}
+
+function onMouseUp(e) {
+    if (currentView === VIEW_CAMERA) {
+        cameraMouseDown = false;
+    }
+}
 
 function onMouseMove(e) {
     if (!tooltip) tooltip = document.getElementById('hover-tooltip');
@@ -873,11 +915,14 @@ function onMouseMove(e) {
         return;
     }
 
-    // Camera follow mode mouse look
-    if (currentView === VIEW_CAMERA && pointerLocked) {
-        followYaw -= e.movementX * CFG.follow.mouseSensitivity;
-        followPitch += e.movementY * CFG.follow.mouseSensitivity;
-        followPitch = Math.max(CFG.follow.pitchMin, Math.min(CFG.follow.pitchMax, followPitch));
+    // Camera follow mode — free mouse with velocity
+    if (currentView === VIEW_CAMERA && cameraMouseDown) {
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        followYawVelocity -= dx * CFG.follow.mouseSensitivity * 2;
+        followPitchVelocity += dy * CFG.follow.mouseSensitivity * 2;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
         return;
     }
 
@@ -928,14 +973,24 @@ function onMouseMove(e) {
 function updateCameraFollow(dt) {
     if (currentView !== VIEW_CAMERA || !selectedMesh) return;
 
-    // Keyboard yaw/pitch (when pointer not locked)
-    if (!pointerLocked) {
-        if (shipKeys.a) followYaw += CFG.follow.yawSpeed * dt;
-        if (shipKeys.d) followYaw -= CFG.follow.yawSpeed * dt;
-        if (shipKeys.w) followPitch += CFG.follow.pitchSpeed * dt;
-        if (shipKeys.s) followPitch -= CFG.follow.pitchSpeed * dt;
-        followPitch = Math.max(CFG.follow.pitchMin, Math.min(CFG.follow.pitchMax, followPitch));
-    }
+    // Keyboard adds velocity
+    if (shipKeys.a) followYawVelocity += CFG.follow.yawSpeed * dt;
+    if (shipKeys.d) followYawVelocity -= CFG.follow.yawSpeed * dt;
+    if (shipKeys.w) followPitchVelocity += CFG.follow.pitchSpeed * dt;
+    if (shipKeys.s) followPitchVelocity -= CFG.follow.pitchSpeed * dt;
+
+    // Apply velocity to yaw/pitch
+    followYaw += followYawVelocity;
+    followPitch += followPitchVelocity;
+    followPitch = Math.max(CFG.follow.pitchMin, Math.min(CFG.follow.pitchMax, followPitch));
+
+    // Decay velocity (momentum effect)
+    const decay = cameraMouseDown ? 0.85 : 0.92;
+    followYawVelocity *= decay;
+    followPitchVelocity *= decay;
+    // Stop tiny residual movement
+    if (Math.abs(followYawVelocity) < 0.0001) followYawVelocity = 0;
+    if (Math.abs(followPitchVelocity) < 0.0001) followPitchVelocity = 0;
 
     // Get current world position of the selected planet (it moves!)
     const targetPos = new THREE.Vector3();
@@ -1012,6 +1067,243 @@ function updateShip(dt) {
 }
 
 // ═══════════════════════════════════════════════
+//  SHIP RAYCAST (crosshair detection in NAVE mode)
+// ═══════════════════════════════════════════════
+let shipHoveredMesh = null;
+let shipHoverTooltip = null;
+
+function clearShipAimedLines() {
+    shipAimedLines.forEach(l => { scene.remove(l); l.geometry.dispose(); l.material.dispose(); });
+    shipAimedLines = [];
+}
+
+function buildShipAimedLines(mesh) {
+    clearShipAimedLines();
+    const node = meshToNode.get(mesh);
+    if (!node) return;
+
+    const secondaries = node.connections?.secondary || [];
+    if (secondaries.length === 0) return;
+
+    const sp = new THREE.Vector3();
+    mesh.getWorldPosition(sp);
+
+    secondaries.forEach(targetId => {
+        let targetMesh = null;
+        for (const [m, n] of meshToNode) { if (n.id === targetId) { targetMesh = m; break; } }
+        if (!targetMesh) return;
+        const tp = new THREE.Vector3();
+        targetMesh.getWorldPosition(tp);
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([sp, tp]);
+        const lineMat = new THREE.LineBasicMaterial({
+            color: 0x00ffff, transparent: true, opacity: 0.9,
+            blending: THREE.AdditiveBlending, depthWrite: false, linewidth: 2,
+        });
+        const line = new THREE.Line(lineGeo, lineMat);
+        scene.add(line);
+        shipAimedLines.push(line);
+    });
+}
+
+function updateShipRaycast() {
+    if (currentView !== VIEW_SHIP) return;
+    if (!shipHoverTooltip) shipHoverTooltip = document.getElementById('hover-tooltip');
+
+    // Cast ray from screen center (crosshair)
+    raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+    const hits = raycaster.intersectObjects(allMeshes);
+
+    // Restore previous hovered mesh
+    if (shipHoveredMesh && shipHoveredMesh !== selectedMesh && shipHoveredMesh.material) {
+        shipHoveredMesh.material.emissiveIntensity = shipHoveredMesh.userData._origEmissive || CFG.planet.emissiveIntensity;
+        if (shipHoveredMesh.userData._origScale) shipHoveredMesh.scale.copy(shipHoveredMesh.userData._origScale);
+    }
+
+    if (hits.length > 0) {
+        const mesh = hits[0].object;
+        const node = meshToNode.get(mesh);
+
+        if (mesh.material) {
+            if (mesh.userData._origEmissive === undefined) mesh.userData._origEmissive = mesh.material.emissiveIntensity;
+            if (mesh.userData._origScale === undefined) mesh.userData._origScale = mesh.scale.clone();
+            mesh.material.emissiveIntensity = CFG.selection.hoverEmissive;
+            mesh.scale.copy(mesh.userData._origScale).multiplyScalar(CFG.selection.hoverScale);
+        }
+
+        // Build neon connection lines if aimed mesh changed
+        if (shipHoveredMesh !== mesh) {
+            buildShipAimedLines(mesh);
+        }
+        shipHoveredMesh = mesh;
+
+        if (node) {
+            // Show tooltip at crosshair position (center of screen, slightly offset)
+            shipHoverTooltip.textContent = node.label || node.id;
+            shipHoverTooltip.style.left = (innerWidth / 2 + 30) + 'px';
+            shipHoverTooltip.style.top = (innerHeight / 2 - 12) + 'px';
+            shipHoverTooltip.classList.add('visible');
+
+            // Show info panel when aiming at a planet
+            showInfoPanel(node);
+
+            // Highlight crosshair
+            const crosshair = document.getElementById('ship-crosshair');
+            if (crosshair) crosshair.classList.add('locked');
+        }
+    } else {
+        if (shipHoveredMesh) {
+            clearShipAimedLines();
+        }
+        shipHoveredMesh = null;
+        if (shipHoverTooltip) shipHoverTooltip.classList.remove('visible');
+
+        // Remove crosshair highlight
+        const crosshair = document.getElementById('ship-crosshair');
+        if (crosshair) crosshair.classList.remove('locked');
+
+        closeInfoPanel();
+    }
+
+    // Update aimed line positions (planets move)
+    if (shipHoveredMesh && shipAimedLines.length > 0) {
+        const node = meshToNode.get(shipHoveredMesh);
+        const secondaries = node?.connections?.secondary || [];
+        const sp = new THREE.Vector3();
+        shipHoveredMesh.getWorldPosition(sp);
+        let li = 0;
+        secondaries.forEach(targetId => {
+            let targetMesh = null;
+            for (const [m, n] of meshToNode) { if (n.id === targetId) { targetMesh = m; break; } }
+            if (!targetMesh || li >= shipAimedLines.length) return;
+            const tp = new THREE.Vector3();
+            targetMesh.getWorldPosition(tp);
+            const p = shipAimedLines[li].geometry.attributes.position.array;
+            p[0] = sp.x; p[1] = sp.y; p[2] = sp.z;
+            p[3] = tp.x; p[4] = tp.y; p[5] = tp.z;
+            shipAimedLines[li].geometry.attributes.position.needsUpdate = true;
+            li++;
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════
+//  ENERGY PARTICLES (fly from planet toward camera)
+// ═══════════════════════════════════════════════
+let energyParticles = null;
+let energyParticleData = [];
+const ENERGY_PARTICLE_COUNT = 60;
+
+function spawnEnergyParticles(mesh) {
+    clearEnergyParticles();
+    const wp = new THREE.Vector3();
+    mesh.getWorldPosition(wp);
+
+    // Get color from mesh
+    let color = 0x00ffff;
+    if (mesh.userData.categoryId) {
+        color = CAT_COLORS[mesh.userData.categoryId] || 0x00ffff;
+    } else {
+        const node = meshToNode.get(mesh);
+        if (node && node.type === 'category') color = CAT_COLORS[node.id] || 0x00ffff;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array(ENERGY_PARTICLE_COUNT * 3);
+    const sizes = new Float32Array(ENERGY_PARTICLE_COUNT);
+    energyParticleData = [];
+
+    for (let i = 0; i < ENERGY_PARTICLE_COUNT; i++) {
+        // Start at planet position with random offset
+        const offset = new THREE.Vector3(
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 10,
+            (Math.random() - 0.5) * 10
+        );
+        positions[i * 3] = wp.x + offset.x;
+        positions[i * 3 + 1] = wp.y + offset.y;
+        positions[i * 3 + 2] = wp.z + offset.z;
+        sizes[i] = 1.5 + Math.random() * 3;
+
+        energyParticleData.push({
+            origin: wp.clone().add(offset),
+            speed: 40 + Math.random() * 80,
+            delay: Math.random() * 0.8,
+            life: 0,
+            maxLife: 1.0 + Math.random() * 0.5,
+            alive: true,
+        });
+    }
+
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const mat = new THREE.PointsMaterial({
+        color, size: 3, transparent: true, opacity: 0.8,
+        sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+
+    energyParticles = new THREE.Points(geo, mat);
+    scene.add(energyParticles);
+}
+
+function clearEnergyParticles() {
+    if (energyParticles) {
+        scene.remove(energyParticles);
+        energyParticles.geometry.dispose();
+        energyParticles.material.dispose();
+        energyParticles = null;
+        energyParticleData = [];
+    }
+}
+
+function updateEnergyParticles(dt) {
+    if (!energyParticles || energyParticleData.length === 0) return;
+
+    const posAttr = energyParticles.geometry.getAttribute('position');
+    const sizeAttr = energyParticles.geometry.getAttribute('size');
+    let allDead = true;
+
+    for (let i = 0; i < energyParticleData.length; i++) {
+        const p = energyParticleData[i];
+        if (!p.alive) continue;
+
+        p.life += dt;
+        if (p.life < p.delay) { allDead = false; continue; }
+
+        const t = (p.life - p.delay) / p.maxLife;
+        if (t >= 1) {
+            p.alive = false;
+            sizeAttr.array[i] = 0;
+            continue;
+        }
+        allDead = false;
+
+        // Fly toward camera
+        const dir = new THREE.Vector3().subVectors(camera.position, p.origin).normalize();
+        const dist = p.speed * (p.life - p.delay);
+        const pos = p.origin.clone().add(dir.multiplyScalar(dist));
+
+        // Add some spiral motion
+        const spiral = (p.life - p.delay) * 4;
+        pos.x += Math.sin(spiral + i) * 3 * (1 - t);
+        pos.y += Math.cos(spiral + i * 1.3) * 3 * (1 - t);
+
+        posAttr.array[i * 3] = pos.x;
+        posAttr.array[i * 3 + 1] = pos.y;
+        posAttr.array[i * 3 + 2] = pos.z;
+
+        // Fade out
+        sizeAttr.array[i] = (1.5 + Math.random() * 2) * (1 - t * t);
+    }
+
+    posAttr.needsUpdate = true;
+    sizeAttr.needsUpdate = true;
+    energyParticles.material.opacity = 0.8;
+
+    if (allDead) clearEnergyParticles();
+}
+
+// ═══════════════════════════════════════════════
 //  ANIMATION LOOP
 // ═══════════════════════════════════════════════
 function animate() {
@@ -1019,15 +1311,18 @@ function animate() {
     const dt = clock.getDelta();
     animTime += dt;
 
-    // Animate planet orbits
+    // Animate planet orbits (3D spherical)
     Object.values(categoryObjects).forEach(catObj => {
         catObj.planets.forEach(planet => {
             const u = planet.userData;
-            const a = u.orbitOffset + animTime * u.orbitSpeed;
             const r = u.orbitRadius;
-            planet.position.x = Math.cos(a) * r;
-            planet.position.y = Math.sin(u.orbitTilt + animTime * 0.2) * r * CFG.orbit.verticalFactor;
-            planet.position.z = Math.sin(a) * r;
+            // Theta rotates over time (horizontal orbit)
+            const theta = u.orbitOffset + animTime * u.orbitSpeed;
+            // Phi oscillates slowly around its initial tilt (vertical movement)
+            const phi = (u.orbitTilt + Math.PI / 2) + Math.sin(animTime * 0.3 + u.orbitOffset) * 0.3;
+            planet.position.x = Math.sin(phi) * Math.cos(theta) * r;
+            planet.position.y = Math.cos(phi) * r;
+            planet.position.z = Math.sin(phi) * Math.sin(theta) * r;
         });
         const pulse = 0.92 + Math.sin(animTime * 1.5) * 0.05;
         catObj.nucleus.material.opacity = pulse;
@@ -1054,23 +1349,51 @@ function animate() {
     }
 
     updateConnections();
+    updateEnergyParticles(dt);
 
     // View-specific updates
     if (currentView === VIEW_SHIP) {
         updateShip(dt);
+        updateShipRaycast();
     } else if (currentView === VIEW_CAMERA) {
         updateCameraFollow(dt);
     } else {
         // VIEW_GLOBAL
+        // If a planet is selected, continuously update the lookAt target to follow it
+        if (selectedMesh && selectedMesh.userData.orbitRadius !== undefined) {
+            const wp = new THREE.Vector3();
+            selectedMesh.getWorldPosition(wp);
+            targetCamLookAt.copy(wp);
+            // Also update camera position to maintain relative offset
+            const sphereGeo = selectedMesh.geometry;
+            let radius = 30;
+            if (sphereGeo && sphereGeo.parameters) radius = sphereGeo.parameters.radius || 30;
+            const dist = radius * 6;
+            const dir = new THREE.Vector3().subVectors(camera.position, wp).normalize();
+            targetCamPos.copy(wp).add(dir.multiplyScalar(dist));
+            targetCamPos.y = Math.max(targetCamPos.y, wp.y + dist * 0.2);
+            isTransitioning = true;
+        }
+
         if (isTransitioning) {
             camera.position.lerp(targetCamPos, CFG.camera.transitionSpeed);
             currentLookAt.lerp(targetCamLookAt, CFG.camera.transitionSpeed);
             controls.target.copy(currentLookAt);
-            if (camera.position.distanceTo(targetCamPos) < 2) isTransitioning = false;
+            if (!selectedMesh || selectedMesh.userData.orbitRadius === undefined) {
+                if (camera.position.distanceTo(targetCamPos) < 2) isTransitioning = false;
+            }
         }
 
-        const C = CFG.connections;
-        const currentCat = categories[currentCatIndex];
+        controls.update();
+    }
+
+    // Connection visibility (applies in all modes)
+    const C = CFG.connections;
+    const currentCat = categories[currentCatIndex];
+    if (showAllConnections) {
+        connectionLines.forEach(c => { c.line.material.opacity = C.primaryActiveOpacity; });
+        secondaryLines.forEach(c => { c.line.material.opacity = C.secondaryActiveOpacity; });
+    } else {
         connectionLines.forEach(c => {
             const nodeFrom = meshToNode.get(c.from);
             const nodeTo = meshToNode.get(c.to);
@@ -1085,8 +1408,6 @@ function animate() {
                 nodeFrom?.id === currentCat || nodeTo?.id === currentCat;
             c.line.material.opacity = isActive ? C.secondaryActiveOpacity : C.secondaryDimOpacity;
         });
-
-        controls.update();
     }
 
     renderer.render(scene, camera);
