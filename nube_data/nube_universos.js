@@ -84,6 +84,13 @@ class Connection {
         this.type = type;
         this.color = color;
         this.glowLine = null;
+        // Energy sphere tracing state
+        this.tracing = false;
+        this.traceProgress = 0;
+        this.traceDuration = 0.6;
+        this.traceSphere = null;
+        this.traceFromPlanet = null;
+        this._savedOpacity = 0;
     }
 
     updatePositions() {
@@ -102,6 +109,12 @@ class Connection {
     }
 
     setOpacity(opacity) { this.line.material.opacity = opacity; }
+    show() { this.line.visible = true; }
+    hide() {
+        this.line.visible = false;
+        if (this.glowLine) this.glowLine.visible = false;
+        this.stopTrace();
+    }
 
     showGlow(scene) {
         if (this.glowLine) { this.glowLine.visible = true; return; }
@@ -121,6 +134,80 @@ class Connection {
     hideGlow() { if (this.glowLine) this.glowLine.visible = false; }
     involvesId(id) { return this.from.id === id || this.to.id === id; }
     involvesPlanet(planet) { return this.from === planet || this.to === planet; }
+
+    // Start energy sphere trace animation from activePlanet toward the other end
+    startTrace(scene, activePlanet) {
+        this.tracing = true;
+        this.traceProgress = 0;
+        this.traceFromPlanet = (this.from === activePlanet) ? this.from : this.to;
+        const toPlanet = (this.traceFromPlanet === this.from) ? this.to : this.from;
+        // Hide the line initially — it draws progressively
+        this._savedOpacity = this.line.material.opacity;
+        this.line.material.opacity = 0;
+        if (this.glowLine) this.glowLine.visible = false;
+        // Create energy sphere
+        if (!this.traceSphere) {
+            const sphereColor = this.color ? new THREE.Color(this.color) : new THREE.Color(CFG.connections.activeGlowColor);
+            const sGeo = new THREE.SphereGeometry(4, 12, 12);
+            const sMat = new THREE.MeshBasicMaterial({
+                color: sphereColor, transparent: true, opacity: 0.9,
+                blending: THREE.AdditiveBlending, depthWrite: false,
+            });
+            this.traceSphere = new THREE.Mesh(sGeo, sMat);
+            // Add glow around sphere
+            const glowGeo = new THREE.SphereGeometry(10, 8, 8);
+            const glowMat = new THREE.MeshBasicMaterial({
+                color: sphereColor, transparent: true, opacity: 0.25,
+                blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide,
+            });
+            this.traceSphere.add(new THREE.Mesh(glowGeo, glowMat));
+            scene.add(this.traceSphere);
+        }
+        this.traceSphere.visible = true;
+        const startPos = this.traceFromPlanet.getWorldPosition();
+        this.traceSphere.position.copy(startPos);
+    }
+
+    // Update trace animation each frame; returns true if still tracing
+    updateTrace(dt) {
+        if (!this.tracing) return false;
+        this.traceProgress += dt / this.traceDuration;
+        if (this.traceProgress >= 1) this.traceProgress = 1;
+        const t = this.traceProgress;
+        // Ease out
+        const ease = 1 - Math.pow(1 - t, 3);
+        const sp = this.traceFromPlanet.getWorldPosition();
+        const toPlanet = (this.traceFromPlanet === this.from) ? this.to : this.from;
+        const tp = toPlanet.getWorldPosition();
+        // Move sphere along the line
+        const currentPos = sp.clone().lerp(tp, ease);
+        this.traceSphere.position.copy(currentPos);
+        // Progressively reveal the line behind the sphere
+        this.line.material.opacity = this._savedOpacity * ease;
+        // Update line geometry to draw only the traced portion
+        const p = this.line.geometry.attributes.position.array;
+        p[0] = sp.x; p[1] = sp.y; p[2] = sp.z;
+        p[3] = currentPos.x; p[4] = currentPos.y; p[5] = currentPos.z;
+        this.line.geometry.attributes.position.needsUpdate = true;
+        this.line.visible = true;
+        if (t >= 1) {
+            // Trace complete — restore full line and hide sphere
+            this.tracing = false;
+            this.line.material.opacity = this._savedOpacity;
+            // Restore full line endpoints
+            p[3] = tp.x; p[4] = tp.y; p[5] = tp.z;
+            this.line.geometry.attributes.position.needsUpdate = true;
+            if (this.glowLine) this.glowLine.visible = true;
+            this.traceSphere.visible = false;
+            return false;
+        }
+        return true;
+    }
+
+    stopTrace() {
+        this.tracing = false;
+        if (this.traceSphere) this.traceSphere.visible = false;
+    }
 }
 
 // ═══════════════════════════════════════════════
@@ -233,6 +320,15 @@ class CameraController {
         if (keys.d) this.followYawVel -= F.yawSpeed * dt;
         if (keys.w) this.followPitchVel += F.pitchSpeed * dt;
         if (keys.s) this.followPitchVel -= F.pitchSpeed * dt;
+        // Q/E zoom in orbital mode
+        const zSpeed = F.zoomSpeed || 8;
+        if (keys.e) this.followDistance = Math.max(F.zoomMin || 20, this.followDistance - zSpeed * dt * 10);
+        if (keys.q) this.followDistance = Math.min(F.zoomMax || 400, this.followDistance + zSpeed * dt * 10);
+
+        // Clamp rotation speed to maxRotationSpeed
+        const maxRot = F.maxRotationSpeed || 2.5;
+        this.followYawVel = Math.max(-maxRot, Math.min(maxRot, this.followYawVel));
+        this.followPitchVel = Math.max(-maxRot, Math.min(maxRot, this.followPitchVel));
 
         this.followYaw += this.followYawVel;
         this.followPitch += this.followPitchVel;
@@ -291,8 +387,8 @@ class CameraController {
         // Forward thrust
         this.shipVelocity.add(forward.clone().multiplyScalar(this.shipThrottle * S.acceleration * dt));
         // Strafe: A = left, D = right
-        if (keys.a) this.shipVelocity.add(right.clone().multiplyScalar(-S.acceleration * 0.6 * dt));
-        if (keys.d) this.shipVelocity.add(right.clone().multiplyScalar(S.acceleration * 0.6 * dt));
+        if (keys.a) this.shipVelocity.add(right.clone().multiplyScalar(S.acceleration * 0.6 * dt));
+        if (keys.d) this.shipVelocity.add(right.clone().multiplyScalar(-S.acceleration * 0.6 * dt));
         if (keys.shift) this.shipVelocity.add(forward.clone().multiplyScalar(S.acceleration * S.boostMultiplier * dt));
         if (keys.q) this.shipVelocity.y += S.acceleration * dt;
         if (keys.e) this.shipVelocity.y -= S.acceleration * dt;
@@ -306,13 +402,13 @@ class CameraController {
         return { speed, throttle: this.shipThrottle };
     }
 
-    startWarp(targetPos, callback) {
+    startWarp(targetPos, stopDistance, callback) {
         this.warping = true;
         this.warpStart = this.camera.position.clone();
-        this.warpTarget = targetPos.clone();
-        // Stop a bit before the planet (40 units away)
-        const dir = new THREE.Vector3().subVectors(this.warpTarget, this.warpStart).normalize();
-        this.warpTarget.sub(dir.multiplyScalar(40));
+        // Stop at stopDistance from the planet along the approach direction
+        const dir = new THREE.Vector3().subVectors(targetPos, this.warpStart).normalize();
+        this.warpTarget = targetPos.clone().sub(dir.multiplyScalar(stopDistance));
+        this.warpLookAt = targetPos.clone();
         this.warpTime = 0;
         this.warpCallback = callback || null;
         this.shipVelocity.set(0, 0, 0);
@@ -328,11 +424,10 @@ class CameraController {
             ? 4 * t * t * t
             : 1 - Math.pow(-2 * t + 2, 3) / 2;
         this.camera.position.lerpVectors(this.warpStart, this.warpTarget, ease);
-        // Look toward target
-        const lookTarget = this.warpTarget.clone();
-        this.camera.lookAt(lookTarget);
-        // Update shipYaw/shipPitch to match new direction
-        const dir = new THREE.Vector3().subVectors(this.warpTarget, this.camera.position).normalize();
+        // Always look at the planet itself (not the stop point)
+        this.camera.lookAt(this.warpLookAt);
+        // Update shipYaw/shipPitch to match facing direction toward planet
+        const dir = new THREE.Vector3().subVectors(this.warpLookAt, this.camera.position).normalize();
         this.shipYaw = Math.atan2(dir.x, dir.z);
         this.shipPitch = Math.asin(Math.max(-1, Math.min(1, dir.y)));
         if (t >= 1) {
@@ -489,7 +584,12 @@ class Universe {
         this.buildConnections();
         this.buildSunConnections();
         this.buildCategoryDots();
-        this.navigateToCategory(0, true);
+        // Start at center (Arte Generativo) — not a category
+        this.currentCatIndex = -1;
+        document.getElementById('cat-label-text').textContent = 'Arte Generativo y Código con IA';
+        document.getElementById('cat-label-text').style.color = '#' + new THREE.Color(CFG.sun.color).getHexString();
+        document.getElementById('cat-count-text').textContent = `${this.categories.length} universos`;
+        this.cam.goHome(true);
 
         this.bindEvents();
         this.showSplash();
@@ -507,7 +607,7 @@ class Universe {
         if (planet) {
             planet.activate();
             this.updateSelectionIndicator(planet);
-            this.updateActiveConnections();
+            this.updateActiveConnections(true);
             this.particles.spawn(planet);
         } else {
             this.hideSelectionIndicator();
@@ -523,47 +623,43 @@ class Universe {
     }
 
     // ── Connection Visibility ──
-    updateActiveConnections() {
+    updateActiveConnections(triggerTrace = false) {
         const C = CFG.connections;
         const active = this.activePlanet;
 
         if (this.showAllConnections) {
+            // CONEXIONES ON — render ALL connections
             this.connections.forEach(conn => {
+                conn.show();
                 conn.setOpacity(conn.type === 'primary' ? C.primaryActiveOpacity : C.secondaryActiveOpacity);
-                if (active && conn.involvesPlanet(active)) conn.showGlow(this.scene);
-                else conn.hideGlow();
-            });
-        } else if (active) {
-            // Only show connections of the active planet
-            const activeIds = active.getConnectedIds();
-            activeIds.push(active.id);
-            // Also include parent category
-            if (active.category) activeIds.push(active.category);
-
-            this.connections.forEach(conn => {
-                const involves = conn.involvesPlanet(active);
-                const relatedToActive = activeIds.includes(conn.from.id) && activeIds.includes(conn.to.id);
-                if (involves) {
-                    conn.setOpacity(conn.type === 'primary' ? C.primaryActiveOpacity : C.secondaryActiveOpacity);
+                if (active && conn.involvesPlanet(active)) {
+                    if (triggerTrace && !conn.tracing) {
+                        conn.setOpacity(conn.type === 'primary' ? C.primaryActiveOpacity : C.secondaryActiveOpacity);
+                        conn.startTrace(this.scene, active);
+                    }
                     conn.showGlow(this.scene);
-                } else if (relatedToActive) {
-                    conn.setOpacity(conn.type === 'primary' ? C.primaryOpacity : C.secondaryOpacity);
-                    conn.hideGlow();
                 } else {
-                    conn.setOpacity(conn.type === 'primary' ? C.primaryDimOpacity : C.secondaryDimOpacity);
                     conn.hideGlow();
                 }
             });
-        } else {
-            // No active planet — show based on current category
-            const currentCat = this.categories[this.currentCatIndex];
-            const children = this.DATA.categoryChildren[currentCat] || [];
+        } else if (active) {
+            // CONEXIONES OFF + active planet — only render connections involving active planet
             this.connections.forEach(conn => {
-                const isActive = conn.involvesId(currentCat) || children.includes(conn.from.id) || children.includes(conn.to.id);
-                conn.setOpacity(isActive
-                    ? (conn.type === 'primary' ? C.primaryActiveOpacity : C.secondaryActiveOpacity)
-                    : (conn.type === 'primary' ? C.primaryDimOpacity : C.secondaryDimOpacity));
-                conn.hideGlow();
+                if (conn.involvesPlanet(active)) {
+                    conn.show();
+                    conn.setOpacity(conn.type === 'primary' ? C.primaryActiveOpacity : C.secondaryActiveOpacity);
+                    if (triggerTrace && !conn.tracing) {
+                        conn.startTrace(this.scene, active);
+                    }
+                    conn.showGlow(this.scene);
+                } else {
+                    conn.hide();
+                }
+            });
+        } else {
+            // CONEXIONES OFF + no active planet — hide all connections
+            this.connections.forEach(conn => {
+                conn.hide();
             });
         }
     }
@@ -709,6 +805,12 @@ class Universe {
                 group.add(planetMesh);
                 planetMesh.add(new THREE.Mesh(new THREE.SphereGeometry(P.glowRadius, 16, 16), new THREE.MeshBasicMaterial({ color: pColor, transparent: true, opacity: 0.06, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
 
+                // Invisible hitbox sphere (2x radius) for easier raycasting
+                const hitGeo = new THREE.SphereGeometry(P.radius * 2, 8, 8);
+                const hitMat = new THREE.MeshBasicMaterial({ visible: false });
+                const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+                planetMesh.add(hitMesh);
+
                 planetMesh.userData = { orbitRadius, orbitSpeed: O.speedMin+Math.random()*O.speedRandom, orbitOffset: orbitAngle, orbitTilt, parentGroup: group, categoryId: catId };
 
                 const pLabel = this.createTextSprite(childNode.label || childId, CAT_COLORS[catId] || 0xffffff, P.labelFontSize);
@@ -717,6 +819,9 @@ class Universe {
 
                 const childPlanet = new Planet(planetMesh, childNode, catId);
                 this.registerPlanet(childPlanet);
+                // Register hitbox mesh too so raycast hits resolve to this planet
+                this.meshToPlanet.set(hitMesh, childPlanet);
+                this.allMeshes.push(hitMesh);
                 planetMeshes.push(planetMesh);
             });
 
@@ -789,6 +894,7 @@ class Universe {
         if (this.currentView === 'camera') this.setViewMode('global');
         if (this.currentView !== 'global') return;
         if (this.cam.isTransitioning && !instant) return;
+        // Wrap around; -1 means "go to last", length means "go to first"
         if (index < 0) index = this.categories.length - 1;
         if (index >= this.categories.length) index = 0;
         this.currentCatIndex = index;
@@ -849,9 +955,13 @@ class Universe {
             if (document.pointerLockElement) document.exitPointerLock();
             this.clearActivePlanet(); this.closeInfoPanel(); this.particles.clear();
             this.cam.isTransitioning = false;
-            // Always return to home position first
+            // Always return to center (Arte Generativo)
+            this.currentCatIndex = -1;
+            document.getElementById('cat-label-text').textContent = 'Arte Generativo y Código con IA';
+            document.getElementById('cat-label-text').style.color = '#' + new THREE.Color(CFG.sun.color).getHexString();
+            document.getElementById('cat-count-text').textContent = `${this.categories.length} universos`;
+            this.updateCategoryDots();
             this.cam.goHome();
-            this.navigateToCategory(this.currentCatIndex);
         } else if (mode === 'camera') {
             this.cam.controls.enabled = false;
             orbitHud.style.display = ''; shipHud.classList.remove('visible');
@@ -896,6 +1006,8 @@ class Universe {
         if (planet.category) color = '#'+new THREE.Color(CAT_COLORS[planet.category] || 0xffffff).getHexString();
         else if (planet.type === 'category') color = '#'+new THREE.Color(CAT_COLORS[planet.id] || 0xffffff).getHexString();
         document.getElementById('sel-planet-text').style.color = color;
+        // Set CSS custom property for the spacial UI accent color
+        indicator.style.setProperty('--sel-color', color);
         indicator.classList.add('visible');
     }
 
@@ -987,7 +1099,9 @@ class Universe {
 
         document.getElementById('btn-show-connections').addEventListener('click', () => {
             this.showAllConnections = !this.showAllConnections;
-            document.getElementById('btn-show-connections').classList.toggle('active', this.showAllConnections);
+            const btn = document.getElementById('btn-show-connections');
+            btn.classList.toggle('active', this.showAllConnections);
+            btn.textContent = this.showAllConnections ? 'Conexiones ON' : 'Conexiones OFF';
             this.updateActiveConnections();
         });
 
@@ -1046,7 +1160,6 @@ class Universe {
 
     onClick(e) {
         if (this.currentView === 'ship') { this.renderer.domElement.requestPointerLock(); return; }
-        if (this.currentView === 'camera') return;
 
         this.mouse.x = (e.clientX/innerWidth)*2-1;
         this.mouse.y = -(e.clientY/innerHeight)*2+1;
@@ -1059,12 +1172,15 @@ class Universe {
             if (!planet) return;
             if (this.activePlanet === planet) {
                 this.clearActivePlanet(); this.closeInfoPanel();
+                if (this.currentView === 'camera') this.setViewMode('global');
             } else {
                 this.setActivePlanet(planet);
                 this.showInfoPanel(planet.node);
-                this.setViewMode('camera');
+                if (this.currentView === 'global') this.setViewMode('camera');
+                else if (this.currentView === 'camera') this.cam.initFollowFrom(planet.getWorldPosition());
             }
         } else {
+            if (this.currentView === 'camera') return;
             this.clearActivePlanet(); this.closeInfoPanel();
         }
     }
@@ -1081,9 +1197,12 @@ class Universe {
                 const targetPos = planet.getWorldPosition();
                 this.setActivePlanet(planet);
                 this.showInfoPanel(planet.node);
+                // Calculate stop distance: 5x the planet's radius so we don't crash
+                const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
+                const stopDist = Math.max(pRadius * 5, 60);
                 // Show warp flash overlay
                 this.showWarpFlash();
-                this.cam.startWarp(targetPos, () => {
+                this.cam.startWarp(targetPos, stopDist, () => {
                     // Warp complete — particles burst
                     this.particles.spawn(planet);
                 });
@@ -1291,8 +1410,8 @@ class Universe {
             this.cam.controls.update();
         }
 
-        // Update connection visibility
-        this.updateActiveConnections();
+        // Update connection trace animations
+        this.connections.forEach(conn => conn.updateTrace(dt));
 
         this.renderer.render(this.scene, this.camera);
     }

@@ -42,7 +42,7 @@ export const CONFIG = {
 
     // ── Category Nucleus (category sphere) ───────────────────
     nucleus: {
-        radius:            28,
+        radius:            50,
         emissiveIntensity: 0.6,
         glowInnerRadius:   36,
         glowOuterRadius:   55,
@@ -54,11 +54,11 @@ export const CONFIG = {
 
     // ── Planets (tool nodes) ─────────────────────────────────
     planet: {
-        radius:            8,
+        radius:            30,
         emissiveIntensity: 0.35,
-        glowRadius:        12,
+        glowRadius:        20,
         labelFontSize:     12,
-        labelOffsetY:      14,
+        labelOffsetY:      20,
         colorLerpToWhite:  0.3,     // how much to lighten planet color
     },
 
@@ -82,15 +82,15 @@ export const CONFIG = {
 
     // ── Starfield ────────────────────────────────────────────
     stars: {
-        count:             8000,
-        minDistance:        5000,
-        maxDistance:        25000,
-        baseSize:          2,
-        sizeMin:           0.5,
-        sizeRandom:        2.5,
+        count:             25000,
+        minDistance:        3000,
+        maxDistance:        30000,
+        baseSize:          4,
+        sizeMin:           1.5,
+        sizeRandom:        4.0,
         twinkleSpeedMin:   0.5,
         twinkleSpeedRandom: 3.0,
-        opacity:           0.7,
+        opacity:           1.0,
     },
 
     // ── Camera / Orbit View ──────────────────────────────────
@@ -98,7 +98,7 @@ export const CONFIG = {
         fov:               60,
         near:              1,
         far:               50000,
-        initialPosition:   { x: 0, y: 200, z: 3000 },
+        initialPosition:   { x: 0, y: 200, z: 9000 },
         // Global home position — camera always returns here (0,0 = center)
         homePosition:      { x: 0, y: 0 },
         transitionSpeed:   0.04,
@@ -126,6 +126,10 @@ export const CONFIG = {
         pitchMax:          1.2,     // max pitch (radians, looking up)
         lerpSpeed:         0.08,    // how fast camera catches up to planet
         mouseSensitivity:  0.003,   // mouse look sensitivity
+        maxRotationSpeed:  2.5,     // max angular velocity (rad/s) for orbital rotation
+        zoomSpeed:         8,       // Q/E zoom speed (units/s) in orbital mode
+        zoomMin:           20,      // min follow distance
+        zoomMax:           400,     // max follow distance
     },
 
     // ── Spaceship (NAVE mode) ────────────────────────────────
