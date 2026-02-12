@@ -98,7 +98,9 @@ export const CONFIG = {
         fov:               60,
         near:              1,
         far:               50000,
-        initialPosition:   { x: 0, y: 200, z: 600 },
+        initialPosition:   { x: 0, y: 200, z: 3000 },
+        // Global home position — camera always returns here (0,0 = center)
+        homePosition:      { x: 0, y: 0 },
         transitionSpeed:   0.04,
         zoomMin:           0.3,
         zoomMax:           4,
@@ -170,5 +172,20 @@ export const CONFIG = {
         secondaryDimOpacity:   0.02,
         secondaryColor:        0x4488cc,
         sunLineOpacity:        0.08,
+        // Active planet connection glow
+        activeGlowOpacity:     0.85,
+        activeGlowColor:       0x00ffff,
+        activeLineWidth:       3,
     },
+
+    // ── Reverse Force ──────────────────────────────────────────
+    // The "reverse force" is the drag coefficient (ship.drag).
+    // Each frame: velocity *= drag (0.97 = 3% speed loss per frame).
+    // At 60fps with drag=0.97: effective deceleration ~= 1 - 0.97^60 ≈ 84% per second.
+    // Lower drag = stronger braking. Higher drag = more drift/inertia.
+    // Combined with throttleDecay (0.95), the ship slows when not accelerating.
+    // maxSpeed caps the absolute velocity magnitude.
+    // acceleration determines how fast the ship gains speed per second.
+    // So: net_force = (throttle * acceleration) - (velocity * (1 - drag))
+    // The "reverse" feeling comes from drag eating velocity every frame.
 };
