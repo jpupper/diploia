@@ -687,8 +687,17 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes panel-scanline-pulse {
-    0%, 100% { opacity: 0.7; box-shadow: 0 0 12px rgba(0, 255, 255, 0.25); }
-    50% { opacity: 1; box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 0 40px rgba(0, 255, 255, 0.15); }
+
+    0%,
+    100% {
+        opacity: 0.7;
+        box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);
+    }
+
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 0 40px rgba(0, 255, 255, 0.15);
+    }
 }
 
 #info-panel h3 {
@@ -980,8 +989,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes splash-nebula {
-    0% { opacity: 0.6; transform: scale(1) rotate(0deg); }
-    100% { opacity: 1; transform: scale(1.05) rotate(1deg); }
+    0% {
+        opacity: 0.6;
+        transform: scale(1) rotate(0deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1.05) rotate(1deg);
+    }
 }
 
 #splash-screen::after {
@@ -999,8 +1015,17 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes splash-core-pulse {
-    0%, 100% { transform: translate(-50%, -55%) scale(1); opacity: 0.5; }
-    50% { transform: translate(-50%, -55%) scale(1.15); opacity: 1; }
+
+    0%,
+    100% {
+        transform: translate(-50%, -55%) scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translate(-50%, -55%) scale(1.15);
+        opacity: 1;
+    }
 }
 
 #splash-screen.visible {
@@ -1025,8 +1050,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes splash-content-enter {
-    0% { opacity: 0; transform: translateY(30px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .splash-subtitle {
@@ -1040,8 +1072,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes splash-fade-in {
-    0% { opacity: 0; transform: translateY(10px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .splash-title {
@@ -1061,8 +1100,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes splash-gradient-shift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
 }
 
 .splash-desc {
@@ -1285,15 +1331,23 @@ header.nube-header .menu-toggle:hover {
 
 /* Subtle animated glow on cockpit */
 @keyframes cockpit-pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 .cockpit-corner {
     animation: cockpit-pulse 3s ease-in-out infinite;
 }
 
-.cockpit-tr, .cockpit-br {
+.cockpit-tr,
+.cockpit-br {
     animation-delay: 1.5s;
 }
 
@@ -1356,8 +1410,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes timer-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 #game-visited {
@@ -1568,8 +1629,10 @@ header.nube-header .menu-toggle:hover {
 
 .results-content {
     text-align: center;
-    max-width: 500px;
+    max-width: 560px;
     width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .results-title {
@@ -1647,6 +1710,24 @@ header.nube-header .menu-toggle:hover {
     justify-content: center;
 }
 
+.results-ranking-inline {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    border-radius: 8px;
+    background: rgba(0, 10, 20, 0.5);
+}
+
+.results-ranking-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255, 215, 0, 0.9);
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+}
+
 .results-stat-value.route {
     color: rgba(0, 255, 200, 0.9);
     text-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
@@ -1675,27 +1756,56 @@ header.nube-header .menu-toggle:hover {
     opacity: 1;
     pointer-events: auto;
     background: rgba(4, 4, 14, 0.92);
-    animation: timeup-bg 3.5s ease forwards;
+    animation: timeup-bg 2.5s ease forwards;
 }
 
 @keyframes timeup-bg {
-    0% { background: rgba(4, 4, 14, 0); }
-    15% { background: rgba(4, 4, 14, 0.95); }
-    85% { background: rgba(4, 4, 14, 0.95); }
-    100% { background: rgba(4, 4, 14, 0); }
+    0% {
+        background: rgba(4, 4, 14, 0);
+    }
+
+    15% {
+        background: rgba(4, 4, 14, 0.95);
+    }
+
+    85% {
+        background: rgba(4, 4, 14, 0.95);
+    }
+
+    100% {
+        background: rgba(4, 4, 14, 0);
+    }
 }
 
 .time-up-content {
     text-align: center;
-    animation: timeup-content 3.5s ease forwards;
+    animation: timeup-content 2.5s ease forwards;
 }
 
 @keyframes timeup-content {
-    0% { transform: scale(0.5); opacity: 0; }
-    15% { transform: scale(1.1); opacity: 1; }
-    25% { transform: scale(1.0); }
-    75% { transform: scale(1.0); opacity: 1; }
-    100% { transform: scale(1.5); opacity: 0; }
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    15% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    25% {
+        transform: scale(1.0);
+    }
+
+    75% {
+        transform: scale(1.0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
 }
 
 .time-up-icon {
@@ -1705,9 +1815,19 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes timeup-shake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-15deg); }
-    75% { transform: rotate(15deg); }
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-15deg);
+    }
+
+    75% {
+        transform: rotate(15deg);
+    }
 }
 
 .time-up-title {
@@ -1728,14 +1848,29 @@ header.nube-header .menu-toggle:hover {
     text-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
     letter-spacing: 4px;
     text-transform: uppercase;
-    animation: timeup-sub-fade 3.5s ease forwards;
+    animation: timeup-sub-fade 2.5s ease forwards;
 }
 
 @keyframes timeup-sub-fade {
-    0%, 20% { opacity: 0; transform: translateY(20px); }
-    35% { opacity: 1; transform: translateY(0); }
-    75% { opacity: 1; }
-    100% { opacity: 0; }
+
+    0%,
+    20% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    35% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    75% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 
 /* ── Ranking Screen ─────────────────────────── */
@@ -1908,8 +2043,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes congrats-enter {
-    0% { opacity: 0; transform: scale(0.7) translateY(40px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
+    0% {
+        opacity: 0;
+        transform: scale(0.7) translateY(40px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .congrats-stars {
@@ -1920,8 +2062,17 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes congrats-stars-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.15); opacity: 1; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
 }
 
 .congrats-title {
@@ -1936,8 +2087,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes congrats-title-glow {
-    0%, 100% { text-shadow: 0 0 40px rgba(255, 215, 0, 0.7), 0 0 80px rgba(255, 215, 0, 0.3); }
-    50% { text-shadow: 0 0 60px rgba(255, 215, 0, 0.9), 0 0 120px rgba(255, 215, 0, 0.5), 0 0 180px rgba(255, 215, 0, 0.2); }
+
+    0%,
+    100% {
+        text-shadow: 0 0 40px rgba(255, 215, 0, 0.7), 0 0 80px rgba(255, 215, 0, 0.3);
+    }
+
+    50% {
+        text-shadow: 0 0 60px rgba(255, 215, 0, 0.9), 0 0 120px rgba(255, 215, 0, 0.5), 0 0 180px rgba(255, 215, 0, 0.2);
+    }
 }
 
 .congrats-message {
@@ -1963,8 +2121,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes congrats-fade-up {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .congrats-planets-count {
@@ -2004,8 +2169,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes congrats-hint-blink {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.8; }
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
 }
 
 /* ── Objective Panel (right side, game mode) ── */
@@ -2143,8 +2315,17 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes countdown-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.15); opacity: 1; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
 }
 
 /* ── Target Marker (2D overlay on objective planet) ── */
@@ -2173,8 +2354,15 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes marker-pulse {
-    0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.5), inset 0 0 6px rgba(0, 255, 204, 0.2); }
-    50% { box-shadow: 0 0 20px rgba(0, 255, 204, 0.8), inset 0 0 10px rgba(0, 255, 204, 0.4); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.5), inset 0 0 6px rgba(0, 255, 204, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.8), inset 0 0 10px rgba(0, 255, 204, 0.4);
+    }
 }
 
 .target-marker-label {
@@ -2478,10 +2666,24 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes points-float-up {
-    0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
-    15% { opacity: 1; transform: translateX(-50%) translateY(-10px) scale(1.2); }
-    30% { transform: translateX(-50%) translateY(-20px) scale(1); }
-    100% { opacity: 0; transform: translateX(-50%) translateY(-80px) scale(0.8); }
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(0) scale(0.5);
+    }
+
+    15% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-10px) scale(1.2);
+    }
+
+    30% {
+        transform: translateX(-50%) translateY(-20px) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-80px) scale(0.8);
+    }
 }
 
 /* ── Discovery Flash ───────────────────────── */
@@ -2498,7 +2700,18 @@ header.nube-header .menu-toggle:hover {
 }
 
 @keyframes discovery-flash {
-    0% { opacity: 0; background: radial-gradient(circle at center, var(--flash-color, rgba(0,255,200,0.6)) 0%, transparent 30%); }
-    20% { opacity: 1; background: radial-gradient(circle at center, var(--flash-color, rgba(0,255,200,0.4)) 0%, transparent 50%); }
-    100% { opacity: 0; background: radial-gradient(circle at center, var(--flash-color, rgba(0,255,200,0.1)) 0%, transparent 70%); }
+    0% {
+        opacity: 0;
+        background: radial-gradient(circle at center, var(--flash-color, rgba(0, 255, 200, 0.6)) 0%, transparent 30%);
+    }
+
+    20% {
+        opacity: 1;
+        background: radial-gradient(circle at center, var(--flash-color, rgba(0, 255, 200, 0.4)) 0%, transparent 50%);
+    }
+
+    100% {
+        opacity: 0;
+        background: radial-gradient(circle at center, var(--flash-color, rgba(0, 255, 200, 0.1)) 0%, transparent 70%);
+    }
 }

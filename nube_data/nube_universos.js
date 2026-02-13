@@ -29,7 +29,7 @@ class Universe {
         this.sunMesh = null; this.sunPlanet = null;
         this.particles = null;
         this.currentView = 'global';
-        this.showAllConnections = false;
+        this.showAllConnections = (CFG.game && CFG.game.showConnections) || false;
         this.shipAimedLines = []; this.shipHoveredMesh = null;
         this.keys = { w: false, s: false, a: false, d: false, q: false, e: false, shift: false, space: false };
         this.hoveredPlanet = null; this.tooltip = null;

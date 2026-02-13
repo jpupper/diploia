@@ -29,7 +29,8 @@
         <div class="splash-content">
             <div class="splash-subtitle">DIPLOMA EN ARTE GENERATIVO Y CÓDIGO CON IA</div>
             <h1 class="splash-title">NUBE DE<br>UNIVERSOS</h1>
-            <p class="splash-desc">Un mapa interactivo 3D con más de 120 tecnologías de software multimedia organizadas en 15 universos. Navegá, explorá conexiones y descubrí herramientas.</p>
+            <p class="splash-desc">Un mapa interactivo 3D con más de 120 tecnologías de software multimedia organizadas
+                en 15 universos. Navegá, explorá conexiones y descubrí herramientas.</p>
             <div class="splash-modes">
                 <div class="splash-mode">
                     <span class="splash-mode-icon">🌐</span>
@@ -181,10 +182,14 @@
         <div class="briefing-content">
             <div class="briefing-title">MISIÓN DE EXPLORACIÓN</div>
             <div class="briefing-instructions">
-                <div class="briefing-step"><span class="briefing-icon">🎯</span> <strong>Objetivo:</strong> Navegá hacia el planeta indicado</div>
-                <div class="briefing-step"><span class="briefing-icon">🔭</span> <strong>Recolectar:</strong> Apuntá con la mira y mantené para capturar info</div>
-                <div class="briefing-step"><span class="briefing-icon">⚡</span> <strong>Warp:</strong> Doble-click sobre un planeta para teletransportarte</div>
-                <div class="briefing-step"><span class="briefing-icon">🧭</span> <strong>Seguí la línea verde</strong> que te guía al objetivo</div>
+                <div class="briefing-step"><span class="briefing-icon">🎯</span> <strong>Objetivo:</strong> Navegá hacia
+                    el planeta indicado</div>
+                <div class="briefing-step"><span class="briefing-icon">🔭</span> <strong>Recolectar:</strong> Apuntá con
+                    la mira y mantené para capturar info</div>
+                <div class="briefing-step"><span class="briefing-icon">⚡</span> <strong>Warp:</strong> Doble-click sobre
+                    un planeta para teletransportarte</div>
+                <div class="briefing-step"><span class="briefing-icon">🧭</span> <strong>Seguí la línea verde</strong>
+                    que te guía al objetivo</div>
             </div>
             <div class="briefing-countdown" id="briefing-countdown">3</div>
         </div>
@@ -286,9 +291,19 @@
                 <div class="results-score-label">PUNTAJE FINAL</div>
                 <div class="results-score-value" id="results-score">0</div>
             </div>
+            <div class="results-ranking-inline">
+                <div class="results-ranking-title">RANKING ESTELAR</div>
+                <div class="ranking-input-row">
+                    <input type="text" id="results-ranking-name" class="ranking-input" placeholder="Tu nombre..."
+                        maxlength="20" />
+                    <button id="results-ranking-submit"
+                        class="splash-btn splash-btn-game ranking-submit-btn">GUARDAR</button>
+                </div>
+                <div id="results-ranking-list" class="ranking-list"></div>
+            </div>
             <div class="results-buttons">
                 <button id="results-replay" class="splash-btn splash-btn-game">JUGAR DE NUEVO</button>
-                <button id="results-explore" class="splash-btn">VER RANKING</button>
+                <button id="results-explore" class="splash-btn">EXPLORAR</button>
             </div>
         </div>
     </div>
@@ -298,7 +313,8 @@
         <div class="ranking-content">
             <div class="ranking-title">RANKING ESTELAR</div>
             <div class="ranking-input-row">
-                <input type="text" id="ranking-name-input" class="ranking-input" placeholder="Tu nombre..." maxlength="20" />
+                <input type="text" id="ranking-name-input" class="ranking-input" placeholder="Tu nombre..."
+                    maxlength="20" />
                 <button id="ranking-submit" class="splash-btn splash-btn-game ranking-submit-btn">GUARDAR</button>
             </div>
             <div id="ranking-list" class="ranking-list"></div>

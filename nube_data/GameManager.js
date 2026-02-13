@@ -12,7 +12,7 @@ export class GameManager {
         this.state = 'idle';           // idle | exploration | evaluation | results | ranking
         this.visitedPlanets = [];       // array of node objects visited during exploration
         this.visitedIds = new Set();    // quick lookup
-        this.timeLimit = 120;           // 2 minutes in seconds
+        this.timeLimit = (CONFIG.game && CONFIG.game.gameTime) || 120;
         this.timeRemaining = 0;
         this.timerInterval = null;
 
@@ -132,11 +132,20 @@ export class GameManager {
         this.ranking.bindUI();
         this.ranking.onClose = () => this.closeRanking();
 
+        // Inline ranking in results screen
+        this.dom.resultsRankingName = document.getElementById('results-ranking-name');
+        this.dom.resultsRankingSubmit = document.getElementById('results-ranking-submit');
+        this.dom.resultsRankingList = document.getElementById('results-ranking-list');
+
+        if (this.dom.resultsRankingSubmit) {
+            this.dom.resultsRankingSubmit.addEventListener('click', () => this.submitInlineRanking());
+        }
+
         if (this.dom.resultsReplay) {
             this.dom.resultsReplay.addEventListener('click', () => this.startGame());
         }
         if (this.dom.resultsExplore) {
-            this.dom.resultsExplore.addEventListener('click', () => this.showRankingScreen());
+            this.dom.resultsExplore.addEventListener('click', () => this.exitToExploration());
         }
         if (this.dom.gameCamToggle) {
             this.dom.gameCamToggle.addEventListener('click', () => this.toggleCamera());
@@ -646,7 +655,7 @@ export class GameManager {
         setTimeout(() => {
             overlay.classList.remove('visible');
             this.showCongratsAnimation(callback);
-        }, 3500);
+        }, 2500);
     }
 
     showCongratsAnimation(callback) {
@@ -665,7 +674,7 @@ export class GameManager {
         setTimeout(() => {
             overlay.classList.remove('visible');
             callback();
-        }, 5000);
+        }, 3000);
     }
 
     _hideBackgroundUI() {
@@ -848,6 +857,48 @@ export class GameManager {
         if (this.dom.resultsRandomCount) this.dom.resultsRandomCount.textContent = this.randomVisits.length;
         if (this.dom.resultsScore) this.dom.resultsScore.textContent = this.finalScore;
         if (this.dom.resultsScreen) this.dom.resultsScreen.classList.add('visible');
+
+        // Reset inline ranking input
+        if (this.dom.resultsRankingName) {
+            this.dom.resultsRankingName.value = '';
+            this.dom.resultsRankingName.disabled = false;
+        }
+        if (this.dom.resultsRankingSubmit) this.dom.resultsRankingSubmit.disabled = false;
+
+        // Render inline ranking list
+        this._inlineRankingPlayerName = '';
+        this.renderInlineRankingList();
+    }
+
+    submitInlineRanking() {
+        const name = (this.dom.resultsRankingName?.value || '').trim();
+        if (!name) return;
+        this._inlineRankingPlayerName = name;
+        this.ranking.saveToLeaderboard(name, this.finalScore);
+        this.renderInlineRankingList();
+        if (this.dom.resultsRankingName) this.dom.resultsRankingName.disabled = true;
+        if (this.dom.resultsRankingSubmit) this.dom.resultsRankingSubmit.disabled = true;
+    }
+
+    renderInlineRankingList() {
+        const listEl = this.dom.resultsRankingList;
+        if (!listEl) return;
+        const rankings = this.ranking.getLeaderboard();
+        if (rankings.length === 0) {
+            listEl.innerHTML = '<div class="ranking-empty">No hay puntajes todav\u00eda</div>';
+            return;
+        }
+        let html = '';
+        rankings.forEach((entry, i) => {
+            const isMe = entry.name === this._inlineRankingPlayerName && entry.score === this.finalScore;
+            const medal = i === 0 ? '\u{1F947}' : i === 1 ? '\u{1F948}' : i === 2 ? '\u{1F949}' : `${i + 1}.`;
+            html += `<div class="ranking-row${isMe ? ' ranking-highlight' : ''}">`;
+            html += `<span class="ranking-pos">${medal}</span>`;
+            html += `<span class="ranking-name">${entry.name}</span>`;
+            html += `<span class="ranking-score">${entry.score}</span>`;
+            html += `</div>`;
+        });
+        listEl.innerHTML = html;
     }
 
     // ── Ranking System (delegates to Ranking.js) ──
