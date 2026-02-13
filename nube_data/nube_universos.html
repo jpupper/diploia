@@ -149,7 +149,7 @@
             <kbd>W</kbd> Acelerar · <kbd>S</kbd> Frenar<br />
             <kbd>A</kbd> <kbd>D</kbd> Girar · <kbd>Shift</kbd> Turbo<br />
             <kbd>Q</kbd> Subir · <kbd>E</kbd> Bajar<br />
-            <kbd>Mouse</kbd> Mirar · <kbd>Click</kbd> Capturar cursor<br />
+            <kbd>Mouse</kbd> Mirar · <kbd>Doble-Click</kbd> Warp al planeta<br />
             <kbd>N</kbd> Nave/Cabina · <kbd>V</kbd> Global · <kbd>Esc</kbd> Soltar cursor
         </div>
         <div id="engine-fire"></div>
@@ -167,6 +167,55 @@
     <div id="game-waypoint-arrow"></div>
     <div id="game-points-popup"></div>
     <div id="game-discovery-flash"></div>
+
+    <!-- ── Objective Panel (right side, game mode) ── -->
+    <div id="game-objective-panel">
+        <div class="game-objective-label">OBJETIVO</div>
+        <div class="game-objective-name" id="game-objective-name">—</div>
+        <div class="game-objective-category" id="game-objective-category"></div>
+        <div class="game-objective-distance" id="game-objective-distance"></div>
+    </div>
+
+    <!-- ── Briefing Screen (shown before game starts) ── -->
+    <div id="game-briefing">
+        <div class="briefing-content">
+            <div class="briefing-title">MISIÓN DE EXPLORACIÓN</div>
+            <div class="briefing-instructions">
+                <div class="briefing-step"><span class="briefing-icon">🎯</span> <strong>Objetivo:</strong> Navegá hacia el planeta indicado</div>
+                <div class="briefing-step"><span class="briefing-icon">🔭</span> <strong>Recolectar:</strong> Apuntá con la mira y mantené para capturar info</div>
+                <div class="briefing-step"><span class="briefing-icon">⚡</span> <strong>Warp:</strong> Doble-click sobre un planeta para teletransportarte</div>
+                <div class="briefing-step"><span class="briefing-icon">🧭</span> <strong>Seguí la línea verde</strong> que te guía al objetivo</div>
+            </div>
+            <div class="briefing-countdown" id="briefing-countdown">3</div>
+        </div>
+    </div>
+
+    <!-- ── Target Marker (2D overlay on distant objective planet) ── -->
+    <div id="game-target-marker">
+        <div class="target-marker-diamond"></div>
+        <div class="target-marker-label" id="target-marker-label"></div>
+        <div class="target-marker-distance" id="target-marker-distance"></div>
+    </div>
+
+    <!-- ── Wrong Planet Feedback ── -->
+    <div id="game-wrong-planet">Este no es tu objetivo. Buscá: <span id="wrong-planet-name"></span></div>
+
+    <!-- ── Game Info Panel (left side, planet info during game) ── -->
+    <div id="game-info-panel">
+        <div class="panel-scanline"></div>
+        <div class="panel-inner">
+            <button class="close-btn" id="game-info-close">✕</button>
+            <div id="game-info-content"></div>
+        </div>
+    </div>
+
+    <!-- ── Collection Bar (hold crosshair on objective) ── -->
+    <div id="game-collect-bar">
+        <div id="game-collect-label">RECOLECTANDO INFORMACI&Oacute;N...</div>
+        <div class="game-collect-track">
+            <div id="game-collect-fill"></div>
+        </div>
+    </div>
 
     <!-- ── Evaluation Screen ── -->
     <div id="eval-screen">

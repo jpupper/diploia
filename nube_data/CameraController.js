@@ -256,6 +256,10 @@ export class CameraController {
             const sc = S.modelScale || 0.15;
             this.shipModel.scale.set(sc, sc, sc);
             this.shipModel.visible = true;
+            // Disable frustum culling so the model renders when attached to camera
+            this.shipModel.traverse((child) => {
+                child.frustumCulled = false;
+            });
         }
     }
 

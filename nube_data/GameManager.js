@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
+import { Ranking } from './Ranking.js';
 
 // ═══════════════════════════════════════════════
 //  CLASS: GameManager — Carrera Estelar game logic
@@ -35,8 +36,17 @@ export class GameManager {
         this.waypointBeacon = null;
 
         // Ranking
+        this.ranking = new Ranking();
         this.playerName = '';
         this.finalScore = 0;
+
+        // Collection system (hold crosshair on objective)
+        this._collectProgress = 0;
+        this._collectTarget = null;
+        this._collecting = false;
+
+        // Objective energy field tracking
+        this._objectiveEnergyPlanet = null;
 
         // Running score during exploration
         this.runningScore = 0;
@@ -78,12 +88,6 @@ export class GameManager {
         this.dom.resultsRouteCount = document.getElementById('results-route-count');
         this.dom.resultsRandomCount = document.getElementById('results-random-count');
 
-        this.dom.rankingScreen = document.getElementById('ranking-screen');
-        this.dom.rankingNameInput = document.getElementById('ranking-name-input');
-        this.dom.rankingSubmit = document.getElementById('ranking-submit');
-        this.dom.rankingList = document.getElementById('ranking-list');
-        this.dom.rankingClose = document.getElementById('ranking-close');
-
         this.dom.timeUpOverlay = document.getElementById('time-up-overlay');
         this.dom.congratsOverlay = document.getElementById('congrats-overlay');
         this.dom.congratsPlanetCount = document.getElementById('congrats-planet-count');
@@ -95,6 +99,39 @@ export class GameManager {
         this.dom.discoveryFlash = document.getElementById('game-discovery-flash');
         this.dom.evalTimer = document.getElementById('eval-timer');
 
+        // Objective panel (right side)
+        this.dom.objectivePanel = document.getElementById('game-objective-panel');
+        this.dom.objectiveName = document.getElementById('game-objective-name');
+        this.dom.objectiveCategory = document.getElementById('game-objective-category');
+        this.dom.objectiveDistance = document.getElementById('game-objective-distance');
+
+        // Briefing screen
+        this.dom.briefing = document.getElementById('game-briefing');
+        this.dom.briefingCountdown = document.getElementById('briefing-countdown');
+
+        // Target marker (2D overlay on distant objective)
+        this.dom.targetMarker = document.getElementById('game-target-marker');
+        this.dom.targetMarkerLabel = document.getElementById('target-marker-label');
+        this.dom.targetMarkerDistance = document.getElementById('target-marker-distance');
+
+        // Wrong planet feedback
+        this.dom.wrongPlanet = document.getElementById('game-wrong-planet');
+        this.dom.wrongPlanetName = document.getElementById('wrong-planet-name');
+
+        // Planet info panel (left side, game mode)
+        this.dom.gameInfoPanel = document.getElementById('game-info-panel');
+        this.dom.gameInfoContent = document.getElementById('game-info-content');
+        this.dom.gameInfoClose = document.getElementById('game-info-close');
+
+        // Collection bar
+        this.dom.collectBar = document.getElementById('game-collect-bar');
+        this.dom.collectFill = document.getElementById('game-collect-fill');
+        this.dom.collectLabel = document.getElementById('game-collect-label');
+
+        // Bind ranking (separate module)
+        this.ranking.bindUI();
+        this.ranking.onClose = () => this.closeRanking();
+
         if (this.dom.resultsReplay) {
             this.dom.resultsReplay.addEventListener('click', () => this.startGame());
         }
@@ -104,11 +141,8 @@ export class GameManager {
         if (this.dom.gameCamToggle) {
             this.dom.gameCamToggle.addEventListener('click', () => this.toggleCamera());
         }
-        if (this.dom.rankingSubmit) {
-            this.dom.rankingSubmit.addEventListener('click', () => this.submitRanking());
-        }
-        if (this.dom.rankingClose) {
-            this.dom.rankingClose.addEventListener('click', () => this.closeRanking());
+        if (this.dom.gameInfoClose) {
+            this.dom.gameInfoClose.addEventListener('click', () => this.hideGameInfoPanel());
         }
     }
 
@@ -125,6 +159,11 @@ export class GameManager {
     }
 
     startGame() {
+        // Show briefing first, then actually start
+        this.showBriefing(() => this._doStartGame());
+    }
+
+    _doStartGame() {
         this.state = 'exploration';
         this.visitedPlanets = [];
         this.visitedIds = new Set();
@@ -140,6 +179,12 @@ export class GameManager {
         this.runningScore = 0;
         this.comboCount = 0;
 
+        // Reset collection state
+        this._collectProgress = 0;
+        this._collectTarget = null;
+        this._collecting = false;
+        this._removeObjectiveEnergyField();
+
         // Clean up visited rings from previous game
         this._visitedRings.forEach(r => {
             if (r.parent) r.parent.remove(r);
@@ -154,10 +199,17 @@ export class GameManager {
         // Hide results/eval/ranking if visible
         if (this.dom.resultsScreen) this.dom.resultsScreen.classList.remove('visible');
         if (this.dom.evalScreen) this.dom.evalScreen.classList.remove('visible');
-        if (this.dom.rankingScreen) this.dom.rankingScreen.classList.remove('visible');
+        this.ranking.hide();
 
         // Show game HUD
         if (this.dom.gameHud) this.dom.gameHud.classList.add('visible');
+
+        // Hide collection bar
+        if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
+
+        // Hide target marker and wrong planet feedback
+        if (this.dom.targetMarker) this.dom.targetMarker.classList.remove('visible');
+        if (this.dom.wrongPlanet) this.dom.wrongPlanet.classList.remove('visible');
 
         // Dim all non-route planets
         this.dimNonRoutePlanets();
@@ -165,6 +217,12 @@ export class GameManager {
         // Hide exploration-only UI
         document.getElementById('view-mode-toggle').style.display = 'none';
         document.getElementById('connections-toggle').style.display = 'none';
+
+        // Hide the normal info panel (we use game-info-panel instead)
+        document.getElementById('info-panel').classList.remove('visible');
+
+        // Close the game info panel if open from previous game
+        this.hideGameInfoPanel();
 
         // Switch to ship mode for flying
         this.universe.setViewMode('ship');
@@ -177,14 +235,41 @@ export class GameManager {
         this.updateHUD();
     }
 
+    // ── Briefing Screen (instruction overlay before game) ──
+    showBriefing(callback) {
+        if (!this.dom.briefing) {
+            callback();
+            return;
+        }
+
+        // Hide any other overlays first
+        if (this.dom.resultsScreen) this.dom.resultsScreen.classList.remove('visible');
+        if (this.dom.evalScreen) this.dom.evalScreen.classList.remove('visible');
+        this.ranking.hide();
+
+        this.dom.briefing.classList.add('visible');
+        let count = 3;
+        if (this.dom.briefingCountdown) this.dom.briefingCountdown.textContent = count;
+
+        const countInterval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                if (this.dom.briefingCountdown) this.dom.briefingCountdown.textContent = count;
+            } else {
+                clearInterval(countInterval);
+                this.dom.briefing.classList.remove('visible');
+                callback();
+            }
+        }, 1000);
+    }
+
     pickRandomStartAndWarp() {
         const allToolNodes = this.getAllToolNodes();
         const startNode = allToolNodes[Math.floor(Math.random() * allToolNodes.length)];
         const planet = this.universe.getPlanetById(startNode.id);
         if (planet) {
             const targetPos = planet.getWorldPosition();
-            this.universe.setActivePlanet(planet);
-            this.universe.showInfoPanel(planet.node);
+            this.showGameInfoPanel(planet.node);
             this.universe.cam.startWarp(targetPos, 60, () => {
                 this.registerVisit(planet);
                 this.pickNextWaypoint();
@@ -228,9 +313,6 @@ export class GameManager {
         this.updateComboDisplay(comboMult);
         this.animateScore();
 
-        // Activate planet in universe
-        this.universe.setActivePlanet(planet);
-
         this.updateHUD();
     }
 
@@ -244,8 +326,8 @@ export class GameManager {
             if (!isVisited && !isWaypoint && planet.mesh.material) {
                 planet.mesh.material._origOpacityGame = planet.mesh.material.opacity;
                 planet.mesh.material._origEmissiveGame = planet.mesh.material.emissiveIntensity;
-                planet.mesh.material.opacity = 0.15;
-                planet.mesh.material.emissiveIntensity = 0.05;
+                planet.mesh.material.opacity = 0.35;
+                planet.mesh.material.emissiveIntensity = 0.15;
                 this._dimmedPlanets.push(planet);
             } else if (isWaypoint && planet.mesh.material) {
                 planet.mesh.material.emissiveIntensity = 1.2;
@@ -317,6 +399,10 @@ export class GameManager {
         this.updateWaypointLine();
         // Re-dim planets with updated waypoint
         this.dimNonRoutePlanets();
+        // Update objective energy field (only on the target planet)
+        this._updateObjectiveEnergyField();
+        // Update objective panel (right side)
+        this._updateObjectivePanel();
     }
 
     updateWaypointHint() {
@@ -410,7 +496,7 @@ export class GameManager {
 
         const isRoute = this.nextWaypoint && planet.node.id === this.nextWaypoint.id;
         this.registerVisit(planet, isRoute);
-        this.universe.showInfoPanel(planet.node);
+        this.showGameInfoPanel(planet.node);
         this.pickNextWaypoint();
     }
 
@@ -424,7 +510,7 @@ export class GameManager {
         const colorHex = catColors[catId];
         if (colorHex !== undefined) {
             const c = new THREE.Color(colorHex);
-            flash.style.setProperty('--flash-color', `rgba(${Math.round(c.r*255)},${Math.round(c.g*255)},${Math.round(c.b*255)},0.5)`);
+            flash.style.setProperty('--flash-color', `rgba(${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(c.b * 255)},0.5)`);
         }
         flash.classList.remove('show');
         void flash.offsetWidth;
@@ -498,6 +584,11 @@ export class GameManager {
         }, 1000);
     }
 
+    forceEnd() {
+        if (this.state !== 'exploration') return;
+        this.endExploration();
+    }
+
     endExploration() {
         if (this.timerInterval) { clearInterval(this.timerInterval); this.timerInterval = null; }
 
@@ -510,6 +601,14 @@ export class GameManager {
         // Remove waypoint visuals
         this.clearWaypointVisuals();
         if (this.dom.waypointArrow) this.dom.waypointArrow.classList.remove('visible');
+
+        // Clean up game-specific UI
+        this._removeObjectiveEnergyField();
+        this._collectProgress = 0;
+        this._collecting = false;
+        if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
+        if (this.dom.objectivePanel) this.dom.objectivePanel.classList.remove('visible');
+        if (this.dom.gameInfoPanel) this.dom.gameInfoPanel.classList.remove('visible');
 
         // Show time-up animation overlay
         this.showTimeUpAnimation(() => {
@@ -578,6 +677,9 @@ export class GameManager {
         if (shipHud) shipHud.classList.remove('visible');
         const hoverTooltip = document.getElementById('hover-tooltip');
         if (hoverTooltip) hoverTooltip.classList.remove('visible');
+        if (this.dom.objectivePanel) this.dom.objectivePanel.classList.remove('visible');
+        if (this.dom.gameInfoPanel) this.dom.gameInfoPanel.classList.remove('visible');
+        if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
     }
 
     showEvalScreen() {
@@ -748,64 +850,15 @@ export class GameManager {
         if (this.dom.resultsScreen) this.dom.resultsScreen.classList.add('visible');
     }
 
-    // ── Ranking System ──
+    // ── Ranking System (delegates to Ranking.js) ──
     showRankingScreen() {
         this.state = 'ranking';
         if (this.dom.resultsScreen) this.dom.resultsScreen.classList.remove('visible');
-        if (this.dom.rankingScreen) this.dom.rankingScreen.classList.add('visible');
-        if (this.dom.rankingNameInput) this.dom.rankingNameInput.value = '';
-        this.renderRankingList();
-    }
-
-    submitRanking() {
-        const name = (this.dom.rankingNameInput?.value || '').trim();
-        if (!name) return;
-        this.playerName = name;
-        this.saveToLeaderboard(name, this.finalScore);
-        this.renderRankingList();
-        if (this.dom.rankingNameInput) this.dom.rankingNameInput.disabled = true;
-        if (this.dom.rankingSubmit) this.dom.rankingSubmit.disabled = true;
-    }
-
-    saveToLeaderboard(name, score) {
-        const key = 'nube_universos_ranking';
-        let rankings = [];
-        try { rankings = JSON.parse(localStorage.getItem(key)) || []; } catch(e) { rankings = []; }
-        rankings.push({ name, score, date: new Date().toISOString().split('T')[0] });
-        rankings.sort((a, b) => b.score - a.score);
-        rankings = rankings.slice(0, 20);
-        localStorage.setItem(key, JSON.stringify(rankings));
-    }
-
-    getLeaderboard() {
-        const key = 'nube_universos_ranking';
-        try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e) { return []; }
-    }
-
-    renderRankingList() {
-        if (!this.dom.rankingList) return;
-        const rankings = this.getLeaderboard();
-        if (rankings.length === 0) {
-            this.dom.rankingList.innerHTML = '<div class="ranking-empty">No hay puntajes todavía</div>';
-            return;
-        }
-        let html = '';
-        rankings.forEach((entry, i) => {
-            const isMe = entry.name === this.playerName && entry.score === this.finalScore;
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-            html += `<div class="ranking-row${isMe ? ' ranking-highlight' : ''}">`;
-            html += `<span class="ranking-pos">${medal}</span>`;
-            html += `<span class="ranking-name">${entry.name}</span>`;
-            html += `<span class="ranking-score">${entry.score}</span>`;
-            html += `</div>`;
-        });
-        this.dom.rankingList.innerHTML = html;
+        this.ranking.show(this.finalScore);
     }
 
     closeRanking() {
-        if (this.dom.rankingScreen) this.dom.rankingScreen.classList.remove('visible');
-        if (this.dom.rankingNameInput) this.dom.rankingNameInput.disabled = false;
-        if (this.dom.rankingSubmit) this.dom.rankingSubmit.disabled = false;
+        this.ranking.hide();
         this.exitToExploration();
     }
 
@@ -823,6 +876,126 @@ export class GameManager {
         document.getElementById('connections-toggle').style.display = '';
 
         this.universe.setViewMode('global');
+    }
+
+    // ── Objective Energy Field (aura only on target planet) ──
+    _removeObjectiveEnergyField() {
+        if (this._objectiveEnergyPlanet) {
+            this._objectiveEnergyPlanet.deactivate();
+            this._objectiveEnergyPlanet = null;
+        }
+    }
+
+    _updateObjectiveEnergyField() {
+        this._removeObjectiveEnergyField();
+        if (!this.nextWaypoint) return;
+        const planet = this.universe.getPlanetById(this.nextWaypoint.id);
+        if (!planet) return;
+        planet.activate();
+        this._objectiveEnergyPlanet = planet;
+    }
+
+    updateObjectiveEnergyFieldAnim(time) {
+        if (this._objectiveEnergyPlanet) {
+            this._objectiveEnergyPlanet.updateEnergyField(time);
+        }
+    }
+
+    // ── Objective Panel (right side) ──
+    _updateObjectivePanel() {
+        if (!this.dom.objectivePanel) return;
+        if (this.nextWaypoint) {
+            if (this.dom.objectiveName) {
+                this.dom.objectiveName.textContent = this.nextWaypoint.label || this.nextWaypoint.id;
+            }
+            // Show category name
+            if (this.dom.objectiveCategory) {
+                const planet = this.universe.getPlanetById(this.nextWaypoint.id);
+                const catName = planet ? (planet.category || '') : '';
+                this.dom.objectiveCategory.textContent = catName ? `— ${catName}` : '';
+            }
+            this.dom.objectivePanel.classList.add('visible');
+        } else {
+            this.dom.objectivePanel.classList.remove('visible');
+        }
+    }
+
+    // ── Game Info Panel (left side — planet info during game) ──
+    showGameInfoPanel(node) {
+        if (!this.dom.gameInfoPanel || !this.dom.gameInfoContent) return;
+        let html = '';
+        if (node.infoHTML) html += node.infoHTML.replace(/\\n/g, '\n');
+        else { html += `<h3>${node.label || node.id}</h3>`; if (node.info) html += `<p>${node.info}</p>`; }
+        if (node.url) html += `<p style="margin-top:12px"><a href="${node.url}" target="_blank">${node.url}</a></p>`;
+        this.dom.gameInfoContent.innerHTML = html;
+        this.dom.gameInfoPanel.classList.add('visible');
+    }
+
+    hideGameInfoPanel() {
+        if (this.dom.gameInfoPanel) this.dom.gameInfoPanel.classList.remove('visible');
+    }
+
+    // ── Collection System (hold crosshair on objective for N seconds) ──
+    updateCollection(dt, aimedPlanet) {
+        if (this.state !== 'exploration') return;
+        if (!this.nextWaypoint) return;
+
+        const G = CONFIG.game || {};
+        const collectTime = G.collectTime || 2.0;
+
+        if (aimedPlanet && aimedPlanet.node && aimedPlanet.node.id === this.nextWaypoint.id) {
+            // Aiming at the objective planet
+            if (this._collectTarget !== aimedPlanet) {
+                this._collectProgress = 0;
+                this._collectTarget = aimedPlanet;
+            }
+            this._collecting = true;
+            this._collectProgress += dt;
+
+            // Hide wrong planet feedback
+            if (this.dom.wrongPlanet) this.dom.wrongPlanet.classList.remove('visible');
+
+            // Show collection bar
+            if (this.dom.collectBar) this.dom.collectBar.classList.add('visible');
+            if (this.dom.collectFill) {
+                const pct = Math.min(100, (this._collectProgress / collectTime) * 100);
+                this.dom.collectFill.style.width = pct + '%';
+            }
+            if (this.dom.collectLabel) {
+                this.dom.collectLabel.textContent = 'RECOLECTANDO INFORMACI\u00d3N...';
+            }
+
+            if (this._collectProgress >= collectTime) {
+                // Collection complete!
+                this._collectProgress = 0;
+                this._collecting = false;
+                this._collectTarget = null;
+                if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
+                this.onPlanetReached(aimedPlanet);
+            }
+        } else if (aimedPlanet && aimedPlanet.node && aimedPlanet.node.type === 'tool') {
+            // Aiming at a planet that is NOT the objective — show feedback
+            if (this._collecting) {
+                this._collectProgress = 0;
+                this._collecting = false;
+                this._collectTarget = null;
+                if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
+            }
+            // Show wrong-planet toast
+            if (this.dom.wrongPlanet && this.dom.wrongPlanetName) {
+                this.dom.wrongPlanetName.textContent = this.nextWaypoint.label || this.nextWaypoint.id;
+                this.dom.wrongPlanet.classList.add('visible');
+            }
+        } else {
+            // Not aiming at any planet — reset
+            if (this._collecting) {
+                this._collectProgress = 0;
+                this._collecting = false;
+                this._collectTarget = null;
+                if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
+            }
+            if (this.dom.wrongPlanet) this.dom.wrongPlanet.classList.remove('visible');
+        }
     }
 
     updateHUD() {
@@ -850,6 +1023,15 @@ export class GameManager {
         if (!targetPlanet) return;
         const camPos = this.universe.camera.position;
         const tp = targetPlanet.getWorldPosition();
+
+        // Calculate distance for display
+        const distance = camPos.distanceTo(tp);
+        const distLabel = distance > 1000 ? `${(distance / 1000).toFixed(1)}k` : `${Math.round(distance)}`;
+
+        // Update distance in objective panel
+        if (this.dom.objectiveDistance) {
+            this.dom.objectiveDistance.textContent = `⚙ ${distLabel} u`;
+        }
 
         // Update main dashed line
         const positions = this.waypointLine.geometry.attributes.position;
@@ -882,6 +1064,40 @@ export class GameManager {
 
         // Update 2D waypoint direction arrow
         this.updateWaypointArrow(tp);
+
+        // Update 2D target marker (diamond overlay on distant objective)
+        this.updateTargetMarker(tp, distance, distLabel);
+    }
+
+    // ── Target Marker (2D diamond overlay when objective is on-screen but distant) ──
+    updateTargetMarker(targetWorldPos, distance, distLabel) {
+        const marker = this.dom.targetMarker;
+        if (!marker) return;
+        const camera = this.universe.camera;
+
+        // Project target to screen space
+        const projected = targetWorldPos.clone().project(camera);
+        const sx = (projected.x * 0.5 + 0.5) * innerWidth;
+        const sy = (-projected.y * 0.5 + 0.5) * innerHeight;
+
+        const behind = projected.z > 1;
+        const margin = 60;
+        const onScreen = !behind && sx > margin && sx < innerWidth - margin && sy > margin && sy < innerHeight - margin;
+
+        if (onScreen && distance > 200) {
+            // Objective is on screen but far away — show marker
+            marker.classList.add('visible');
+            marker.style.left = sx + 'px';
+            marker.style.top = sy + 'px';
+            if (this.dom.targetMarkerLabel) {
+                this.dom.targetMarkerLabel.textContent = this.nextWaypoint.label || this.nextWaypoint.id;
+            }
+            if (this.dom.targetMarkerDistance) {
+                this.dom.targetMarkerDistance.textContent = distLabel + ' u';
+            }
+        } else {
+            marker.classList.remove('visible');
+        }
     }
 
     updateWaypointArrow(targetWorldPos) {

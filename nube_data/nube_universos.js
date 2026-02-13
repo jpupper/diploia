@@ -31,7 +31,7 @@ class Universe {
         this.currentView = 'global';
         this.showAllConnections = false;
         this.shipAimedLines = []; this.shipHoveredMesh = null;
-        this.keys = { w:false, s:false, a:false, d:false, q:false, e:false, shift:false, space:false };
+        this.keys = { w: false, s: false, a: false, d: false, q: false, e: false, shift: false, space: false };
         this.hoveredPlanet = null; this.tooltip = null;
         this._orbitalWarping = false;
         this._clickTimer = null;
@@ -52,7 +52,7 @@ class Universe {
         this.scene = new THREE.Scene();
         this.scene.fog = new THREE.FogExp2(CFG.scene.fogColor, CFG.scene.fogDensity);
 
-        this.camera = new THREE.PerspectiveCamera(CFG.camera.fov, innerWidth/innerHeight, CFG.camera.near, CFG.camera.far);
+        this.camera = new THREE.PerspectiveCamera(CFG.camera.fov, innerWidth / innerHeight, CFG.camera.near, CFG.camera.far);
         const ip = CFG.camera.initialPosition;
         this.camera.position.set(ip.x, ip.y, ip.z);
 
@@ -123,7 +123,9 @@ class Universe {
             ambientPoint.position.set(0, 5, 0);
             this.shipModel.add(ambientPoint);
             // Preserve original textures — only tweak envMapIntensity for better PBR
+            // Also disable frustumCulling so model renders when child of camera
             this.shipModel.traverse((child) => {
+                child.frustumCulled = false;
                 if (child.isMesh && child.material) {
                     child.material.envMapIntensity = 0.4;
                     child.material.needsUpdate = true;
@@ -131,6 +133,11 @@ class Universe {
             });
             this.scene.add(this.shipModel);
             this.cam.shipModel = this.shipModel;
+
+            // FIX: If already in ship mode when model finishes loading, attach it now
+            if (this.currentView === 'ship') {
+                this.cam.initShipWithModel(true);
+            }
         }, undefined, (err) => {
             console.warn('Could not load ship model:', err);
         });
@@ -204,19 +211,19 @@ class Universe {
     createStarfield() {
         const S = CFG.stars; const count = S.count;
         const geo = new THREE.BufferGeometry();
-        const positions = new Float32Array(count*3);
-        const colors = new Float32Array(count*3);
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
         const sizes = new Float32Array(count);
         for (let i = 0; i < count; i++) {
-            const r = S.minDistance + Math.random()*(S.maxDistance-S.minDistance);
-            const theta = Math.random()*Math.PI*2;
-            const phi = Math.acos(2*Math.random()-1);
-            positions[i*3] = r*Math.sin(phi)*Math.cos(theta);
-            positions[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
-            positions[i*3+2] = r*Math.cos(phi);
-            const b = 0.3+Math.random()*0.7; const t = Math.random();
-            colors[i*3] = b*(0.8+t*0.2); colors[i*3+1] = b*(0.85+t*0.15); colors[i*3+2] = b;
-            sizes[i] = S.sizeMin + Math.random()*S.sizeRandom;
+            const r = S.minDistance + Math.random() * (S.maxDistance - S.minDistance);
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = r * Math.cos(phi);
+            const b = 0.3 + Math.random() * 0.7; const t = Math.random();
+            colors[i * 3] = b * (0.8 + t * 0.2); colors[i * 3 + 1] = b * (0.85 + t * 0.15); colors[i * 3 + 2] = b;
+            sizes[i] = S.sizeMin + Math.random() * S.sizeRandom;
         }
         geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -228,8 +235,8 @@ class Universe {
         this.starTwinklePhases = new Float32Array(count);
         this.starTwinkleSpeeds = new Float32Array(count);
         for (let i = 0; i < count; i++) {
-            this.starTwinklePhases[i] = Math.random()*Math.PI*2;
-            this.starTwinkleSpeeds[i] = S.twinkleSpeedMin + Math.random()*S.twinkleSpeedRandom;
+            this.starTwinklePhases[i] = Math.random() * Math.PI * 2;
+            this.starTwinkleSpeeds[i] = S.twinkleSpeedMin + Math.random() * S.twinkleSpeedRandom;
         }
     }
 
@@ -261,7 +268,7 @@ class Universe {
             const catObj = this.categoryGroups[catId];
             if (!catObj) return;
             const catPos = catObj.group.position.clone();
-            const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), catPos]);
+            const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), catPos]);
             const lineMat = new THREE.LineBasicMaterial({ color: sunColor, transparent: true, opacity: CFG.connections.sunLineOpacity, blending: THREE.AdditiveBlending, depthWrite: false });
             const line = new THREE.Line(lineGeo, lineMat);
             this.scene.add(line);
@@ -272,19 +279,19 @@ class Universe {
     createTextSprite(text, color, fontSize = 14) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const font = `${fontSize*4}px Outfit, sans-serif`;
+        const font = `${fontSize * 4}px Outfit, sans-serif`;
         ctx.font = font;
         const tw = ctx.measureText(text).width;
         canvas.width = tw + 40; canvas.height = fontSize * 6;
         ctx.font = font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         const c = new THREE.Color(color);
-        ctx.shadowColor = `rgb(${Math.round(c.r*255)},${Math.round(c.g*255)},${Math.round(c.b*255)})`;
+        ctx.shadowColor = `rgb(${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(c.b * 255)})`;
         ctx.shadowBlur = 20; ctx.fillStyle = '#ffffff';
-        ctx.fillText(text, canvas.width/2, canvas.height/2);
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
         const texture = new THREE.CanvasTexture(canvas); texture.needsUpdate = true;
         const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
         const sprite = new THREE.Sprite(spriteMat);
-        sprite.scale.set(canvas.width/8, canvas.height/8, 1);
+        sprite.scale.set(canvas.width / 8, canvas.height / 8, 1);
         return sprite;
     }
 
@@ -296,8 +303,8 @@ class Universe {
 
         this.categories.forEach((catId, i) => {
             const node = this.DATA.nodes[catId]; if (!node) return;
-            const angle = (i/catCount)*Math.PI*2 - Math.PI/2;
-            const cx = Math.cos(angle)*ringRadius; const cz = Math.sin(angle)*ringRadius;
+            const angle = (i / catCount) * Math.PI * 2 - Math.PI / 2;
+            const cx = Math.cos(angle) * ringRadius; const cz = Math.sin(angle) * ringRadius;
             const zMin = CFG.layout.categoryZMin !== undefined ? CFG.layout.categoryZMin : -2000;
             const zMax = CFG.layout.categoryZMax !== undefined ? CFG.layout.categoryZMax : 2000;
             const randomZ = zMin + Math.random() * (zMax - zMin);
@@ -326,16 +333,16 @@ class Universe {
 
             children.forEach((childId, ci) => {
                 const childNode = this.DATA.nodes[childId]; if (!childNode) return;
-                const orbitRadius = O.baseRadius + (ci%3)*O.radiusStep + Math.random()*O.radiusRandom;
-                const goldenRatio = (1+Math.sqrt(5))/2;
-                const theta = (2*Math.PI*ci)/goldenRatio + (Math.random()-0.5)*0.8;
-                const basePhi = Math.acos(1-(2*(ci+0.5))/childCount);
-                const phi = basePhi + (Math.random()-0.5)*0.6;
+                const orbitRadius = O.baseRadius + (ci % 3) * O.radiusStep + Math.random() * O.radiusRandom;
+                const goldenRatio = (1 + Math.sqrt(5)) / 2;
+                const theta = (2 * Math.PI * ci) / goldenRatio + (Math.random() - 0.5) * 0.8;
+                const basePhi = Math.acos(1 - (2 * (ci + 0.5)) / childCount);
+                const phi = basePhi + (Math.random() - 0.5) * 0.6;
                 const orbitAngle = theta;
-                const orbitTilt = phi - Math.PI/2;
-                const px = Math.sin(phi)*Math.cos(theta)*orbitRadius;
-                const py = Math.cos(phi)*orbitRadius;
-                const pz = Math.sin(phi)*Math.sin(theta)*orbitRadius;
+                const orbitTilt = phi - Math.PI / 2;
+                const px = Math.sin(phi) * Math.cos(theta) * orbitRadius;
+                const py = Math.cos(phi) * orbitRadius;
+                const pz = Math.sin(phi) * Math.sin(theta) * orbitRadius;
 
                 const pGeo = new THREE.SphereGeometry(P.radius, 24, 24);
                 const pColor = color.clone().lerp(new THREE.Color(0xffffff), P.colorLerpToWhite);
@@ -350,7 +357,7 @@ class Universe {
                 const hitMesh = new THREE.Mesh(hitGeo, hitMat);
                 planetMesh.add(hitMesh);
 
-                planetMesh.userData = { orbitRadius, orbitSpeed: O.speedMin+Math.random()*O.speedRandom, orbitOffset: orbitAngle, orbitTilt, parentGroup: group, categoryId: catId };
+                planetMesh.userData = { orbitRadius, orbitSpeed: O.speedMin + Math.random() * O.speedRandom, orbitOffset: orbitAngle, orbitTilt, parentGroup: group, categoryId: catId };
 
                 const pLabel = this.createTextSprite(childNode.label || childId, CAT_COLORS[catId] || 0xffffff, P.labelFontSize);
                 pLabel.position.set(0, P.labelOffsetY, 0); pLabel.visible = false;
@@ -365,7 +372,7 @@ class Universe {
             });
 
             const ring = new THREE.Mesh(new THREE.RingGeometry(O.ringInner, O.ringOuter, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.06, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
-            ring.rotation.x = -Math.PI/2; group.add(ring);
+            ring.rotation.x = -Math.PI / 2; group.add(ring);
             this.categoryGroups[catId] = { group, nucleus, planets: planetMeshes, color };
         });
     }
@@ -410,7 +417,7 @@ class Universe {
         this.categories.forEach((catId, i) => {
             const dot = document.createElement('div'); dot.className = 'cat-dot';
             const color = new THREE.Color(CAT_COLORS[catId] || 0xffffff);
-            dot.style.background = '#'+color.getHexString(); dot.style.borderColor = '#'+color.getHexString();
+            dot.style.background = '#' + color.getHexString(); dot.style.borderColor = '#' + color.getHexString();
             const label = document.createElement('span'); label.className = 'cat-dot-label';
             const node = this.DATA.nodes[catId]; label.textContent = node ? node.label : catId;
             dot.appendChild(label);
@@ -444,8 +451,8 @@ class Universe {
         const color = new THREE.Color(CAT_COLORS[catId] || 0xffffff);
         const labelEl = document.getElementById('cat-label-text');
         labelEl.textContent = node ? node.label : catId;
-        labelEl.style.color = '#'+color.getHexString();
-        document.getElementById('cat-count-text').textContent = `${childCount} herramienta${childCount !== 1 ? 's' : ''} · ${index+1}/${this.categories.length}`;
+        labelEl.style.color = '#' + color.getHexString();
+        document.getElementById('cat-count-text').textContent = `${childCount} herramienta${childCount !== 1 ? 's' : ''} · ${index + 1}/${this.categories.length}`;
         this.updateCategoryDots();
         this.cam.navigateTo(catObj.group.position, instant);
         this.updateActiveConnections();
@@ -613,8 +620,8 @@ class Universe {
         else if (planet.category) { const cn = this.DATA.nodes[planet.category]; catName = cn ? cn.label : planet.category; }
         document.getElementById('sel-category-text').textContent = catName;
         let color = '#fff';
-        if (planet.category) color = '#'+new THREE.Color(CAT_COLORS[planet.category] || 0xffffff).getHexString();
-        else if (planet.type === 'category') color = '#'+new THREE.Color(CAT_COLORS[planet.id] || 0xffffff).getHexString();
+        if (planet.category) color = '#' + new THREE.Color(CAT_COLORS[planet.category] || 0xffffff).getHexString();
+        else if (planet.type === 'category') color = '#' + new THREE.Color(CAT_COLORS[planet.id] || 0xffffff).getHexString();
         document.getElementById('sel-planet-text').style.color = color;
         // Set CSS custom property for the spacial UI accent color
         indicator.style.setProperty('--sel-color', color);
@@ -668,43 +675,56 @@ class Universe {
         });
     }
 
-    updateShipRaycast() {
+    updateShipRaycast(dt) {
         if (!this.isShipMode()) return;
         if (!this.tooltip) this.tooltip = document.getElementById('hover-tooltip');
-        this.raycaster.setFromCamera(new THREE.Vector2(0,0), this.camera);
+        this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
         const hits = this.raycaster.intersectObjects(this.allMeshes);
         if (this.shipHoveredMesh) { const hp = this.getPlanetByMesh(this.shipHoveredMesh); if (hp && hp !== this.activePlanet) hp.unhover(); }
+
+        const isGameMode = this.game && this.game.state === 'exploration';
+        let aimedPlanet = null;
 
         if (hits.length > 0) {
             const mesh = hits[0].object;
             const planet = this.getPlanetByMesh(mesh);
             if (planet) {
+                aimedPlanet = planet;
                 planet.hover();
                 if (this.shipHoveredMesh !== mesh) this.buildShipAimedLines(planet);
                 this.shipHoveredMesh = mesh;
                 this.tooltip.textContent = planet.label;
-                this.tooltip.style.left = (innerWidth/2+30)+'px'; this.tooltip.style.top = (innerHeight/2-12)+'px';
+                this.tooltip.style.left = (innerWidth / 2 + 30) + 'px'; this.tooltip.style.top = (innerHeight / 2 - 12) + 'px';
                 this.tooltip.classList.add('visible');
-                this.showInfoPanel(planet.node);
+                if (isGameMode) {
+                    this.game.showGameInfoPanel(planet.node);
+                } else {
+                    this.showInfoPanel(planet.node);
+                }
                 this.updateSelectionIndicator(planet);
                 const ch = document.getElementById('ship-crosshair'); if (ch) ch.classList.add('locked');
-                // Game mode: register visit when close enough
-                if (this.game && this.game.state === 'exploration' && hits[0].distance < 200) {
-                    this.game.onPlanetReached(planet);
-                }
             }
         } else {
             if (this.shipHoveredMesh) this.clearShipAimedLines();
             this.shipHoveredMesh = null;
             if (this.tooltip) this.tooltip.classList.remove('visible');
             const ch = document.getElementById('ship-crosshair'); if (ch) ch.classList.remove('locked');
-            this.closeInfoPanel();
+            if (isGameMode) {
+                this.game.hideGameInfoPanel();
+            } else {
+                this.closeInfoPanel();
+            }
             if (!this.activePlanet) this.hideSelectionIndicator();
+        }
+
+        // Game mode: use collection system (hold crosshair on objective)
+        if (isGameMode) {
+            this.game.updateCollection(dt || 0.016, aimedPlanet);
         }
 
         // Update ship trace animations (sphere traveling along connections)
         if (this._shipTraceConnections.length > 0) {
-            const dt = this.clock.getDelta ? 0.016 : 0.016; // approximate dt for ship traces
+            const dt = this.clock.getDelta ? 0.016 : 0.016;
             this._shipTraceConnections.forEach(conn => conn.updateTrace(0.016));
         }
     }
@@ -733,8 +753,8 @@ class Universe {
         this.renderer.domElement.addEventListener('mousedown', (e) => this.onMouseDown(e));
         this.renderer.domElement.addEventListener('mouseup', () => this.onMouseUp());
 
-        document.getElementById('btn-prev').addEventListener('click', (e) => { e.stopPropagation(); this.navigateToCategory(this.currentCatIndex-1); });
-        document.getElementById('btn-next').addEventListener('click', (e) => { e.stopPropagation(); this.navigateToCategory(this.currentCatIndex+1); });
+        document.getElementById('btn-prev').addEventListener('click', (e) => { e.stopPropagation(); this.navigateToCategory(this.currentCatIndex - 1); });
+        document.getElementById('btn-next').addEventListener('click', (e) => { e.stopPropagation(); this.navigateToCategory(this.currentCatIndex + 1); });
         document.getElementById('btn-zin').addEventListener('click', (e) => { e.stopPropagation(); this.adjustZoom(-CFG.camera.zoomStep); });
         document.getElementById('btn-zout').addEventListener('click', (e) => { e.stopPropagation(); this.adjustZoom(CFG.camera.zoomStep); });
         document.getElementById('info-close').addEventListener('click', () => this.closeInfoPanel());
@@ -763,7 +783,7 @@ class Universe {
     }
 
     onResize() {
-        this.camera.aspect = innerWidth/innerHeight;
+        this.camera.aspect = innerWidth / innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(innerWidth, innerHeight);
     }
@@ -776,7 +796,7 @@ class Universe {
         if (k === 'shift') this.keys.shift = true; if (k === ' ') this.keys.space = true;
 
         if (this.isShipMode()) {
-            if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+            if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
             if (k === 'escape' && document.pointerLockElement) document.exitPointerLock();
             if (k === 'n') {
                 if (this.game && this.game.state === 'exploration') {
@@ -786,6 +806,11 @@ class Universe {
                 }
             }
             if (k === 'v' && !(this.game && this.game.state === 'exploration')) this.setViewMode('global');
+            // B key: force-end game (go to evaluation)
+            const forceKey = (CONFIG.game.forceEndKey || 'b').toLowerCase();
+            if (k === forceKey && this.game && this.game.state === 'exploration') {
+                this.game.forceEnd();
+            }
             return;
         }
         if (this.currentView === 'camera') {
@@ -793,8 +818,8 @@ class Universe {
             return;
         }
         switch (e.key) {
-            case 'ArrowLeft': this.navigateToCategory(this.currentCatIndex-1); break;
-            case 'ArrowRight': this.navigateToCategory(this.currentCatIndex+1); break;
+            case 'ArrowLeft': this.navigateToCategory(this.currentCatIndex - 1); break;
+            case 'ArrowRight': this.navigateToCategory(this.currentCatIndex + 1); break;
             case 'ArrowUp': e.preventDefault(); this.adjustZoom(-CFG.camera.zoomStep); break;
             case 'ArrowDown': e.preventDefault(); this.adjustZoom(CFG.camera.zoomStep); break;
             case 'Escape': this.closeInfoPanel(); this.clearActivePlanet(); break;
@@ -831,8 +856,8 @@ class Universe {
     }
 
     _handleSingleClick(clientX, clientY) {
-        this.mouse.x = (clientX/innerWidth)*2-1;
-        this.mouse.y = -(clientY/innerHeight)*2+1;
+        this.mouse.x = (clientX / innerWidth) * 2 - 1;
+        this.mouse.y = -(clientY / innerHeight) * 2 + 1;
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const hits = this.raycaster.intersectObjects(this.allMeshes);
 
@@ -884,14 +909,19 @@ class Universe {
                 const planet = this.getPlanetByMesh(hits[0].object);
                 if (!planet) return;
                 const targetPos = planet.getWorldPosition();
-                this.setActivePlanet(planet);
-                this.showInfoPanel(planet.node);
+                const isGameMode = this.game && this.game.state === 'exploration';
+                if (isGameMode) {
+                    this.game.showGameInfoPanel(planet.node);
+                } else {
+                    this.setActivePlanet(planet);
+                    this.showInfoPanel(planet.node);
+                }
                 const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
                 const stopDist = Math.max(pRadius * 5, 60);
                 this.showWarpFlash();
                 this.cam.startWarp(targetPos, stopDist, () => {
-                    this.particles.spawn(planet);
-                    if (this.game && this.game.state === 'exploration') {
+                    if (!isGameMode) this.particles.spawn(planet);
+                    if (isGameMode) {
                         this.game.onPlanetReached(planet);
                     }
                 });
@@ -901,8 +931,8 @@ class Universe {
 
         // Double-click in camera (orbital) mode: warp to clicked planet
         if (this.currentView === 'camera') {
-            this.mouse.x = (e.clientX/innerWidth)*2-1;
-            this.mouse.y = -(e.clientY/innerHeight)*2+1;
+            this.mouse.x = (e.clientX / innerWidth) * 2 - 1;
+            this.mouse.y = -(e.clientY / innerHeight) * 2 + 1;
             this.raycaster.setFromCamera(this.mouse, this.camera);
             const hits = this.raycaster.intersectObjects(this.allMeshes);
             if (hits.length > 0) {
@@ -926,8 +956,8 @@ class Universe {
 
         // Double-click in global mode: select and switch to camera
         if (this.currentView === 'global') {
-            this.mouse.x = (e.clientX/innerWidth)*2-1;
-            this.mouse.y = -(e.clientY/innerHeight)*2+1;
+            this.mouse.x = (e.clientX / innerWidth) * 2 - 1;
+            this.mouse.y = -(e.clientY / innerHeight) * 2 + 1;
             this.raycaster.setFromCamera(this.mouse, this.camera);
             const hits = this.raycaster.intersectObjects(this.allMeshes);
             if (hits.length > 0) {
@@ -999,8 +1029,8 @@ class Universe {
         }
         if (this.currentView !== 'global') return;
 
-        this.mouse.x = (e.clientX/innerWidth)*2-1;
-        this.mouse.y = -(e.clientY/innerHeight)*2+1;
+        this.mouse.x = (e.clientX / innerWidth) * 2 - 1;
+        this.mouse.y = -(e.clientY / innerHeight) * 2 + 1;
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const hits = this.raycaster.intersectObjects(this.allMeshes);
 
@@ -1015,8 +1045,8 @@ class Universe {
                 planet.hover();
                 this.hoveredPlanet = planet;
                 this.tooltip.textContent = planet.label;
-                this.tooltip.style.left = (e.clientX+16)+'px';
-                this.tooltip.style.top = (e.clientY-12)+'px';
+                this.tooltip.style.left = (e.clientX + 16) + 'px';
+                this.tooltip.style.top = (e.clientY - 12) + 'px';
                 this.tooltip.classList.add('visible');
             }
         } else {
@@ -1063,33 +1093,33 @@ class Universe {
                 const u = pm.userData;
                 const r = u.orbitRadius;
                 const theta = u.orbitOffset + this.animTime * u.orbitSpeed;
-                const phi = (u.orbitTilt + Math.PI/2) + Math.sin(this.animTime*0.3 + u.orbitOffset)*0.3;
-                pm.position.x = Math.sin(phi)*Math.cos(theta)*r;
-                pm.position.y = Math.cos(phi)*r;
-                pm.position.z = Math.sin(phi)*Math.sin(theta)*r;
+                const phi = (u.orbitTilt + Math.PI / 2) + Math.sin(this.animTime * 0.3 + u.orbitOffset) * 0.3;
+                pm.position.x = Math.sin(phi) * Math.cos(theta) * r;
+                pm.position.y = Math.cos(phi) * r;
+                pm.position.z = Math.sin(phi) * Math.sin(theta) * r;
             });
-            const pulse = 0.92 + Math.sin(this.animTime*1.5)*0.05;
+            const pulse = 0.92 + Math.sin(this.animTime * 1.5) * 0.05;
             catObj.nucleus.material.opacity = pulse;
             const nucleusPlanet = this.getPlanetByMesh(catObj.nucleus);
             if (nucleusPlanet && !nucleusPlanet.isActive && nucleusPlanet !== this.hoveredPlanet) {
-                catObj.nucleus.material.emissiveIntensity = CFG.nucleus.emissiveIntensity - 0.1 + Math.sin(this.animTime*2)*0.15;
+                catObj.nucleus.material.emissiveIntensity = CFG.nucleus.emissiveIntensity - 0.1 + Math.sin(this.animTime * 2) * 0.15;
             }
         });
 
         if (this.sunMesh) {
             const sunP = this.sunPlanet;
             if (sunP && !sunP.isActive && sunP !== this.hoveredPlanet) {
-                this.sunMesh.material.emissiveIntensity = 0.8 + Math.sin(this.animTime*1.2)*0.3;
+                this.sunMesh.material.emissiveIntensity = 0.8 + Math.sin(this.animTime * 1.2) * 0.3;
             }
-            this.sunMesh.material.opacity = 0.9 + Math.sin(this.animTime*1.8)*0.05;
+            this.sunMesh.material.opacity = 0.9 + Math.sin(this.animTime * 1.8) * 0.05;
         }
 
         // Twinkling stars
         if (this.starPoints && this.starBaseSizes) {
             const sizeAttr = this.starPoints.geometry.getAttribute('size');
             for (let i = 0; i < this.starBaseSizes.length; i++) {
-                const twinkle = Math.sin(this.animTime*this.starTwinkleSpeeds[i] + this.starTwinklePhases[i]);
-                sizeAttr.array[i] = this.starBaseSizes[i]*(0.3+0.7*(twinkle*0.5+0.5));
+                const twinkle = Math.sin(this.animTime * this.starTwinkleSpeeds[i] + this.starTwinklePhases[i]);
+                sizeAttr.array[i] = this.starBaseSizes[i] * (0.3 + 0.7 * (twinkle * 0.5 + 0.5));
             }
             sizeAttr.needsUpdate = true;
         }
@@ -1100,8 +1130,10 @@ class Universe {
         // Particles
         this.particles.update(dt, this.camera.position);
 
-        // Update energy field animation on active planet
-        if (this.activePlanet) {
+        // Update energy field animation on active planet (or objective planet in game mode)
+        if (this.game && this.game.state === 'exploration') {
+            this.game.updateObjectiveEnergyFieldAnim(this.animTime);
+        } else if (this.activePlanet) {
             this.activePlanet.updateEnergyField(this.animTime);
         }
 
@@ -1123,10 +1155,10 @@ class Universe {
                 const speedEl = document.getElementById('ship-speed-value');
                 if (speedEl) speedEl.textContent = Math.round(shipData.speed);
                 const throttleFill = document.getElementById('ship-throttle-fill');
-                if (throttleFill) throttleFill.style.width = (Math.abs(shipData.throttle)*100)+'%';
+                if (throttleFill) throttleFill.style.width = (Math.abs(shipData.throttle) * 100) + '%';
                 const fireEl = document.getElementById('engine-fire');
-                if (fireEl) { fireEl.style.height = (Math.max(0, shipData.throttle)*80)+'px'; fireEl.style.opacity = shipData.throttle > 0.05 ? '1' : '0'; }
-                this.updateShipRaycast();
+                if (fireEl) { fireEl.style.height = (Math.max(0, shipData.throttle) * 80) + 'px'; fireEl.style.opacity = shipData.throttle > 0.05 ? '1' : '0'; }
+                this.updateShipRaycast(dt);
             }
         } else if (this.currentView === 'camera') {
             if (this._orbitalWarping && this.cam.warping) {
@@ -1143,7 +1175,7 @@ class Universe {
                 const dist = radius * 6;
                 const dir = new THREE.Vector3().subVectors(this.camera.position, wp).normalize();
                 this.cam.targetPos.copy(wp).add(dir.multiplyScalar(dist));
-                this.cam.targetPos.y = Math.max(this.cam.targetPos.y, wp.y + dist*0.2);
+                this.cam.targetPos.y = Math.max(this.cam.targetPos.y, wp.y + dist * 0.2);
                 this.cam.isTransitioning = true;
             }
             this.cam.updateTransition(this.activePlanet);

@@ -2008,6 +2008,395 @@ header.nube-header .menu-toggle:hover {
     50% { opacity: 0.8; }
 }
 
+/* ── Objective Panel (right side, game mode) ── */
+#game-objective-panel {
+    position: fixed;
+    top: 120px;
+    right: 24px;
+    z-index: 35;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    background: linear-gradient(135deg, rgba(0, 15, 30, 0.88), rgba(0, 8, 18, 0.92));
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 255, 204, 0.15);
+    border-right: 3px solid rgba(0, 255, 204, 0.5);
+    border-radius: 4px 0 0 4px;
+    padding: 14px 22px;
+    min-width: 200px;
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.06);
+    clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 calc(100% - 12px), 0 0);
+}
+
+#game-objective-panel.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+#game-objective-panel .game-objective-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: rgba(0, 255, 204, 0.6);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
+}
+
+#game-objective-panel .game-objective-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: rgba(0, 255, 204, 0.95);
+    text-shadow: 0 0 20px rgba(0, 255, 204, 0.5), 0 0 40px rgba(0, 255, 204, 0.15);
+    letter-spacing: 1.5px;
+    line-height: 1.3;
+}
+
+#game-objective-panel .game-objective-category {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: rgba(120, 180, 255, 0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+#game-objective-panel .game-objective-distance {
+    font-family: 'Outfit', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 215, 0, 0.8);
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
+    margin-top: 6px;
+    letter-spacing: 1px;
+}
+
+/* ── Briefing Screen ─────────────────────────── */
+#game-briefing {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 50% 40%, rgba(0, 20, 40, 0.97) 0%, rgba(0, 0, 0, 0.99) 70%);
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+#game-briefing.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.briefing-content {
+    text-align: center;
+    max-width: 550px;
+    width: 90%;
+}
+
+.briefing-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: rgba(0, 255, 200, 0.95);
+    text-shadow: 0 0 30px rgba(0, 255, 200, 0.6), 0 0 60px rgba(0, 255, 200, 0.2);
+    letter-spacing: 8px;
+    margin-bottom: 36px;
+}
+
+.briefing-instructions {
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.briefing-step {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    padding: 10px 16px;
+    margin-bottom: 8px;
+    background: rgba(0, 255, 200, 0.04);
+    border-left: 2px solid rgba(0, 255, 200, 0.3);
+    border-radius: 0 4px 4px 0;
+}
+
+.briefing-icon {
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+.briefing-countdown {
+    font-family: 'Outfit', monospace;
+    font-size: 5rem;
+    font-weight: 700;
+    color: rgba(0, 255, 204, 0.95);
+    text-shadow: 0 0 40px rgba(0, 255, 204, 0.7), 0 0 80px rgba(0, 255, 204, 0.3);
+    animation: countdown-pulse 1s ease-in-out infinite;
+}
+
+@keyframes countdown-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* ── Target Marker (2D overlay on objective planet) ── */
+#game-target-marker {
+    position: fixed;
+    z-index: 36;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    text-align: center;
+    transform: translate(-50%, -50%);
+}
+
+#game-target-marker.visible {
+    opacity: 1;
+}
+
+.target-marker-diamond {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(0, 255, 204, 0.9);
+    transform: rotate(45deg);
+    margin: 0 auto 6px;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.5), inset 0 0 6px rgba(0, 255, 204, 0.2);
+    animation: marker-pulse 2s ease-in-out infinite;
+}
+
+@keyframes marker-pulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.5), inset 0 0 6px rgba(0, 255, 204, 0.2); }
+    50% { box-shadow: 0 0 20px rgba(0, 255, 204, 0.8), inset 0 0 10px rgba(0, 255, 204, 0.4); }
+}
+
+.target-marker-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: rgba(0, 255, 204, 0.9);
+    text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.target-marker-distance {
+    font-family: 'Outfit', monospace;
+    font-size: 0.6rem;
+    color: rgba(255, 215, 0, 0.8);
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    margin-top: 2px;
+}
+
+/* ── Wrong Planet Feedback ────────────────────── */
+#game-wrong-planet {
+    position: fixed;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 38;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 180, 50, 0.95);
+    text-shadow: 0 0 10px rgba(255, 180, 50, 0.5);
+    letter-spacing: 1px;
+    background: rgba(40, 20, 0, 0.7);
+    border: 1px solid rgba(255, 180, 50, 0.3);
+    border-radius: 6px;
+    padding: 8px 18px;
+    white-space: nowrap;
+}
+
+#game-wrong-planet.visible {
+    opacity: 1;
+}
+
+/* ── Game Info Panel (left side, planet info during game) ── */
+#game-info-panel {
+    position: fixed;
+    top: 120px;
+    left: 24px;
+    width: 400px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    pointer-events: auto;
+    background: linear-gradient(160deg, rgba(4, 16, 36, 0.95), rgba(2, 8, 20, 0.97));
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    border-right: 3px solid rgba(0, 255, 255, 0.3);
+    border-radius: 6px;
+    padding: 0;
+    opacity: 0;
+    transform: scaleY(0.01) scaleX(0.6);
+    transform-origin: top left;
+    transition: opacity 0.15s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 25;
+    box-shadow:
+        0 0 30px rgba(0, 255, 255, 0.06),
+        inset 0 0 40px rgba(0, 255, 255, 0.02);
+}
+
+#game-info-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(0, 255, 255, 0.6), rgba(0, 255, 255, 0.2), transparent);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.25);
+}
+
+#game-info-panel.visible {
+    opacity: 1;
+    transform: scaleY(1) scaleX(1);
+}
+
+#game-info-panel .panel-inner {
+    padding: 28px 28px 24px;
+    position: relative;
+}
+
+#game-info-panel h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #00ffff;
+    text-shadow: 0 0 18px rgba(0, 255, 255, 0.4);
+    letter-spacing: 1.5px;
+    line-height: 1.3;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+    padding-bottom: 12px;
+}
+
+#game-info-panel p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: rgba(220, 230, 245, 0.85);
+    margin-bottom: 10px;
+}
+
+#game-info-panel a {
+    color: #6cb4ff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    display: inline-block;
+    background: rgba(108, 180, 255, 0.06);
+    border: 1px solid rgba(108, 180, 255, 0.15);
+    border-radius: 4px;
+    word-break: break-all;
+}
+
+#game-info-panel .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: rgba(0, 10, 20, 0.9);
+    border: 1px solid rgba(0, 255, 255, 0.25);
+    color: rgba(0, 255, 255, 0.7);
+    font-size: 1rem;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.25s ease;
+    z-index: 2;
+}
+
+#game-info-panel .close-btn:hover {
+    color: #00ffff;
+    border-color: rgba(0, 255, 255, 0.6);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+#game-info-panel .panel-scanline {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, rgba(0, 255, 255, 0.5), rgba(0, 255, 255, 0.1), rgba(0, 255, 255, 0.4));
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+    pointer-events: none;
+}
+
+#game-info-panel::-webkit-scrollbar {
+    width: 5px;
+}
+
+#game-info-panel::-webkit-scrollbar-track {
+    background: rgba(0, 10, 20, 0.3);
+}
+
+#game-info-panel::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+/* ── Collection Bar (hold crosshair on objective) ── */
+#game-collect-bar {
+    position: fixed;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 38;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    width: 260px;
+}
+
+#game-collect-bar.visible {
+    opacity: 1;
+}
+
+#game-collect-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(0, 255, 204, 0.9);
+    text-shadow: 0 0 12px rgba(0, 255, 204, 0.6);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.game-collect-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+#game-collect-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(0, 255, 204, 0.6), rgba(0, 255, 204, 1));
+    border-radius: 3px;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+}
+
 /* ── Game Score Display ────────────────────── */
 #game-score-display {
     font-family: 'Outfit', monospace;

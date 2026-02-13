@@ -115,7 +115,7 @@ export const CONFIG = {
         navDistMultiplier: 350,
         navOffsetX:        0.6,
         navOffsetY:        0.35,
-        navOffsetZ:        0.7,
+        navOffsetZ:        10.7,
     },
 
     // ── Camera Follow (CAMARA mode) ──────────────────────────
@@ -154,8 +154,8 @@ export const CONFIG = {
         offsetRotZ:        0,
         // Model position offset relative to camera (for "ship in front" view)
         modelOffsetX:      0,
-        modelOffsetY:      -1.5,
-        modelOffsetZ:      -8.0,
+        modelOffsetY:      -5,
+        modelOffsetZ:      -10,
         modelScale:        0.4,
     },
 
@@ -166,6 +166,8 @@ export const CONFIG = {
         pointsPerCorrect:   200,    // points per correct quiz answer
         pointsPerWrong:     -50,    // points per wrong quiz answer
         evalTimePerQuestion: 30,    // seconds allowed per evaluation question
+        collectTime:        2.0,    // seconds to hold crosshair on objective planet to collect
+        forceEndKey:        'b',    // key to force-end exploration (go to evaluation)
     },
 
     // ── Selection Visual ─────────────────────────────────────
