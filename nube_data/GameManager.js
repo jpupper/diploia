@@ -123,6 +123,13 @@ export class GameManager {
         this.dom.gameInfoContent = document.getElementById('game-info-content');
         this.dom.gameInfoClose = document.getElementById('game-info-close');
 
+        // Discovery modal (full-screen planet info)
+        this.dom.discoveryModal = document.getElementById('planet-discovery-modal');
+        this.dom.discoveryModalTitle = document.getElementById('discovery-modal-title');
+        this.dom.discoveryModalBody = document.getElementById('discovery-modal-body');
+        this.dom.discoveryModalLink = document.getElementById('discovery-modal-link');
+        this.dom.discoveryModalClose = document.getElementById('discovery-modal-close');
+
         // Collection bar
         this.dom.collectBar = document.getElementById('game-collect-bar');
         this.dom.collectFill = document.getElementById('game-collect-fill');
@@ -152,6 +159,9 @@ export class GameManager {
         }
         if (this.dom.gameInfoClose) {
             this.dom.gameInfoClose.addEventListener('click', () => this.hideGameInfoPanel());
+        }
+        if (this.dom.discoveryModalClose) {
+            this.dom.discoveryModalClose.addEventListener('click', () => this.hideDiscoveryModal());
         }
     }
 
@@ -232,6 +242,10 @@ export class GameManager {
 
         // Close the game info panel if open from previous game
         this.hideGameInfoPanel();
+
+        // Hide discovery modal if open
+        if (this.dom.discoveryModal) this.dom.discoveryModal.classList.remove('visible');
+        this._discoveryModalTimerPaused = false;
 
         // Switch to ship mode for flying
         this.universe.setViewMode('ship');
@@ -506,6 +520,8 @@ export class GameManager {
         const isRoute = this.nextWaypoint && planet.node.id === this.nextWaypoint.id;
         this.registerVisit(planet, isRoute);
         this.showGameInfoPanel(planet.node);
+        // Show the full-screen discovery modal ONLY when formally reaching a planet
+        this.showDiscoveryModal(planet.node);
         this.pickNextWaypoint();
     }
 
@@ -619,6 +635,10 @@ export class GameManager {
         if (this.dom.objectivePanel) this.dom.objectivePanel.classList.remove('visible');
         if (this.dom.gameInfoPanel) this.dom.gameInfoPanel.classList.remove('visible');
 
+        // Hide discovery modal if open
+        if (this.dom.discoveryModal) this.dom.discoveryModal.classList.remove('visible');
+        this._discoveryModalTimerPaused = false;
+
         // Show time-up animation overlay
         this.showTimeUpAnimation(() => {
             this.state = 'evaluation';
@@ -688,6 +708,7 @@ export class GameManager {
         if (hoverTooltip) hoverTooltip.classList.remove('visible');
         if (this.dom.objectivePanel) this.dom.objectivePanel.classList.remove('visible');
         if (this.dom.gameInfoPanel) this.dom.gameInfoPanel.classList.remove('visible');
+        if (this.dom.discoveryModal) this.dom.discoveryModal.classList.remove('visible');
         if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
     }
 
@@ -984,6 +1005,75 @@ export class GameManager {
 
     hideGameInfoPanel() {
         if (this.dom.gameInfoPanel) this.dom.gameInfoPanel.classList.remove('visible');
+    }
+
+    // ── Discovery Modal (full-screen forced reading) ──
+    showDiscoveryModal(node) {
+        if (!this.dom.discoveryModal) return;
+        // Set title
+        if (this.dom.discoveryModalTitle) {
+            this.dom.discoveryModalTitle.textContent = node.label || node.id;
+        }
+        // Set body content (clean text, preserving HTML formatting)
+        if (this.dom.discoveryModalBody) {
+            let bodyHTML = '';
+            if (node.infoHTML) {
+                // Use infoHTML but strip the title h3 to avoid duplication
+                let cleaned = node.infoHTML.replace(/\\n/g, '\n');
+                cleaned = cleaned.replace(/<h3[^>]*>.*?<\/h3>/i, '');
+                bodyHTML = cleaned;
+            } else if (node.info) {
+                bodyHTML = `<p>${node.info}</p>`;
+            }
+            this.dom.discoveryModalBody.innerHTML = bodyHTML;
+        }
+        // Set link
+        if (this.dom.discoveryModalLink) {
+            if (node.url) {
+                this.dom.discoveryModalLink.href = node.url;
+                this.dom.discoveryModalLink.textContent = '🔗 ' + node.url;
+                this.dom.discoveryModalLink.style.display = 'inline-block';
+            } else {
+                this.dom.discoveryModalLink.style.display = 'none';
+            }
+        }
+        // Show modal
+        this.dom.discoveryModal.classList.add('visible');
+        // Set flag to pause ship movement
+        this._discoveryModalOpen = true;
+        // Exit pointer lock so user can see and use the cursor to click ENTENDIDO
+        if (document.pointerLockElement) {
+            document.exitPointerLock();
+        }
+        // Reset all keys to prevent residual ship movement
+        const keys = this.universe.keys;
+        if (keys) {
+            keys.w = false; keys.s = false; keys.a = false; keys.d = false;
+            keys.q = false; keys.e = false; keys.shift = false; keys.space = false;
+        }
+        // Pause the game timer while reading
+        this._discoveryModalTimerPaused = true;
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    hideDiscoveryModal() {
+        if (!this.dom.discoveryModal) return;
+        this.dom.discoveryModal.classList.remove('visible');
+        // Clear pause flag
+        this._discoveryModalOpen = false;
+        // Re-request pointer lock for ship control
+        const canvas = this.universe.renderer?.domElement;
+        if (canvas && this.universe.isShipMode()) {
+            canvas.requestPointerLock();
+        }
+        // Resume the game timer
+        if (this._discoveryModalTimerPaused && this.state === 'exploration') {
+            this._discoveryModalTimerPaused = false;
+            this.startTimer();
+        }
     }
 
     // ── Collection System (hold crosshair on objective for N seconds) ──

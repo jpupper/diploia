@@ -790,10 +790,15 @@ class Universe {
 
     onKeyDown(e) {
         const k = e.key.toLowerCase();
+
+        // Block ALL input when discovery modal is open
+        if (this.game && this.game._discoveryModalOpen) return;
+
         if (k === 'w') this.keys.w = true; if (k === 's') this.keys.s = true;
         if (k === 'a') this.keys.a = true; if (k === 'd') this.keys.d = true;
         if (k === 'q') this.keys.q = true; if (k === 'e') this.keys.e = true;
         if (k === 'shift') this.keys.shift = true; if (k === ' ') this.keys.space = true;
+
 
         if (this.isShipMode()) {
             if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
@@ -839,7 +844,12 @@ class Universe {
     }
 
     onClick(e) {
-        if (this.isShipMode()) { this.renderer.domElement.requestPointerLock(); return; }
+        if (this.isShipMode()) {
+            // Don't request pointer lock if discovery modal is open
+            if (this.game && this.game._discoveryModalOpen) return;
+            this.renderer.domElement.requestPointerLock();
+            return;
+        }
 
         // Suppress click if it was a drag (mouse moved > 5px)
         const dx = e.clientX - this._mouseDownPos.x;
@@ -1139,6 +1149,8 @@ class Universe {
 
         // View-specific updates
         if (this.isShipMode()) {
+            // Pause ship controls when discovery modal is open
+            const modalOpen = this.game && this.game._discoveryModalOpen;
             // Respawn ship at center if too far away
             this.checkShipRespawn();
             if (this.cam.warping) {
@@ -1150,7 +1162,8 @@ class Universe {
                 if (throttleFill) throttleFill.style.width = '100%';
                 const fireEl = document.getElementById('engine-fire');
                 if (fireEl) { fireEl.style.height = '80px'; fireEl.style.opacity = '1'; }
-            } else {
+            } else if (!modalOpen) {
+                // Only update ship movement when modal is NOT open
                 const shipData = this.cam.updateShip(dt, this.keys);
                 const speedEl = document.getElementById('ship-speed-value');
                 if (speedEl) speedEl.textContent = Math.round(shipData.speed);

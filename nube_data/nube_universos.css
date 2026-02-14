@@ -1547,18 +1547,21 @@ header.nube-header .menu-toggle:hover {
 }
 
 .eval-option-btn {
-    padding: 12px 20px;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 255, 255, 0.2);
-    background: rgba(0, 20, 40, 0.4);
-    color: rgba(0, 255, 255, 0.8);
+    padding: 18px 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 255, 0.25);
+    background: rgba(0, 20, 40, 0.5);
+    color: rgba(0, 255, 255, 0.85);
     font-family: 'Outfit', sans-serif;
-    font-size: 0.9rem;
+    font-size: 1.15rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.25s ease;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     text-align: left;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
 }
 
 .eval-option-btn:hover:not(:disabled) {
@@ -2534,6 +2537,253 @@ header.nube-header .menu-toggle:hover {
 }
 
 #game-info-panel::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════════
+   PLANET DISCOVERY MODAL (full-screen info overlay)
+   ═══════════════════════════════════════════════ */
+#planet-discovery-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+#planet-discovery-modal.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.discovery-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 16, 0.93);
+    backdrop-filter: blur(30px);
+}
+
+.discovery-modal-content {
+    position: relative;
+    max-width: 720px;
+    width: 92%;
+    max-height: 85vh;
+    overflow-y: auto;
+    text-align: center;
+    padding: 48px 48px 40px;
+    background: linear-gradient(170deg, rgba(6, 20, 44, 0.9), rgba(2, 10, 26, 0.95));
+    border: 1px solid rgba(0, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow:
+        0 0 60px rgba(0, 255, 255, 0.08),
+        0 0 120px rgba(0, 255, 255, 0.03),
+        inset 0 0 60px rgba(0, 255, 255, 0.02),
+        0 30px 80px rgba(0, 0, 0, 0.5);
+    transform: scale(0.85) translateY(30px);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+    opacity: 0;
+}
+
+#planet-discovery-modal.visible .discovery-modal-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.discovery-modal-scanline-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.6), rgba(0, 255, 200, 0.4), transparent);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4), 0 0 30px rgba(0, 255, 255, 0.15);
+    border-radius: 16px 16px 0 0;
+}
+
+.discovery-modal-scanline-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), rgba(0, 255, 200, 0.2), transparent);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+    border-radius: 0 0 16px 16px;
+}
+
+.discovery-modal-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    animation: discovery-icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes discovery-icon-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.discovery-modal-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(0, 255, 200, 0.7);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.4);
+}
+
+.discovery-modal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #00ffff;
+    text-shadow: 0 0 30px rgba(0, 255, 255, 0.5), 0 0 60px rgba(0, 255, 255, 0.15);
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.discovery-modal-divider {
+    width: 100px;
+    height: 1px;
+    margin: 20px auto;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.4), transparent);
+}
+
+.discovery-modal-body {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.9;
+    color: rgba(220, 235, 255, 0.9);
+    text-align: left;
+    padding: 24px 28px;
+    background: rgba(0, 15, 35, 0.5);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    border-radius: 10px;
+    margin: 0 auto 8px;
+    max-width: 600px;
+    position: relative;
+}
+
+.discovery-modal-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, rgba(0, 255, 255, 0.6), rgba(0, 255, 200, 0.2), rgba(0, 255, 255, 0.4));
+    border-radius: 10px 0 0 10px;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.discovery-modal-body strong,
+.discovery-modal-body b {
+    color: #00ffc8;
+    font-weight: 700;
+}
+
+.discovery-modal-link {
+    display: inline-block;
+    margin: 8px auto 0;
+    padding: 10px 22px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6cb4ff;
+    background: rgba(108, 180, 255, 0.08);
+    border: 1px solid rgba(108, 180, 255, 0.2);
+    border-radius: 6px;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    word-break: break-all;
+}
+
+.discovery-modal-link:hover {
+    background: rgba(108, 180, 255, 0.15);
+    border-color: rgba(108, 180, 255, 0.5);
+    box-shadow: 0 0 15px rgba(108, 180, 255, 0.2);
+}
+
+.discovery-modal-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 16px 48px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 255, 200, 0.5);
+    background: rgba(0, 255, 200, 0.1);
+    color: rgba(0, 255, 200, 0.95);
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 12px rgba(0, 255, 200, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.discovery-modal-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 200, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.discovery-modal-btn:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: rgba(0, 255, 200, 0.8);
+    box-shadow: 0 0 30px rgba(0, 255, 200, 0.3), 0 0 60px rgba(0, 255, 200, 0.1), inset 0 0 20px rgba(0, 255, 200, 0.05);
+    transform: scale(1.03);
+    text-shadow: 0 0 20px rgba(0, 255, 200, 0.8);
+}
+
+.discovery-modal-btn:hover::before {
+    left: 100%;
+}
+
+.discovery-modal-btn:active {
+    transform: scale(0.97);
+}
+
+.discovery-modal-hint {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 2px;
+    margin-top: 14px;
+    text-transform: uppercase;
+}
+
+.discovery-modal-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.discovery-modal-content::-webkit-scrollbar-track {
+    background: rgba(0, 10, 20, 0.3);
+}
+
+.discovery-modal-content::-webkit-scrollbar-thumb {
     background: rgba(0, 255, 255, 0.15);
     border-radius: 3px;
 }
