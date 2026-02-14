@@ -875,10 +875,10 @@ function renderConfig() {
     }
 
     distList.innerHTML = `
-        <div class="list-item" style="font-weight:bold; background:rgba(255,255,255,0.05);">
-            <div style="flex:1">Categoría</div>
-            <div style="width:100px; text-align:center;">Dist. Raíz</div>
-            <div style="width:100px; text-align:center;">Dist. Nodos</div>
+        <div class="config-cat-row config-cat-header">
+            <div>Categoría</div>
+            <div style="text-align:center;">Dist. Raíz</div>
+            <div style="text-align:center;">Dist. Nodos</div>
         </div>
     ` + categories.map(catId => {
         const label = nodes[catId]?.label || catId;
@@ -886,16 +886,16 @@ function renderConfig() {
         const subDist = config.categoryDistances?.[catId] || 250;
 
         return `
-        <div class="list-item" style="gap:15px; padding:12px;">
-            <div style="flex:1">
-                <strong>${label}</strong><br>
-                <small style="color:var(--text-muted)">${catId}</small>
+        <div class="config-cat-row">
+            <div class="config-cat-info">
+                <span class="config-cat-label">${label}</span>
+                <span class="config-cat-id">${catId}</span>
             </div>
-            <div style="width:100px">
-                <input type="number" class="config-cat-main" data-cat="${catId}" value="${mainDist}" style="padding:6px; text-align:center;">
+            <div>
+                <input type="number" class="config-cat-main config-input-small" data-cat="${catId}" value="${mainDist}">
             </div>
-            <div style="width:100px">
-                <input type="number" class="config-cat-sub" data-cat="${catId}" value="${subDist}" style="padding:6px; text-align:center;">
+            <div>
+                <input type="number" class="config-cat-sub config-input-small" data-cat="${catId}" value="${subDist}">
             </div>
         </div>
         `;

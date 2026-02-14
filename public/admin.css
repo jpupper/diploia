@@ -607,6 +607,7 @@ body {
 
 input[type="text"],
 input[type="url"],
+input[type="number"],
 textarea,
 .select-input {
     width: 100%;
@@ -622,6 +623,7 @@ textarea,
 
 input[type="text"]:focus,
 input[type="url"]:focus,
+input[type="number"]:focus,
 textarea:focus,
 .select-input:focus {
     outline: none;
@@ -1149,6 +1151,7 @@ textarea {
 
     input[type="text"],
     input[type="url"],
+    input[type="number"],
     textarea,
     .select-input {
         padding: 14px !important;
@@ -1160,6 +1163,74 @@ textarea {
         grid-template-columns: 35px 1fr 60px 70px;
         gap: 10px;
     }
+
+    /* Config specific fixes */
+    .config-cat-row {
+        grid-template-columns: 1fr 80px 80px !important;
+        padding: 12px 8px !important;
+        font-size: 12px;
+    }
+
+    .config-cat-row strong {
+        font-size: 13px;
+    }
+
+    .config-cat-row input {
+        padding: 8px 4px !important;
+        font-size: 13px !important;
+    }
+}
+
+/* ═══════ CONFIG STYLES ═══════ */
+.config-cat-row {
+    display: grid;
+    grid-template-columns: 1fr 120px 120px;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.config-cat-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.config-cat-header {
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.config-cat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.config-cat-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.config-cat-id {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.config-input-small {
+    text-align: center;
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+    /* Make spin buttons visible for easier clicking on desktop */
 }
 
 @media (max-width: 600px) {
