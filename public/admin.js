@@ -50,9 +50,21 @@ function initNavigation() {
     });
 
     // Mobile menu toggle
-    document.getElementById('menu-toggle').addEventListener('click', () => {
-        document.getElementById('sidebar').classList.toggle('open');
-    });
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    if (menuToggle && sidebar && overlay) {
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+    }
 }
 
 function switchSection(sectionId) {
@@ -79,6 +91,7 @@ function switchSection(sectionId) {
 
     // Close mobile sidebar
     document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -315,9 +328,11 @@ function renderRanking() {
           <div class="list-item-title">${r.playerName}</div>
           <div class="list-item-sub">${new Date(r.date).toLocaleDateString('es-AR')}</div>
         </div>
-        <div style="font-weight:700;font-size:18px;color:var(--accent-primary)">${r.score}</div>
-        <div class="list-item-sub">✓${r.correctAnswers || 0} ✗${r.wrongAnswers || 0}</div>
-        <button class="btn-icon danger" onclick="deleteRanking('${r.id}')" title="Eliminar">🗑️</button>
+        <div class="ranking-score">${r.score}</div>
+        <div class="ranking-stats">✓${r.correctAnswers || 0} ✗${r.wrongAnswers || 0}</div>
+        <div class="list-item-actions">
+           <button class="btn-icon danger" onclick="deleteRanking('${r.id}')" title="Eliminar">🗑️</button>
+        </div>
       </div>
     `;
     }).join('') || '<p style="color:var(--text-muted);padding:16px;">No hay rankings todavía.</p>';
