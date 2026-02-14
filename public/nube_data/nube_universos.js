@@ -1087,6 +1087,12 @@ class Universe {
                         setTimeout(() => this.game.startGame(), 600);
                     });
                 }
+                const rankingBtn = document.getElementById('splash-ranking');
+                if (rankingBtn) {
+                    rankingBtn.addEventListener('click', () => {
+                        this.game.showRankingScreen();
+                    });
+                }
             }
         }, 600);
     }

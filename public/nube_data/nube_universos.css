@@ -3319,3 +3319,69 @@ header.nube-header .menu-toggle:hover {
         background: radial-gradient(circle at center, var(--flash-color, rgba(0, 255, 200, 0.1)) 0%, transparent 70%);
     }
 }
+
+/* ── Ranking Premium Styles ────────────────────── */
+.ranking-row.pos-gold {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent) !important;
+    border-left: 3px solid #ffd700 !important;
+    position: relative;
+}
+
+.ranking-row.pos-gold .ranking-pos {
+    color: #ffd700;
+    font-size: 1.4rem;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    animation: ranking-medal-pulse 2s infinite alternate;
+}
+
+.ranking-row.pos-gold .ranking-name {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.ranking-row.pos-silver {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.08), transparent) !important;
+    border-left: 3px solid #c0c0c0 !important;
+}
+
+.ranking-row.pos-silver .ranking-pos {
+    color: #c0c0c0;
+    font-size: 1.25rem;
+    text-shadow: 0 0 12px rgba(192, 192, 192, 0.5);
+}
+
+.ranking-row.pos-bronze {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.06), transparent) !important;
+    border-left: 3px solid #cd7f32 !important;
+}
+
+.ranking-row.pos-bronze .ranking-pos {
+    color: #cd7f32;
+    font-size: 1.15rem;
+    text-shadow: 0 0 10px rgba(205, 127, 50, 0.4);
+}
+
+@keyframes ranking-medal-pulse {
+    from {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    to {
+        transform: scale(1.1);
+        filter: brightness(1.3);
+    }
+}
+
+.splash-btn-ranking {
+    border-color: rgba(255, 215, 0, 0.3) !important;
+    color: rgba(255, 215, 0, 0.7) !important;
+}
+
+.splash-btn-ranking:hover {
+    border-color: rgba(255, 215, 0, 0.7) !important;
+    background: rgba(255, 215, 0, 0.1) !important;
+    color: #ffd700 !important;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3) !important;
+}

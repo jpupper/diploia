@@ -73,7 +73,7 @@ export class Ranking {
         if (this.dom.rankingSubmit) this.dom.rankingSubmit.disabled = true;
 
         await this.saveToLeaderboard(name, this.finalScore, this.gameStats);
-        this.renderList();
+        await this.renderList();
     }
 
     async saveToLeaderboard(name, score, stats = {}) {
@@ -145,8 +145,9 @@ export class Ranking {
         let html = '';
         rankings.slice(0, 10).forEach((entry, i) => {
             const isMe = entry.playerName === this.playerName && entry.score === this.finalScore;
+            const posClass = i === 0 ? 'pos-gold' : i === 1 ? 'pos-silver' : i === 2 ? 'pos-bronze' : '';
             const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-            html += `<div class="ranking-row${isMe ? ' ranking-highlight' : ''}">`;
+            html += `<div class="ranking-row${isMe ? ' ranking-highlight' : ''} ${posClass}">`;
             html += `<span class="ranking-pos">${medal}</span>`;
             html += `<span class="ranking-name">${entry.playerName}</span>`;
             html += `<span class="ranking-score">${entry.score}</span>`;

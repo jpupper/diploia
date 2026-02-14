@@ -1000,20 +1000,20 @@ export class GameManager {
         this.renderInlineRankingList();
     }
 
-    submitInlineRanking() {
+    async submitInlineRanking() {
         const name = (this.dom.resultsRankingName?.value || '').trim();
         if (!name) return;
         this._inlineRankingPlayerName = name;
 
         // Pass complete stats to the server
-        this.ranking.saveToLeaderboard(name, this.finalScore, {
+        await this.ranking.saveToLeaderboard(name, this.finalScore, {
             correctAnswers: this.correctCount,
             wrongAnswers: this.wrongCount,
             totalQuestions: this.evalQuestions.length,
             gameTime: Math.round(CONFIG.game.gameTime - this.timeRemaining)
         });
 
-        this.renderInlineRankingList();
+        await this.renderInlineRankingList();
         if (this.dom.resultsRankingName) this.dom.resultsRankingName.disabled = true;
         if (this.dom.resultsRankingSubmit) this.dom.resultsRankingSubmit.disabled = true;
     }
@@ -1034,8 +1034,9 @@ export class GameManager {
         let html = '';
         rankings.slice(0, 10).forEach((entry, i) => {
             const isMe = entry.playerName === this._inlineRankingPlayerName && entry.score === this.finalScore;
+            const posClass = i === 0 ? 'pos-gold' : i === 1 ? 'pos-silver' : i === 2 ? 'pos-bronze' : '';
             const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-            html += `<div class="ranking-row${isMe ? ' ranking-highlight' : ''}">`;
+            html += `<div class="ranking-row${isMe ? ' ranking-highlight' : ''} ${posClass}">`;
             html += `<span class="ranking-pos">${medal}</span>`;
             html += `<span class="ranking-name">${entry.playerName}</span>`;
             html += `<span class="ranking-score">${entry.score}</span>`;
