@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiploIA - Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">◆</span>
+                    <span class="logo-text">DiploIA</span>
+                </div>
+                <span class="logo-sub">Admin Panel</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard" id="nav-dashboard">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-section="categories" id="nav-categories">
+                    <span class="nav-icon">📁</span> Categorías
+                </a>
+                <a href="#" class="nav-item" data-section="nodes" id="nav-nodes">
+                    <span class="nav-icon">🔵</span> Nodos
+                </a>
+                <a href="#" class="nav-item" data-section="connections" id="nav-connections">
+                    <span class="nav-icon">🔗</span> Conexiones
+                </a>
+                <a href="#" class="nav-item" data-section="ranking" id="nav-ranking">
+                    <span class="nav-icon">🏆</span> Ranking
+                </a>
+                <a href="#" class="nav-item" data-section="import-export" id="nav-import-export">
+                    <span class="nav-icon">📦</span> Importar / Exportar
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">🌐</span> Ver Sitio
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <button class="menu-toggle" id="menu-toggle">☰</button>
+                <h2 class="topbar-title" id="topbar-title">Dashboard</h2>
+                <div class="topbar-actions">
+                    <span class="status-badge" id="status-badge">● Conectado</span>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- ═══════ DASHBOARD ═══════ -->
+                <section class="section active" id="section-dashboard">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🔵</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-total-nodes">0</span>
+                                <span class="stat-label">Nodos Totales</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📁</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-categories">0</span>
+                                <span class="stat-label">Categorías</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🔗</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-connections">0</span>
+                                <span class="stat-label">Conexiones</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🏆</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-rankings">0</span>
+                                <span class="stat-label">Rankings</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Últimos Nodos</h3>
+                        <div id="recent-nodes-list" class="items-list"></div>
+                    </div>
+                </section>
+
+                <!-- ═══════ CATEGORIES ═══════ -->
+                <section class="section" id="section-categories">
+                    <div class="section-header">
+                        <h3>Categorías</h3>
+                        <button class="btn btn-primary" id="btn-add-category">+ Nueva Categoría</button>
+                    </div>
+                    <div id="categories-list" class="items-grid"></div>
+
+                    <!-- Add Category Modal -->
+                    <div class="modal-overlay" id="modal-add-category">
+                        <div class="modal">
+                            <div class="modal-header">
+                                <h3>Nueva Categoría</h3>
+                                <button class="modal-close" data-close="modal-add-category">✕</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>ID (slug, sin espacios)</label>
+                                    <input type="text" id="cat-id" placeholder="ej: mi-categoria">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nombre</label>
+                                    <input type="text" id="cat-label" placeholder="ej: Mi Categoría">
+                                </div>
+                                <div class="form-group">
+                                    <label>Descripción</label>
+                                    <textarea id="cat-info" rows="3"
+                                        placeholder="Descripción de la categoría..."></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-ghost" data-close="modal-add-category">Cancelar</button>
+                                <button class="btn btn-primary" id="btn-save-category">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════ NODES ═══════ -->
+                <section class="section" id="section-nodes">
+                    <div class="section-header">
+                        <h3>Nodos</h3>
+                        <div class="section-actions">
+                            <select id="filter-category" class="select-input">
+                                <option value="">Todas las categorías</option>
+                            </select>
+                            <input type="text" id="search-nodes" class="search-input" placeholder="Buscar nodo...">
+                            <button class="btn btn-primary" id="btn-add-node">+ Nuevo Nodo</button>
+                        </div>
+                    </div>
+                    <div id="nodes-list" class="items-list"></div>
+
+                    <!-- Add/Edit Node Modal -->
+                    <div class="modal-overlay" id="modal-node">
+                        <div class="modal modal-large">
+                            <div class="modal-header">
+                                <h3 id="modal-node-title">Nuevo Nodo</h3>
+                                <button class="modal-close" data-close="modal-node">✕</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>ID (slug)</label>
+                                        <input type="text" id="node-id" placeholder="ej: mi-herramienta">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Nombre</label>
+                                        <input type="text" id="node-label" placeholder="ej: Mi Herramienta">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Tipo</label>
+                                        <select id="node-type" class="select-input">
+                                            <option value="tool">Herramienta (nodo normal)</option>
+                                            <option value="category">Categoría</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Categoría Padre</label>
+                                        <select id="node-parent" class="select-input">
+                                            <option value="">Sin categoría padre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>URL</label>
+                                    <input type="text" id="node-url" placeholder="https://ejemplo.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Descripción (texto plano)</label>
+                                    <textarea id="node-info" rows="3" placeholder="Descripción breve..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Info HTML (para mostrar en popups)</label>
+                                    <textarea id="node-infohtml" rows="5"
+                                        placeholder="<h3>Título</h3><p>Descripción...</p>"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Conexiones Secundarias</label>
+                                    <div class="secondary-conn-picker" id="secondary-conn-picker">
+                                        <div class="conn-tags" id="conn-tags"></div>
+                                        <div class="conn-search-wrap">
+                                            <input type="text" id="conn-search-input" class="search-input"
+                                                placeholder="Buscar nodo por nombre o ID..." autocomplete="off">
+                                            <div class="conn-search-results" id="conn-search-results"></div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="node-secondary">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-ghost" data-close="modal-node">Cancelar</button>
+                                <button class="btn btn-primary" id="btn-save-node">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════ CONNECTIONS ═══════ -->
+                <section class="section" id="section-connections">
+                    <div class="section-header">
+                        <h3>Conexiones</h3>
+                        <button class="btn btn-primary" id="btn-add-connection">+ Nueva Conexión</button>
+                    </div>
+                    <div class="card">
+                        <p class="hint-text">Aquí se muestran todas las conexiones secundarias entre nodos. Las
+                            conexiones primarias (categoría → hijo) se gestionan automáticamente.</p>
+                    </div>
+                    <div id="connections-list" class="items-list"></div>
+
+                    <!-- Add Connection Modal -->
+                    <div class="modal-overlay" id="modal-connection">
+                        <div class="modal">
+                            <div class="modal-header">
+                                <h3>Nueva Conexión</h3>
+                                <button class="modal-close" data-close="modal-connection">✕</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>Nodo Origen</label>
+                                    <input type="text" id="conn-source-search" class="search-input"
+                                        placeholder="Filtrar nodos..." autocomplete="off" style="margin-bottom:6px;">
+                                    <select id="conn-source" class="select-input" size="6"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nodo Destino</label>
+                                    <input type="text" id="conn-target-search" class="search-input"
+                                        placeholder="Filtrar nodos..." autocomplete="off" style="margin-bottom:6px;">
+                                    <select id="conn-target" class="select-input" size="6"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tipo</label>
+                                    <select id="conn-type" class="select-input">
+                                        <option value="secondary">Secundaria</option>
+                                        <option value="primary">Primaria</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-ghost" data-close="modal-connection">Cancelar</button>
+                                <button class="btn btn-primary" id="btn-save-connection">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════ RANKING ═══════ -->
+                <section class="section" id="section-ranking">
+                    <div class="section-header">
+                        <h3>Ranking de Jugadores</h3>
+                    </div>
+                    <div id="ranking-list" class="items-list"></div>
+                </section>
+
+                <!-- ═══════ IMPORT / EXPORT ═══════ -->
+                <section class="section" id="section-import-export">
+                    <div class="section-header">
+                        <h3>Importar / Exportar Datos</h3>
+                    </div>
+                    <div class="cards-row">
+                        <div class="card">
+                            <h4>📥 Importar desde JSON existente</h4>
+                            <p>Carga el archivo <code>mapa_herramientas_data.json</code> que ya tiene todos los nodos.
+                            </p>
+                            <input type="file" id="import-file" accept=".json" class="file-input">
+                            <button class="btn btn-primary" id="btn-import" style="margin-top:12px;">Importar
+                                Archivo</button>
+                            <div id="import-status" class="status-message"></div>
+                        </div>
+                        <div class="card">
+                            <h4>📥 Importar desde mapa_data.js (legacy)</h4>
+                            <p>Importa automáticamente los datos del archivo JS existente que ya está en el servidor.
+                            </p>
+                            <button class="btn btn-accent" id="btn-import-legacy">Importar datos legacy</button>
+                            <div id="import-legacy-status" class="status-message"></div>
+                        </div>
+                        <div class="card">
+                            <h4>📤 Exportar Datos</h4>
+                            <p>Descarga toda la base de datos de nodos como archivo JSON.</p>
+                            <button class="btn btn-primary" id="btn-export">Descargar JSON</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="admin.js"></script>
+</body>
+
+</html>

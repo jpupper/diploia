@@ -800,80 +800,413 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'border-width': '5px'
                 });
 
-                // Centrar cámara en el hijo
-                focusOnNode(childNode, 180);
+                // Centrar cámara en ESTE nodo hijo
+                focusOnNode(childNode, 250);
 
-                await animDelay(CONFIG.animTransitionSpeed + 200);
+                await animDelay(CONFIG.animTransitionSpeed + 100);
                 if (animCancelled) return;
 
                 // Mostrar info panel del hijo
                 showAnimInfo(childId);
 
-                // Esperar el tiempo configurado en el nodo
+                // Esperar el tiempo configurado por nodo
                 await animDelay(CONFIG.animNodeDelay);
                 if (animCancelled) return;
 
-                // Restaurar estilo del hijo
-                childNode.removeStyle('border-color border-width');
+                // Ocultar info y restaurar estilo
                 hideAnimInfo();
-                await animDelay(400);
+                childNode.removeStyle('border-color border-width');
+
+                await animDelay(300);
+                if (animCancelled) return;
             }
 
+            // --- FASE 4: Vista general de la categoría completa ---
+            var catCollection = cy.collection().merge(catNode);
+            children.forEach(function (cId) {
+                catCollection = catCollection.merge(cy.getElementById(cId));
+            });
+
+            cy.stop();
+            cy.animate({
+                fit: { eles: catCollection, padding: 80 },
+                duration: CONFIG.animTransitionSpeed,
+                easing: 'ease-in-out'
+            });
+
+            await animDelay(CONFIG.animTransitionSpeed + 500);
+            if (animCancelled) return;
+
+            // (hideCategoryLabel removido)
+            await animDelay(500);
             if (animCancelled) return;
         }
 
-        // Fin: volver al root
-        focusOnNode(cy.getElementById('root'), 150);
-        showAnimInfo('root');
-        await animDelay(CONFIG.animCategoryDelay);
+        // Final: Mostrar todo el mapa
+        // (hideCategoryLabel removido)
         hideAnimInfo();
+        cy.stop();
+        cy.animate({
+            fit: { eles: cy.elements(), padding: 50 },
+            duration: 1200,
+            easing: 'ease-in-out'
+        });
 
+        await animDelay(1500);
         stopAnimation();
     }
 
     function stopAnimation() {
-        animRunning = false;
         animCancelled = true;
-        animTimeouts.forEach(clearTimeout);
+        animRunning = false;
+
+        // Limpiar timeouts pendientes
+        animTimeouts.forEach(function (t) { clearTimeout(t); });
         animTimeouts = [];
 
+        // Restaurar UI
         playBtn.style.display = 'inline-block';
         stopBtn.style.display = 'none';
         stopBtn.classList.remove('active');
+        hideCategoryLabel();
+        hideAnimInfo();
         updateFullscreenAnimButtons(false);
 
-        // Restaurar opacidades y estilos
+        // Restaurar visibilidad de todos los nodos y edges
         cy.nodes().style('opacity', 1);
         cy.edges().style('opacity', 1);
         cy.nodes().removeStyle('border-color border-width');
-        hideAnimInfo();
-        hideCategoryLabel();
+        cy.elements().removeClass('highlighted faded');
 
-        // Fit original
-        cy.fit(null, 50);
+        // Fit todo
+        cy.stop();
+        cy.animate({
+            fit: { eles: cy.elements(), padding: 50 },
+            duration: 800,
+            easing: 'ease-in-out'
+        });
     }
 
-    if (playBtn) playBtn.addEventListener('click', runAnimation);
-    if (stopBtn) stopBtn.addEventListener('click', stopAnimation);
+    playBtn.addEventListener('click', function () {
+        if (!animRunning) {
+            runAnimation();
+        }
+    });
 
-    // Función para botones de animación en modo fullscreen
-    function updateFullscreenAnimButtons(running) {
-        var fsPlay = document.getElementById('fs-anim-play');
-        var fsStop = document.getElementById('fs-anim-stop');
-        if (fsPlay && fsStop) {
-            if (running) {
-                fsPlay.style.display = 'none';
-                fsStop.style.display = 'block';
+    stopBtn.addEventListener('click', function () {
+        stopAnimation();
+    });
+
+    // =============================================
+    // CONTROLES EN FULLSCREEN
+    // =============================================
+    var fsControls = document.getElementById('fullscreen-controls');
+    var fsPlayBtn = document.getElementById('fs-anim-play');
+    var fsStopBtn = document.getElementById('fs-anim-stop');
+
+    function updateFullscreenAnimButtons(isPlaying) {
+        if (!fsPlayBtn || !fsStopBtn) return;
+        if (isPlaying) {
+            fsPlayBtn.style.display = 'none';
+            fsStopBtn.style.display = 'inline-block';
+            fsStopBtn.classList.add('active');
+        } else {
+            fsPlayBtn.style.display = 'inline-block';
+            fsStopBtn.style.display = 'none';
+            fsStopBtn.classList.remove('active');
+        }
+    }
+
+    // Mostrar/ocultar controles de fullscreen
+    function onFullscreenChange() {
+        if (fsControls) {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                fsControls.style.display = 'flex';
             } else {
-                fsPlay.style.display = 'block';
-                fsStop.style.display = 'none';
+                fsControls.style.display = 'none';
             }
         }
     }
 
-    // Eventos para botones de fullscreen (si se agregan dinámicamente)
-    document.addEventListener('click', function (e) {
-        if (e.target.id === 'fs-anim-play') runAnimation();
-        if (e.target.id === 'fs-anim-stop') stopAnimation();
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('mozfullscreenchange', onFullscreenChange);
+    document.addEventListener('MSFullscreenChange', onFullscreenChange);
+
+    if (fsPlayBtn) {
+        fsPlayBtn.addEventListener('click', function () {
+            if (!animRunning) {
+                runAnimation();
+            }
+        });
+    }
+
+    if (fsStopBtn) {
+        fsStopBtn.addEventListener('click', function () {
+            stopAnimation();
+        });
+    }
+
+    var fsExitBtn = document.getElementById('fs-exit');
+    if (fsExitBtn) {
+        fsExitBtn.addEventListener('click', function () {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        });
+    }
+
+    // =============================================
+    // DESCARGAR JSON CON TODA LA DATA DEL MAPA
+    // =============================================
+    function generateMapJSON() {
+        var nodes = {};
+        var elements = getMapElements();
+        var connections = getMapConnections();
+
+        // Recopilar todos los nodos
+        elements.forEach(function (el) {
+            if (el.data && el.data.id && !el.data.source) {
+                nodes[el.data.id] = {
+                    id: el.data.id,
+                    label: el.data.label || '',
+                    type: el.data.type || 'tool',
+                    url: el.data.url || null,
+                    info: null,
+                    connections: {
+                        parent: [],
+                        children: [],
+                        secondary: []
+                    }
+                };
+            }
+        });
+
+        // Agregar la info de NODE_INFO
+        Object.keys(NODE_INFO).forEach(function (nodeId) {
+            if (nodes[nodeId]) {
+                // Extraer texto plano del HTML
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = NODE_INFO[nodeId];
+                nodes[nodeId].info = tempDiv.textContent.trim().replace(/\s+/g, ' ');
+                nodes[nodeId].infoHTML = NODE_INFO[nodeId];
+            }
+        });
+
+        // Procesar conexiones de getMapElements (root -> categorías, categorías -> hijos)
+        elements.forEach(function (el) {
+            if (el.data && el.data.source && el.data.target) {
+                var src = el.data.source;
+                var tgt = el.data.target;
+                var type = el.data.type || 'primary';
+                if (nodes[src]) {
+                    nodes[src].connections.children.push({ id: tgt, type: type });
+                }
+                if (nodes[tgt]) {
+                    nodes[tgt].connections.parent.push({ id: src, type: type });
+                }
+            }
+        });
+
+        // Procesar conexiones de getMapConnections
+        connections.forEach(function (el) {
+            if (el.data && el.data.source && el.data.target) {
+                var src = el.data.source;
+                var tgt = el.data.target;
+                var type = el.data.type || 'primary';
+
+                if (type === 'secondary') {
+                    if (nodes[src]) {
+                        nodes[src].connections.secondary.push(tgt);
+                    }
+                    if (nodes[tgt]) {
+                        nodes[tgt].connections.secondary.push(src);
+                    }
+                } else {
+                    if (nodes[src]) {
+                        nodes[src].connections.children.push({ id: tgt, type: type });
+                    }
+                    if (nodes[tgt]) {
+                        nodes[tgt].connections.parent.push({ id: src, type: type });
+                    }
+                }
+            }
+        });
+
+        // Eliminar duplicados en secondary
+        Object.keys(nodes).forEach(function (nodeId) {
+            nodes[nodeId].connections.secondary = [...new Set(nodes[nodeId].connections.secondary)];
+        });
+
+        return {
+            exportDate: new Date().toISOString(),
+            totalNodes: Object.keys(nodes).length,
+            categories: categoryOrder,
+            categoryChildren: categoryChildrenMap,
+            config: CONFIG,
+            nodes: nodes
+        };
+    }
+
+    document.getElementById('download-json').addEventListener('click', function () {
+        var data = generateMapJSON();
+        var jsonStr = JSON.stringify(data, null, 2);
+        var blob = new Blob([jsonStr], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'mapa_herramientas_data.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     });
+
+    // =============================================
+    // BUSCADOR DE NODOS
+    // =============================================
+    var searchInput = document.getElementById('search-input');
+    var searchResults = document.getElementById('search-results');
+
+    // Construir índice de búsqueda con label + info texto plano
+    var searchIndex = [];
+    cy.nodes().forEach(function (node) {
+        var nodeId = node.id();
+        var label = node.data('label') || '';
+        var infoText = '';
+        if (NODE_INFO[nodeId]) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = NODE_INFO[nodeId];
+            infoText = tempDiv.textContent.trim();
+        }
+        searchIndex.push({
+            id: nodeId,
+            label: label,
+            infoText: infoText,
+            searchText: (label + ' ' + infoText).toLowerCase()
+        });
+    });
+
+    function performSearch(query) {
+        if (!query || query.length < 2) {
+            searchResults.classList.remove('visible');
+            searchResults.innerHTML = '';
+            return;
+        }
+
+        var q = query.toLowerCase();
+        var matches = searchIndex.filter(function (item) {
+            return item.searchText.indexOf(q) !== -1;
+        }).slice(0, 10); // Máximo 10 resultados
+
+        if (matches.length === 0) {
+            searchResults.innerHTML = '<div class="search-result-item"><span style="color:rgba(255,255,255,0.5);">Sin resultados</span></div>';
+            searchResults.classList.add('visible');
+            return;
+        }
+
+        searchResults.innerHTML = '';
+        matches.forEach(function (match) {
+            var item = document.createElement('div');
+            item.className = 'search-result-item';
+
+            // Extraer un fragmento de info relevante
+            var snippet = '';
+            if (match.infoText) {
+                var idx = match.infoText.toLowerCase().indexOf(q);
+                if (idx !== -1) {
+                    var start = Math.max(0, idx - 30);
+                    var end = Math.min(match.infoText.length, idx + q.length + 50);
+                    snippet = (start > 0 ? '...' : '') + match.infoText.substring(start, end) + (end < match.infoText.length ? '...' : '');
+                } else {
+                    snippet = match.infoText.substring(0, 80) + (match.infoText.length > 80 ? '...' : '');
+                }
+            }
+
+            item.innerHTML = '<div class="result-label">' + match.label + '</div>' +
+                (snippet ? '<div class="result-info">' + snippet + '</div>' : '');
+
+            item.addEventListener('click', function () {
+                navigateToNode(match.id);
+                searchInput.value = '';
+                searchResults.classList.remove('visible');
+                searchResults.innerHTML = '';
+            });
+
+            searchResults.appendChild(item);
+        });
+
+        searchResults.classList.add('visible');
+    }
+
+    function navigateToNode(nodeId) {
+        var node = cy.getElementById(nodeId);
+        if (!node.length) return;
+
+        // Limpiar estados previos
+        cy.elements().removeClass('highlighted faded');
+        cy.nodes().removeStyle('border-color border-width');
+
+        // Highlight del nodo encontrado
+        node.style({
+            'border-color': '#00ffff',
+            'border-width': '5px'
+        });
+
+        // Centrar cámara en el nodo
+        cy.stop();
+        cy.animate({
+            fit: { eles: node, padding: 200 },
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+
+        // Mostrar info del nodo
+        var nodeInfo = NODE_INFO[nodeId];
+        if (nodeInfo) {
+            infoBox.innerHTML = nodeInfo;
+            infoBox.style.display = 'block';
+            setTimeout(function () {
+                infoBox.style.opacity = 1;
+            }, 10);
+        }
+
+        // Quitar highlight después de 3 segundos
+        setTimeout(function () {
+            node.removeStyle('border-color border-width');
+        }, 3000);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            performSearch(this.value);
+        });
+
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                searchResults.classList.remove('visible');
+                searchResults.innerHTML = '';
+                searchInput.blur();
+            }
+            if (e.key === 'Enter') {
+                var firstResult = searchResults.querySelector('.search-result-item');
+                if (firstResult) {
+                    firstResult.click();
+                }
+            }
+        });
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('#search-container')) {
+                searchResults.classList.remove('visible');
+            }
+        });
+    }
 });
