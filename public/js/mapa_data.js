@@ -69,12 +69,18 @@ let NODE_INFO = {};
 
 // Detectar la base URL para la API (funciona tanto en local como en VPS)
 function getApiBasePath() {
-        const path = window.location.pathname;
-        const match = path.match(/^(\/[^\/]+)\//);
-        if (match) return match[1];
-        // Fallback: buscar en la URL actual
-        if (path.startsWith('/diploia')) return '/diploia';
-        return '/diploia';
+        const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+        if (isLocal) {
+                const path = window.location.pathname;
+                const match = path.match(/^(\/[^\/]+)\//);
+                if (match) return match[1];
+                if (path.startsWith('/diploia')) return '/diploia';
+                return '/diploia';
+        }
+
+        return API_BASE_URL;
 }
 
 // Cargar datos desde la API

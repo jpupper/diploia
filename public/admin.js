@@ -2,15 +2,17 @@
 //  DIPLOIA ADMIN - JavaScript Client
 // ═══════════════════════════════════════════════════════════════
 
-// Detect base URL (works in local and VPS)
+// Centralized API Configuration
+const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
+
+// Detect base URL (prioritize VPS URL if not on localhost)
 const BASE_PATH = (() => {
-    const path = window.location.pathname;
-    // Extract the app path from url (e.g., /diploia/admin -> /diploia)
-    const parts = path.split('/').filter(Boolean);
-    if (parts.length > 0) {
-        return '/' + parts[0];
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const path = window.location.pathname;
+        const parts = path.split('/').filter(Boolean);
+        return (parts.length > 0) ? '/' + parts[0] : '/diploia';
     }
-    return '/diploia';
+    return API_BASE_URL;
 })();
 
 const API = BASE_PATH + '/api';

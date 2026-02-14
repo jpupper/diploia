@@ -8,9 +8,17 @@ export const CONFIG = {
     // ── Data ──────────────────────────────────────────────────
     // URL dinámica: usa la API del servidor en vez del archivo estático
     dataUrl: (() => {
-        const path = window.location.pathname;
-        const match = path.match(/^(\/[^\/]+)\//);
-        const basePath = match ? match[1] : '/diploia';
+        const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+        let basePath = '/diploia';
+        if (isLocal) {
+            const path = window.location.pathname;
+            const match = path.match(/^(\/[^\/]+)\//);
+            basePath = match ? match[1] : '/diploia';
+        } else {
+            basePath = API_BASE_URL;
+        }
         return `${basePath}/api/nodes`;
     })(),
 

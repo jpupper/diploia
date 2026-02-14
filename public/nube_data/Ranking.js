@@ -13,9 +13,18 @@ export class Ranking {
         this.dom = {};
 
         // Detect base URL for API
-        const path = window.location.pathname;
-        const match = path.match(/^(\/[^\/]+)\//);
-        this.apiBase = (match ? match[1] : '/diploia') + '/api/ranking';
+        const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+        let basePath = '/diploia';
+        if (isLocal) {
+            const match = window.location.pathname.match(/^(\/[^\/]+)\//);
+            basePath = match ? match[1] : '/diploia';
+        } else {
+            basePath = API_BASE_URL;
+        }
+
+        this.apiBase = basePath + '/api/ranking';
     }
 
     bindUI() {
