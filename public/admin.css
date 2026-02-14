@@ -1109,19 +1109,55 @@ textarea {
         grid-template-columns: 1fr;
     }
 
+    .list-item-actions {
+        display: flex !important;
+        gap: 8px;
+    }
+
+    .btn-icon {
+        width: 42px !important;
+        height: 42px !important;
+        font-size: 18px !important;
+    }
+
     .modal {
-        width: 95%;
-        max-height: 92vh;
-        margin: 0;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100vh !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .modal-body {
+        padding: 20px 16px !important;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px 16px !important;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 15px !important;
+        font-size: 16px !important;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    textarea,
+    .select-input {
+        padding: 14px !important;
+        font-size: 16px !important;
+        /* Prevents auto-zoom on iOS */
     }
 
     .ranking-item {
-        grid-template-columns: 40px 1fr 60px 60px;
+        grid-template-columns: 35px 1fr 60px 70px;
         gap: 10px;
-    }
-
-    .list-item-actions {
-        display: none;
     }
 }
 
