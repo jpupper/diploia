@@ -1046,7 +1046,8 @@ export class GameManager {
     }
 
     // ── Ranking System (delegates to Ranking.js) ──
-    showRankingScreen() {
+    showRankingScreen(showInput = true) {
+        console.log('📊 GameManager: Showing ranking screen');
         this.state = 'ranking';
         if (this.dom.resultsScreen) this.dom.resultsScreen.classList.remove('visible');
 
@@ -1055,12 +1056,18 @@ export class GameManager {
             wrongAnswers: this.wrongCount,
             totalQuestions: this.evalQuestions.length,
             gameTime: Math.round(CONFIG.game.gameTime - this.timeRemaining)
-        });
+        }, showInput);
     }
 
     closeRanking() {
         this.ranking.hide();
-        this.exitToExploration();
+        if (this._openedRankingFromSplash) {
+            this._openedRankingFromSplash = false;
+            const splash = document.getElementById('splash-screen');
+            if (splash) splash.classList.add('visible');
+        } else {
+            this.exitToExploration();
+        }
     }
 
     exitToExploration() {

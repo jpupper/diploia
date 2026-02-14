@@ -1090,7 +1090,11 @@ class Universe {
                 const rankingBtn = document.getElementById('splash-ranking');
                 if (rankingBtn) {
                     rankingBtn.addEventListener('click', () => {
-                        this.game.showRankingScreen();
+                        console.log('🏆 Ranking button clicked from splash');
+                        // Set a flag so we know to return to splash if closed
+                        this.game._openedRankingFromSplash = true;
+                        splash.classList.remove('visible');
+                        this.game.showRankingScreen(false);
                     });
                 }
             }

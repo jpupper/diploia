@@ -33,6 +33,7 @@ export class Ranking {
         this.dom.rankingSubmit = document.getElementById('ranking-submit');
         this.dom.rankingList = document.getElementById('ranking-list');
         this.dom.rankingClose = document.getElementById('ranking-close');
+        this.dom.rankingInputRow = document.getElementById('ranking-input-row');
 
         if (this.dom.rankingSubmit) {
             this.dom.rankingSubmit.addEventListener('click', () => this.submitRanking());
@@ -44,11 +45,22 @@ export class Ranking {
         }
     }
 
-    show(score, stats = {}) {
+    show(score, stats = {}, showInput = true) {
+        console.log('🏅 Ranking: show() called', { score, stats, showInput });
         this.finalScore = score;
         this.gameStats = stats;
         this.playerName = '';
-        if (this.dom.rankingScreen) this.dom.rankingScreen.classList.add('visible');
+
+        if (this.dom.rankingInputRow) {
+            this.dom.rankingInputRow.style.display = showInput ? 'flex' : 'none';
+        }
+
+        if (this.dom.rankingScreen) {
+            console.log('✅ Ranking screen found, adding .visible');
+            this.dom.rankingScreen.classList.add('visible');
+        } else {
+            console.error('❌ Ranking screen NOT found in DOM!');
+        }
         if (this.dom.rankingNameInput) {
             this.dom.rankingNameInput.value = '';
             this.dom.rankingNameInput.disabled = false;
