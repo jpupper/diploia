@@ -161,14 +161,15 @@ export const CONFIG = {
 
     // ── Game Scoring ───────────────────────────────────────────
     game: {
-        gameTime: 120,    // game duration in seconds (2 minutes)
+        gameTime: 60,
         showConnections: false,  // whether connection lines are visible by default
-        pointsRouteVisit: 150,    // points for visiting an official route planet
-        pointsRandomVisit: 50,     // points for visiting a random (non-route) planet
-        pointsPerCorrect: 200,    // points per correct quiz answer
-        pointsPerWrong: -50,    // points per wrong quiz answer
+        pointsRouteVisit: 0,      // no points for visiting (points come from quiz now)
+        pointsRandomVisit: 0,     // no points for visiting
+        pointsRouteCorrect: 300,   // points for correct answer on route planet question
+        pointsRandomCorrect: 50,   // points for correct answer on random planet question
+        pointsWrong: -100,         // points for ANY wrong quiz answer
         evalTimePerQuestion: 30,    // seconds allowed per evaluation question
-        collectTime: 2.0,    // seconds to hold crosshair on objective planet to collect
+        collectTime: 1.2,    // seconds to hold crosshair on objective planet to collect
         forceEndKey: 'b',    // key to force-end exploration (go to evaluation)
     },
 

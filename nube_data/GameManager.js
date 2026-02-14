@@ -316,24 +316,26 @@ export class GameManager {
         if (isRoute) {
             this.routeVisits.push(planet.node);
             this.routeIds.add(planet.node.id);
-            pts = G.pointsRouteVisit || 150;
+            pts = G.pointsRouteVisit ?? 0;
             this.comboCount++;
         } else {
             this.randomVisits.push(planet.node);
-            pts = G.pointsRandomVisit || 50;
+            pts = G.pointsRandomVisit ?? 0;
             this.comboCount = 0;
         }
 
-        // Apply combo multiplier
-        const comboMult = this.comboCount >= 3 ? Math.min(this.comboCount, 5) : 1;
-        pts *= comboMult;
+        // Apply combo multiplier (only if visit points > 0)
+        if (pts > 0) {
+            const comboMult = this.comboCount >= 3 ? Math.min(this.comboCount, 5) : 1;
+            pts *= comboMult;
+            this.showPointsPopup(pts, isRoute, comboMult);
+            this.updateComboDisplay(comboMult);
+        }
         this.runningScore += pts;
 
         // Visual effects
         this.showDiscoveryFlash(planet);
-        this.showPointsPopup(pts, isRoute, comboMult);
         this.addVisitedRing(planet);
-        this.updateComboDisplay(comboMult);
         this.animateScore();
 
         this.updateHUD();
@@ -522,7 +524,10 @@ export class GameManager {
         this.showGameInfoPanel(planet.node);
         // Show the full-screen discovery modal ONLY when formally reaching a planet
         this.showDiscoveryModal(planet.node);
-        this.pickNextWaypoint();
+        // Only advance waypoint if we collected the route objective
+        if (isRoute) {
+            this.pickNextWaypoint();
+        }
     }
 
     // ── Visual Effects ──
@@ -718,6 +723,11 @@ export class GameManager {
             this.dom.evalFeedback.textContent = '';
             this.dom.evalFeedback.className = 'eval-feedback';
         }
+        // Initialize running score display
+        const scoreDisplay = document.getElementById('eval-running-score');
+        if (scoreDisplay) {
+            scoreDisplay.textContent = `${Math.max(0, this.runningScore)} PTS`;
+        }
         this.showNextQuestion();
     }
 
@@ -755,22 +765,38 @@ export class GameManager {
 
     handleEvalTimeout() {
         // Time ran out — count as wrong, disable buttons, show correct answer
+        const G = CONFIG.game || {};
+        const pointsWrong = G.pointsWrong || -100;
         this.wrongCount++;
+        this.runningScore += pointsWrong;
+
         const allBtns = this.dom.evalOptions ? this.dom.evalOptions.querySelectorAll('.eval-option-btn') : [];
         const node = this.evalQuestions[this.evalCurrentIndex];
         const correctLabel = node ? (node.label || node.id) : '';
         allBtns.forEach(b => {
             b.disabled = true;
-            if (b.textContent === correctLabel) b.classList.add('correct');
+            const textEl = b.querySelector('.eval-option-text');
+            if (textEl && textEl.textContent === correctLabel) b.classList.add('correct');
         });
         if (this.dom.evalFeedback) {
-            this.dom.evalFeedback.textContent = 'TIEMPO! — Era: ' + correctLabel;
+            this.dom.evalFeedback.innerHTML = `<span class="feedback-icon">⏰</span> TIEMPO! <span class="feedback-points">${pointsWrong} PTS</span>`;
             this.dom.evalFeedback.className = 'eval-feedback wrong';
         }
+        this._showQuizPointsPopup(`${pointsWrong}`, false, false);
+        this._shakeEvalScreen();
+
+        // Update running score display
+        const scoreDisplay = document.getElementById('eval-running-score');
+        if (scoreDisplay) {
+            scoreDisplay.textContent = `${Math.max(0, this.runningScore)} PTS`;
+            scoreDisplay.classList.add('score-updated');
+            setTimeout(() => scoreDisplay.classList.remove('score-updated'), 600);
+        }
+
         setTimeout(() => {
             this.evalCurrentIndex++;
             this.showNextQuestion();
-        }, 1500);
+        }, 2000);
     }
 
     showNextQuestion() {
@@ -782,6 +808,8 @@ export class GameManager {
         }
 
         const node = this.evalQuestions[this.evalCurrentIndex];
+        const isRoute = this.routeIds.has(node.id);
+
         // Show description (strip HTML tags for clean text)
         const descText = this.extractDescription(node);
         if (this.dom.evalDescription) this.dom.evalDescription.textContent = descText;
@@ -789,6 +817,33 @@ export class GameManager {
         // Progress indicator
         if (this.dom.evalProgress) {
             this.dom.evalProgress.textContent = `Pregunta ${this.evalCurrentIndex + 1} de ${this.evalQuestions.length}`;
+        }
+
+        // Route/Random badge
+        const badgeEl = document.getElementById('eval-type-badge');
+        if (badgeEl) {
+            if (isRoute) {
+                badgeEl.textContent = '⭐ RECORRIDO OFICIAL ⭐';
+                badgeEl.className = 'eval-type-badge route';
+            } else {
+                badgeEl.textContent = '🔭 EXPLORACIÓN LIBRE';
+                badgeEl.className = 'eval-type-badge random';
+            }
+        }
+
+        // Points indicator
+        const G = CONFIG.game || {};
+        const pointsForCorrect = isRoute ? (G.pointsRouteCorrect || 300) : (G.pointsRandomCorrect || 50);
+        const pointsInfo = document.getElementById('eval-points-info');
+        if (pointsInfo) {
+            pointsInfo.innerHTML = `<span class="points-correct">+${pointsForCorrect}</span> / <span class="points-wrong">${G.pointsWrong || -100}</span>`;
+        }
+
+        // Set special styling on the content container for route questions
+        const evalContent = document.querySelector('.eval-content');
+        if (evalContent) {
+            evalContent.classList.toggle('route-question', isRoute);
+            evalContent.classList.toggle('random-question', !isRoute);
         }
 
         // Generate 5 options: 1 correct + 4 random wrong
@@ -804,11 +859,11 @@ export class GameManager {
         // Render options
         if (this.dom.evalOptions) {
             this.dom.evalOptions.innerHTML = '';
-            options.forEach(opt => {
+            options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = 'eval-option-btn';
-                btn.textContent = opt;
-                btn.addEventListener('click', () => this.handleAnswer(opt, correctLabel, btn));
+                btn.innerHTML = `<span class="eval-option-letter">${String.fromCharCode(65 + idx)}</span><span class="eval-option-text">${opt}</span>`;
+                btn.addEventListener('click', () => this.handleAnswer(opt, correctLabel, btn, isRoute));
                 this.dom.evalOptions.appendChild(btn);
             });
         }
@@ -833,43 +888,97 @@ export class GameManager {
         return text;
     }
 
-    handleAnswer(selected, correct, btnEl) {
+    handleAnswer(selected, correct, btnEl, isRoute = false) {
         // Stop the per-question timer
         this.stopEvalTimer();
         // Disable all buttons
         const allBtns = this.dom.evalOptions.querySelectorAll('.eval-option-btn');
         allBtns.forEach(b => { b.disabled = true; });
 
+        const G = CONFIG.game || {};
+        const pointsCorrect = isRoute ? (G.pointsRouteCorrect || 300) : (G.pointsRandomCorrect || 50);
+        const pointsWrong = G.pointsWrong || -100;
+
         if (selected === correct) {
             this.correctCount++;
+            this.runningScore += pointsCorrect;
             btnEl.classList.add('correct');
+
+            // Animated points popup
+            this._showQuizPointsPopup(`+${pointsCorrect}`, true, isRoute);
+
             if (this.dom.evalFeedback) {
-                this.dom.evalFeedback.textContent = 'CORRECTO!';
+                this.dom.evalFeedback.innerHTML = `<span class="feedback-icon">✓</span> CORRECTO! <span class="feedback-points">+${pointsCorrect} PTS</span>`;
                 this.dom.evalFeedback.className = 'eval-feedback correct';
             }
+
+            // Screen flash green
+            this._flashEvalScreen('correct');
         } else {
             this.wrongCount++;
+            this.runningScore += pointsWrong;
             btnEl.classList.add('wrong');
             // Highlight the correct one
-            allBtns.forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
+            allBtns.forEach(b => {
+                const textEl = b.querySelector('.eval-option-text');
+                if (textEl && textEl.textContent === correct) b.classList.add('correct');
+            });
+
+            // Animated points popup
+            this._showQuizPointsPopup(`${pointsWrong}`, false, isRoute);
+
             if (this.dom.evalFeedback) {
-                this.dom.evalFeedback.textContent = 'INCORRECTO — Era: ' + correct;
+                this.dom.evalFeedback.innerHTML = `<span class="feedback-icon">✗</span> INCORRECTO <span class="feedback-points">${pointsWrong} PTS</span>`;
                 this.dom.evalFeedback.className = 'eval-feedback wrong';
             }
+
+            // Screen shake
+            this._shakeEvalScreen();
+        }
+
+        // Update running score display
+        const scoreDisplay = document.getElementById('eval-running-score');
+        if (scoreDisplay) {
+            scoreDisplay.textContent = `${Math.max(0, this.runningScore)} PTS`;
+            scoreDisplay.classList.add('score-updated');
+            setTimeout(() => scoreDisplay.classList.remove('score-updated'), 600);
         }
 
         // Advance after a short delay
         setTimeout(() => {
             this.evalCurrentIndex++;
             this.showNextQuestion();
-        }, 1500);
+        }, 2000);
+    }
+
+    _showQuizPointsPopup(text, isCorrect, isRoute) {
+        const popup = document.createElement('div');
+        popup.className = `quiz-points-popup ${isCorrect ? 'correct' : 'wrong'} ${isRoute ? 'route' : 'random'}`;
+        popup.textContent = text;
+        document.body.appendChild(popup);
+        requestAnimationFrame(() => popup.classList.add('animate'));
+        setTimeout(() => popup.remove(), 1500);
+    }
+
+    _flashEvalScreen(type) {
+        const flash = document.createElement('div');
+        flash.className = `eval-flash ${type}`;
+        document.getElementById('eval-screen')?.appendChild(flash);
+        setTimeout(() => flash.remove(), 600);
+    }
+
+    _shakeEvalScreen() {
+        const content = document.querySelector('.eval-content');
+        if (content) {
+            content.classList.add('shake');
+            setTimeout(() => content.classList.remove('shake'), 500);
+        }
     }
 
     showResults() {
         this.state = 'results';
-        const G = CONFIG.game || {};
-        const quizPts = (this.correctCount * (G.pointsPerCorrect || 200)) + (this.wrongCount * (G.pointsPerWrong || -50));
-        this.finalScore = Math.max(0, this.runningScore + quizPts);
+        // Points are now accumulated in runningScore during the quiz
+        this.finalScore = Math.max(0, this.runningScore);
 
         if (this.dom.resultsCorrect) this.dom.resultsCorrect.textContent = this.correctCount;
         if (this.dom.resultsWrong) this.dom.resultsWrong.textContent = this.wrongCount;
@@ -1076,16 +1185,17 @@ export class GameManager {
         }
     }
 
-    // ── Collection System (hold crosshair on objective for N seconds) ──
+    // ── Collection System (hold crosshair on any tool planet to collect) ──
     updateCollection(dt, aimedPlanet) {
         if (this.state !== 'exploration') return;
-        if (!this.nextWaypoint) return;
 
         const G = CONFIG.game || {};
         const collectTime = G.collectTime || 2.0;
 
-        if (aimedPlanet && aimedPlanet.node && aimedPlanet.node.id === this.nextWaypoint.id) {
-            // Aiming at the objective planet
+        // Allow collecting ANY tool planet that hasn't been visited yet
+        if (aimedPlanet && aimedPlanet.node && aimedPlanet.node.type === 'tool' && !this.visitedIds.has(aimedPlanet.node.id)) {
+            const isObjective = this.nextWaypoint && aimedPlanet.node.id === this.nextWaypoint.id;
+
             if (this._collectTarget !== aimedPlanet) {
                 this._collectProgress = 0;
                 this._collectTarget = aimedPlanet;
@@ -1103,7 +1213,9 @@ export class GameManager {
                 this.dom.collectFill.style.width = pct + '%';
             }
             if (this.dom.collectLabel) {
-                this.dom.collectLabel.textContent = 'RECOLECTANDO INFORMACI\u00d3N...';
+                this.dom.collectLabel.textContent = isObjective
+                    ? 'RECOLECTANDO OBJETIVO...'
+                    : 'ANALIZANDO PLANETA...';
             }
 
             if (this._collectProgress >= collectTime) {
@@ -1114,21 +1226,8 @@ export class GameManager {
                 if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
                 this.onPlanetReached(aimedPlanet);
             }
-        } else if (aimedPlanet && aimedPlanet.node && aimedPlanet.node.type === 'tool') {
-            // Aiming at a planet that is NOT the objective — show feedback
-            if (this._collecting) {
-                this._collectProgress = 0;
-                this._collecting = false;
-                this._collectTarget = null;
-                if (this.dom.collectBar) this.dom.collectBar.classList.remove('visible');
-            }
-            // Show wrong-planet toast
-            if (this.dom.wrongPlanet && this.dom.wrongPlanetName) {
-                this.dom.wrongPlanetName.textContent = this.nextWaypoint.label || this.nextWaypoint.id;
-                this.dom.wrongPlanet.classList.add('visible');
-            }
         } else {
-            // Not aiming at any planet — reset
+            // Not aiming at a collectible planet — reset
             if (this._collecting) {
                 this._collectProgress = 0;
                 this._collecting = false;
