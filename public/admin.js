@@ -85,6 +85,7 @@ function switchSection(sectionId) {
         'nodes': 'Nodos',
         'connections': 'Conexiones',
         'ranking': 'Ranking',
+        'config': 'Configuración',
         'import-export': 'Importar / Exportar'
     };
     document.getElementById('topbar-title').textContent = titles[sectionId] || sectionId;
@@ -140,19 +141,26 @@ function showToast(message, type = 'info') {
 // ═══════════════════════════════════════════════════════════════
 async function loadAllData() {
     try {
-        const [nodesRes, rankingRes] = await Promise.all([
+        const [nodesRes, rankingRes, configRes] = await Promise.all([
             fetch(API + '/nodes'),
-            fetch(API + '/ranking')
+            fetch(API + '/ranking'),
+            fetch(API + '/config')
         ]);
 
-        nodesData = await nodesRes.json();
+        const nodesResp = await nodesRes.json();
+        nodesData = nodesResp;
         rankingData = await rankingRes.json();
+        const configResp = await configRes.json();
+
+        // Ensure nodesData has config for compatibility
+        nodesData.config = configResp.config || {};
 
         renderDashboard();
         renderCategories();
         renderNodes();
         renderConnections();
         renderRanking();
+        renderConfig();
         populateSelects();
 
         showToast('Datos cargados correctamente', 'success');
@@ -217,8 +225,8 @@ function renderCategories() {
         <div class="grid-card-sub">ID: ${catId}</div>
         <div class="grid-card-count">${childCount} <span>nodos</span></div>
         <div class="grid-card-actions">
-          <button class="btn btn-sm btn-ghost" onclick="editNode('${catId}')">✏️ Editar</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteCategory('${catId}')">🗑️ Eliminar</button>
+          <button class="btn-icon" onclick="editNode('${catId}')" title="Editar">✏️</button>
+          <button class="btn-icon danger" onclick="deleteCategory('${catId}')" title="Eliminar">🗑️</button>
         </div>
       </div>
     `;
@@ -544,6 +552,27 @@ function initButtons() {
 
     // Export
     document.getElementById('btn-export').addEventListener('click', exportData);
+
+    // Save Config
+    document.getElementById('btn-save-config').addEventListener('click', saveConfig);
+
+    // Sync HTML from text
+    document.getElementById('btn-sync-html').addEventListener('click', () => {
+        const label = document.getElementById('node-label').value.trim();
+        const info = document.getElementById('node-info').value.trim();
+
+        if (!info) {
+            showToast('Escribe algo en la descripción primero', 'info');
+            return;
+        }
+
+        // Convert plain text to simple HTML (line breaks to <p>)
+        const paragraphs = info.split('\n').filter(p => p.trim() !== '');
+        const htmlContent = `<h3>${label}</h3>\n` + paragraphs.map(p => `<p>${p}</p>`).join('\n');
+
+        document.getElementById('node-infohtml').value = htmlContent;
+        showToast('HTML actualizado', 'success');
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -588,8 +617,16 @@ async function saveCategory() {
 
 // Edit Node - populate modal
 function editNode(nodeId) {
+    console.log('📝 Intentando editar nodo:', nodeId);
     const node = nodesData.nodes[nodeId];
-    if (!node) return;
+
+    if (!node) {
+        console.error('❌ No se encontró el nodo con ID:', nodeId, 'en nodesData.nodes');
+        showToast('Error: No se encontró la información del nodo', 'error');
+        return;
+    }
+
+    console.log('✅ Nodo encontrado:', node);
 
     editingNodeId = nodeId;
     document.getElementById('modal-node-title').textContent = 'Editar: ' + (node.label || nodeId);
@@ -769,6 +806,144 @@ async function deleteRanking(id) {
             loadAllData();
         } else {
             showToast(data.error || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Error de conexión', 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONFIGURATION
+// ═══════════════════════════════════════════════════════════════
+
+// Default CONFIG as fallback
+const DEFAULT_CONFIG = {
+    rootNodeSize: 200,
+    primaryNodeSize: 100,
+    secondaryNodeSize: 90,
+    nodeFontSize: 14,
+    categoryFontSize: 18,
+    rootFontSize: 20,
+    popupTitleFontSize: 35,
+    popupSubtitleFontSize: 30,
+    popupTextFontSize: 28,
+    secondaryNodeDist: 120,
+    primaryDistance: 250,
+    categoryDistancesMain: {
+        'engines': 1300, 'frameworks': 1500, 'ia': 700, 'shaders': 1200, 'db': 800,
+        'ides': 2000, 'languages': 1600, 'llm': 1200, 'frontend': 700, 'os': 1100,
+        'soportes': 1800, 'protocolos': 1400, 'software-multimedia': 1000,
+        'entornos': 1500, 'glosario': 1700
+    },
+    categoryDistances: {
+        'engines': 250, 'frameworks': 250, 'ia': 180, 'shaders': 220, 'db': 220,
+        'ides': 220, 'languages': 350, 'llm': 220, 'frontend': 220, 'os': 220,
+        'soportes': 280, 'protocolos': 220, 'software-multimedia': 220,
+        'entornos': 220, 'glosario': 380
+    },
+    animCategoryDelay: 3000,
+    animNodeDelay: 2500,
+    animTransitionSpeed: 800,
+    animNodeExpansionSpeed: 400
+};
+
+function renderConfig() {
+    const config = { ...DEFAULT_CONFIG, ...(nodesData.config || {}) };
+
+    // Global fields
+    const fields = [
+        'rootNodeSize', 'primaryNodeSize', 'secondaryNodeSize',
+        'nodeFontSize', 'categoryFontSize', 'rootFontSize',
+        'primaryDistance', 'secondaryNodeDist',
+        'animCategoryDelay', 'animNodeDelay', 'animTransitionSpeed', 'animNodeExpansionSpeed',
+        'popupTitleFontSize', 'popupTextFontSize'
+    ];
+
+    fields.forEach(f => {
+        const el = document.getElementById('cfg-' + f);
+        if (el) el.value = config[f];
+    });
+
+    // Category Specific distances
+    const distList = document.getElementById('category-distances-list');
+    const categories = nodesData.categories || [];
+    const nodes = nodesData.nodes || {};
+
+    if (categories.length === 0) {
+        distList.innerHTML = '<p class="hint-text" style="padding:10px;">No hay categorías creadas todavía.</p>';
+        return;
+    }
+
+    distList.innerHTML = `
+        <div class="list-item" style="font-weight:bold; background:rgba(255,255,255,0.05);">
+            <div style="flex:1">Categoría</div>
+            <div style="width:100px; text-align:center;">Dist. Raíz</div>
+            <div style="width:100px; text-align:center;">Dist. Nodos</div>
+        </div>
+    ` + categories.map(catId => {
+        const label = nodes[catId]?.label || catId;
+        const mainDist = config.categoryDistancesMain?.[catId] || 1000;
+        const subDist = config.categoryDistances?.[catId] || 250;
+
+        return `
+        <div class="list-item" style="gap:15px; padding:12px;">
+            <div style="flex:1">
+                <strong>${label}</strong><br>
+                <small style="color:var(--text-muted)">${catId}</small>
+            </div>
+            <div style="width:100px">
+                <input type="number" class="config-cat-main" data-cat="${catId}" value="${mainDist}" style="padding:6px; text-align:center;">
+            </div>
+            <div style="width:100px">
+                <input type="number" class="config-cat-sub" data-cat="${catId}" value="${subDist}" style="padding:6px; text-align:center;">
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+async function saveConfig() {
+    const config = { ...DEFAULT_CONFIG, ...(nodesData.config || {}) };
+
+    // Get global fields
+    const fields = [
+        'rootNodeSize', 'primaryNodeSize', 'secondaryNodeSize',
+        'nodeFontSize', 'categoryFontSize', 'rootFontSize',
+        'primaryDistance', 'secondaryNodeDist',
+        'animCategoryDelay', 'animNodeDelay', 'animTransitionSpeed', 'animNodeExpansionSpeed',
+        'popupTitleFontSize', 'popupTextFontSize'
+    ];
+
+    fields.forEach(f => {
+        const el = document.getElementById('cfg-' + f);
+        if (el) config[f] = Number(el.value);
+    });
+
+    // Get category distances
+    config.categoryDistancesMain = {};
+    config.categoryDistances = {};
+
+    document.querySelectorAll('.config-cat-main').forEach(input => {
+        config.categoryDistancesMain[input.dataset.cat] = Number(input.value);
+    });
+
+    document.querySelectorAll('.config-cat-sub').forEach(input => {
+        config.categoryDistances[input.dataset.cat] = Number(input.value);
+    });
+
+    try {
+        const res = await fetch(API + '/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            showToast('Configuración guardada correctamente', 'success');
+            nodesData.config = config;
+        } else {
+            showToast(data.error || 'Error al guardar', 'error');
         }
     } catch (err) {
         showToast('Error de conexión', 'error');

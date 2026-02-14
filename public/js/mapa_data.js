@@ -2,8 +2,8 @@
 // Carga datos dinámicamente desde la API del servidor
 // Mantiene la configuración visual (CONFIG) estática ya que es específica del layout del mapa
 
-// Variables globales de configuración (layout del mapa - no cambia con los datos)
-const CONFIG = {
+// Variables globales de configuración (layout del mapa - carga desde la API)
+let CONFIG = {
         rootNodeSize: 200,          // Tamaño para el nodo raíz
         primaryNodeSize: 100,        // Tamaño para categorías
         secondaryNodeSize: 90,      // Tamaño para nodos secundarios
@@ -90,12 +90,22 @@ async function loadMapData() {
         try {
                 const basePath = getApiBasePath();
                 const response = await fetch(`${basePath}/api/nodes`);
+                const configResponse = await fetch(`${basePath}/api/config`);
 
                 if (!response.ok) {
                         throw new Error(`API responded with status ${response.status}`);
                 }
 
                 _apiData = await response.json();
+
+                // Cargar configuración desde API si existe
+                if (configResponse.ok) {
+                        const configData = await configResponse.json();
+                        if (configData.config && Object.keys(configData.config).length > 0) {
+                                CONFIG = { ...CONFIG, ...configData.config };
+                                console.log('✅ Mapa: Configuración cargada desde API');
+                        }
+                }
 
                 // Construir NODE_INFO desde los datos de la API
                 if (_apiData.nodes) {

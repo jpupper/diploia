@@ -41,6 +41,9 @@
                 <a href="#" class="nav-item" data-section="ranking" id="nav-ranking">
                     <span class="nav-icon">🏆</span> Ranking
                 </a>
+                <a href="#" class="nav-item" data-section="config" id="nav-config">
+                    <span class="nav-icon">⚙️</span> Configuración
+                </a>
                 <a href="#" class="nav-item" data-section="import-export" id="nav-import-export">
                     <span class="nav-icon">📦</span> Importar / Exportar
                 </a>
@@ -197,7 +200,12 @@
                                     <textarea id="node-info" rows="3" placeholder="Descripción breve..."></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label>Info HTML (para mostrar en popups)</label>
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <label style="margin-bottom: 0;">Info HTML (para mostrar en popups)</label>
+                                        <button class="btn btn-sm btn-accent" id="btn-sync-html" type="button"
+                                            title="Generar HTML desde la descripción">⚡ Sync HTML</button>
+                                    </div>
                                     <textarea id="node-infohtml" rows="5"
                                         placeholder="<h3>Título</h3><p>Descripción...</p>"></textarea>
                                 </div>
@@ -276,6 +284,113 @@
                         <h3>Ranking de Jugadores</h3>
                     </div>
                     <div id="ranking-list" class="items-list"></div>
+                </section>
+
+                <!-- ═══════ CONFIGURATION ═══════ -->
+                <section class="section" id="section-config">
+                    <div class="section-header">
+                        <h3>Configuración del Mapa</h3>
+                        <button class="btn btn-primary" id="btn-save-config">💾 Guardar Configuración</button>
+                    </div>
+
+                    <div class="cards-row">
+                        <div class="card">
+                            <h4>📏 Tamaños de Nodos</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Nodo Central (Raíz)</label>
+                                    <input type="number" id="cfg-rootNodeSize">
+                                </div>
+                                <div class="form-group">
+                                    <label>Categorías</label>
+                                    <input type="number" id="cfg-primaryNodeSize">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Herramientas (Nodos)</label>
+                                    <input type="number" id="cfg-secondaryNodeSize">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4>🔤 Tamaños de Fuente</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>ID Raíz</label>
+                                    <input type="number" id="cfg-rootFontSize">
+                                </div>
+                                <div class="form-group">
+                                    <label>Categorías</label>
+                                    <input type="number" id="cfg-categoryFontSize">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Nodos</label>
+                                    <input type="number" id="cfg-nodeFontSize">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <h4>📍 Distancias Globales</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Distancia Raíz ↔ Categorías</label>
+                                <input type="number" id="cfg-primaryDistance">
+                            </div>
+                            <div class="form-group">
+                                <label>Distancia Entre Nodos Secundarios</label>
+                                <input type="number" id="cfg-secondaryNodeDist">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <h4>🎭 Animaciones y Popups</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Delay Categoría (ms)</label>
+                                <input type="number" id="cfg-animCategoryDelay">
+                            </div>
+                            <div class="form-group">
+                                <label>Delay Nodo (ms)</label>
+                                <input type="number" id="cfg-animNodeDelay">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Velocidad Transición (ms)</label>
+                                <input type="number" id="cfg-animTransitionSpeed">
+                            </div>
+                            <div class="form-group">
+                                <label>Velocidad Expansión (ms)</label>
+                                <input type="number" id="cfg-animNodeExpansionSpeed">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Fuente Título Popup</label>
+                                <input type="number" id="cfg-popupTitleFontSize">
+                            </div>
+                            <div class="form-group">
+                                <label>Fuente Texto Popup</label>
+                                <input type="number" id="cfg-popupTextFontSize">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 20px;">
+                        <h4>📁 Distancias por Categoría</h4>
+                        <p class="hint-text" style="margin-bottom: 15px;">Configura las distancias específicas para cada
+                            categoría existente en el universo.</p>
+                        <div id="category-distances-list" class="items-list">
+                            <!-- Se cargará dinámicamente -->
+                        </div>
+                    </div>
                 </section>
 
                 <!-- ═══════ IMPORT / EXPORT ═══════ -->
