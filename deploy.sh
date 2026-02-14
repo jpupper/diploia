@@ -26,6 +26,14 @@ if command -v pm2 &> /dev/null; then
     
     pm2 save
     echo "✅ Server started with PM2"
+    
+    echo "═══════════════════════════════════════════════════"
+    echo "  LATEST LOGS (Review for errors):"
+    echo "═══════════════════════════════════════════════════"
+    pm2 logs diploia --lines 20 --no-daemon &
+    LOG_PID=$!
+    sleep 3
+    kill $LOG_PID
 else
     echo "❌ PM2 not found. Cannot perform clean deploy."
 fi

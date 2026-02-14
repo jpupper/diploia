@@ -5,8 +5,7 @@ const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
-const hostname = '0.0.0.0';
-const port = 4500;
+const port = 3060;
 const APP_PATH = 'diploia';
 
 // ═══════════════════════════════════════════════════════════════
@@ -87,8 +86,11 @@ if (!fs.existsSync(NODES_FILE)) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  SERVE STATIC FILES under /diploia path
+//  SERVE STATIC FILES
 // ═══════════════════════════════════════════════════════════════
+
+// Serve at root and /diploia for maximum flexibility
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(`/${APP_PATH}`, express.static(path.join(__dirname, 'public')));
 
 // Main route
@@ -101,11 +103,11 @@ app.get(`/${APP_PATH}/admin`, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// Root route
+// Root health check
 app.get('/', (req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
-    res.end('DiploIA Server running on port ' + port);
+    res.end('DiploIA Server is ALIVE on port ' + port + '. Try /diploia to see the app.');
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -567,15 +569,10 @@ app.put(`/${APP_PATH}/api/config`, (req, res) => {
 // ═══════════════════════════════════════════════════════════════
 const server = http.createServer(app);
 
-server.listen(port, hostname, () => {
+server.listen(port, () => {
     console.log('═══════════════════════════════════════════════════');
-    console.log(`  DiploIA Server running at http://${hostname}:${port}/`);
+    console.log(`  DiploIA Server is UP on port ${port}`);
     console.log(`  App path: /${APP_PATH}`);
-    console.log(`  Frontend: http://localhost:${port}/${APP_PATH}`);
-    console.log(`  Admin: http://localhost:${port}/${APP_PATH}/admin`);
-    console.log(`  API: http://localhost:${port}/${APP_PATH}/api/`);
-    console.log('═══════════════════════════════════════════════════');
-    console.log(`  Static files: ${path.join(__dirname, 'public')}`);
-    console.log(`  Data files: ${DATA_DIR}`);
+    console.log(`  Full URL: http://localhost:${port}/${APP_PATH}`);
     console.log('═══════════════════════════════════════════════════');
 });
