@@ -7,19 +7,27 @@ echo "════════════════════════�
 echo "  Deploying DiploIA..."
 echo "═══════════════════════════════════════════════════"
 
+# Ensure we are in the project directory
+cd "$(dirname "$0")"
+
 # Pull latest changes
 git pull origin main
 
 # Install dependencies
 npm install --production
 
-# Restart the server (using pm2 if available)
+# Restart the server (Clean restart)
 if command -v pm2 &> /dev/null; then
-    pm2 restart diploia 2>/dev/null || pm2 start server.js --name diploia
-    echo "✅ Server restarted with PM2"
+    echo "🔄 Cleaning old PM2 process..."
+    pm2 delete diploia 2>/dev/null
+    
+    echo "🚀 Starting server..."
+    pm2 start server.js --name diploia
+    
+    pm2 save
+    echo "✅ Server started with PM2"
 else
-    echo "⚠️  PM2 not found. Install with: npm install -g pm2"
-    echo "    Then run: pm2 start server.js --name diploia"
+    echo "❌ PM2 not found. Cannot perform clean deploy."
 fi
 
 echo "═══════════════════════════════════════════════════"
