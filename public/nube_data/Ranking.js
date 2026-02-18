@@ -5,8 +5,9 @@ import { CONFIG } from './config.js';
 // ═══════════════════════════════════════════════
 
 export class Ranking {
-    constructor() {
-        this.storageKey = 'nube_universos_ranking';
+    constructor(gameMode = 'ship') {
+        this.gameMode = gameMode;
+        this.storageKey = gameMode === 'planet_visitor' ? 'nube_universos_ranking_pv' : 'nube_universos_ranking';
         this.playerName = '';
         this.finalScore = 0;
         this.gameStats = {};
@@ -18,13 +19,14 @@ export class Ranking {
 
         let basePath = '/diploia';
         if (isLocal) {
-            const match = window.location.pathname.match(/^(\/[^\/]+)\//);
+            const match = window.location.pathname.match(/^\/([^\/]+)\//);
             basePath = match ? match[1] : '/diploia';
         } else {
             basePath = API_BASE_URL;
         }
 
-        this.apiBase = basePath + '/api/ranking';
+        const endpoint = gameMode === 'planet_visitor' ? '/api/ranking_pv' : '/api/ranking';
+        this.apiBase = basePath + endpoint;
     }
 
     bindUI() {

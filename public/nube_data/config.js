@@ -1,7 +1,43 @@
 // ═══════════════════════════════════════════════════════════════
 //  CONFIG — All configurable variables for Nube de Universos
 //  Edit this file to tweak the experience without touching logic.
+//  Values can be overridden from the Admin Panel (space-config API).
 // ═══════════════════════════════════════════════════════════════
+
+function _deepMerge(target, source) {
+    for (const key in source) {
+        if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+            if (!target[key] || typeof target[key] !== 'object') target[key] = {};
+            _deepMerge(target[key], source[key]);
+        } else {
+            target[key] = source[key];
+        }
+    }
+    return target;
+}
+
+export async function loadSpaceConfig() {
+    try {
+        const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        let basePath = '/diploia';
+        if (isLocal) {
+            const path = window.location.pathname;
+            const match = path.match(/^(\/[^\/]+)\//);
+            basePath = match ? match[1] : '/diploia';
+        } else {
+            basePath = API_BASE_URL;
+        }
+        const res = await fetch(`${basePath}/api/space-config`);
+        if (!res.ok) return;
+        const saved = await res.json();
+        if (saved && typeof saved === 'object' && Object.keys(saved).length > 0) {
+            _deepMerge(CONFIG, saved);
+        }
+    } catch (e) {
+        // Silently use defaults if server is unreachable
+    }
+}
 
 export const CONFIG = {
 
@@ -185,6 +221,12 @@ export const CONFIG = {
         evalTimePerQuestion: 30,    // seconds allowed per evaluation question
         collectTime: 1.2,    // seconds to hold crosshair on objective planet to collect
         forceEndKey: 'b',    // key to force-end exploration (go to evaluation)
+
+        // Planet Visitor mode scoring
+        pvPointsPerVisit: 100,     // points for each planet visited
+        pvPointsCorrect: 200,     // points for correct quiz answer
+        pvPointsWrong: -50,       // points for wrong quiz answer
+        pvTotalPlanets: 10,       // number of planets to visit
     },
 
     // ── Selection Visual ─────────────────────────────────────

@@ -3385,3 +3385,423 @@ header.nube-header .menu-toggle:hover {
     color: #ffd700 !important;
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.3) !important;
 }
+
+.splash-btn-pv {
+    background: rgba(180, 77, 255, 0.15) !important;
+    border-color: rgba(180, 77, 255, 0.5) !important;
+    color: rgba(200, 140, 255, 0.9) !important;
+    text-shadow: 0 0 12px rgba(180, 77, 255, 0.5) !important;
+}
+
+.splash-btn-pv:hover {
+    background: rgba(180, 77, 255, 0.3) !important;
+    box-shadow: 0 0 20px rgba(180, 77, 255, 0.4), inset 0 0 20px rgba(180, 77, 255, 0.1) !important;
+}
+
+.splash-buttons {
+    flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════
+   PLANET VISITOR — Selection Screen
+   ═══════════════════════════════════════════════ */
+#pv-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 180;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+#pv-screen.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.pv-screen-content {
+    width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin-right: 40px;
+    padding: 32px 28px;
+    background: linear-gradient(160deg, rgba(12, 8, 30, 0.96), rgba(4, 2, 16, 0.98));
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(180, 77, 255, 0.2);
+    border-right: 3px solid rgba(180, 77, 255, 0.5);
+    border-radius: 12px;
+    box-shadow:
+        0 0 60px rgba(180, 77, 255, 0.08),
+        inset 0 0 40px rgba(180, 77, 255, 0.02);
+}
+
+.pv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(180, 77, 255, 0.15);
+}
+
+.pv-header-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(180, 77, 255, 0.8);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(180, 77, 255, 0.4);
+}
+
+.pv-header-stats {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.pv-header-stats span {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 1px;
+}
+
+#pv-score {
+    color: rgba(255, 215, 0, 0.9) !important;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.pv-current {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.pv-current-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: rgba(180, 77, 255, 0.6);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.pv-current-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: rgba(180, 77, 255, 0.95);
+    text-shadow: 0 0 25px rgba(180, 77, 255, 0.5), 0 0 50px rgba(180, 77, 255, 0.15);
+    letter-spacing: 2px;
+}
+
+.pv-choose-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.pv-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pv-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(180, 77, 255, 0.15);
+    background: rgba(180, 77, 255, 0.04);
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.pv-option-btn:hover {
+    background: rgba(180, 77, 255, 0.12);
+    border-color: rgba(180, 77, 255, 0.5);
+    box-shadow: 0 0 20px rgba(180, 77, 255, 0.15);
+    transform: translateX(6px);
+}
+
+.pv-option-dot {
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.pv-option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pv-option-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.5px;
+}
+
+.pv-option-cat {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: rgba(180, 77, 255, 0.6);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ── Planet Visitor: Planet Info Panel ── */
+#pv-planet-info {
+    position: fixed;
+    top: 100px;
+    left: 24px;
+    width: 440px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    pointer-events: auto;
+    background: linear-gradient(160deg, rgba(4, 16, 36, 0.95), rgba(2, 8, 20, 0.97));
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(180, 77, 255, 0.12);
+    border-left: 3px solid rgba(180, 77, 255, 0.4);
+    border-radius: 6px;
+    padding: 0;
+    opacity: 0;
+    transform: scaleY(0.01) scaleX(0.6);
+    transform-origin: top left;
+    transition: opacity 0.15s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 185;
+    box-shadow:
+        0 0 30px rgba(180, 77, 255, 0.06),
+        inset 0 0 40px rgba(180, 77, 255, 0.02);
+}
+
+#pv-planet-info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(180, 77, 255, 0.6), rgba(180, 77, 255, 0.2), transparent);
+    box-shadow: 0 0 10px rgba(180, 77, 255, 0.25);
+}
+
+#pv-planet-info.visible {
+    opacity: 1;
+    transform: scaleY(1) scaleX(1);
+}
+
+#pv-planet-info .panel-inner {
+    padding: 28px 28px 24px;
+    position: relative;
+}
+
+#pv-planet-info h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #b44dff;
+    text-shadow: 0 0 18px rgba(180, 77, 255, 0.4);
+    letter-spacing: 1.5px;
+    line-height: 1.3;
+    border-bottom: 1px solid rgba(180, 77, 255, 0.15);
+    padding-bottom: 12px;
+}
+
+#pv-planet-info p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: rgba(220, 230, 245, 0.85);
+    margin-bottom: 10px;
+}
+
+#pv-planet-info a {
+    color: #6cb4ff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    display: inline-block;
+    background: rgba(108, 180, 255, 0.06);
+    border: 1px solid rgba(108, 180, 255, 0.15);
+    border-radius: 4px;
+    word-break: break-all;
+}
+
+#pv-planet-info::-webkit-scrollbar {
+    width: 5px;
+}
+
+#pv-planet-info::-webkit-scrollbar-track {
+    background: rgba(0, 10, 20, 0.3);
+}
+
+#pv-planet-info::-webkit-scrollbar-thumb {
+    background: rgba(180, 77, 255, 0.15);
+    border-radius: 3px;
+}
+
+/* ── Planet Visitor: Briefing ── */
+#pv-briefing {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 50% 40%, rgba(20, 0, 40, 0.97) 0%, rgba(0, 0, 0, 0.99) 70%);
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+#pv-briefing.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#pv-briefing .briefing-title {
+    color: rgba(180, 77, 255, 0.95);
+    text-shadow: 0 0 30px rgba(180, 77, 255, 0.6), 0 0 60px rgba(180, 77, 255, 0.2);
+}
+
+#pv-briefing .briefing-step {
+    background: rgba(180, 77, 255, 0.04);
+    border-left: 2px solid rgba(180, 77, 255, 0.3);
+}
+
+#pv-briefing .briefing-countdown {
+    color: rgba(180, 77, 255, 0.95);
+    text-shadow: 0 0 40px rgba(180, 77, 255, 0.7), 0 0 80px rgba(180, 77, 255, 0.3);
+}
+
+/* ── Planet Visitor: Eval Screen ── */
+#pv-eval-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2, 4, 12, 0.95);
+    backdrop-filter: blur(30px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow-y: auto;
+}
+
+#pv-eval-screen.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ── Planet Visitor: Results Screen ── */
+#pv-results-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(4, 4, 14, 0.94);
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+#pv-results-screen.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#pv-results-screen .results-title {
+    color: rgba(180, 77, 255, 0.9);
+    text-shadow: 0 0 25px rgba(180, 77, 255, 0.5);
+}
+
+#pv-results-screen .results-score-value {
+    color: rgba(180, 77, 255, 1);
+    text-shadow: 0 0 30px rgba(180, 77, 255, 0.6), 0 0 60px rgba(180, 77, 255, 0.2);
+}
+
+#pv-results-screen .results-ranking-inline {
+    border-color: rgba(180, 77, 255, 0.15);
+}
+
+#pv-results-screen .results-ranking-title {
+    color: rgba(180, 77, 255, 0.9);
+    text-shadow: 0 0 15px rgba(180, 77, 255, 0.4);
+}
+
+/* ═══════════════════════════════════════════════
+   RANKING — Dual Column Layout
+   ═══════════════════════════════════════════════ */
+.ranking-content-dual {
+    max-width: 900px !important;
+    width: 95% !important;
+}
+
+.ranking-dual-columns {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.ranking-column {
+    flex: 1;
+    min-width: 0;
+}
+
+.ranking-column-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+}
+
+.ranking-column-pv {
+    color: rgba(180, 77, 255, 0.9);
+    text-shadow: 0 0 12px rgba(180, 77, 255, 0.4);
+    border-bottom-color: rgba(180, 77, 255, 0.2);
+}
+
+.ranking-column-ship {
+    color: rgba(255, 140, 80, 0.9);
+    text-shadow: 0 0 12px rgba(255, 107, 53, 0.4);
+    border-bottom-color: rgba(255, 107, 53, 0.2);
+}
+
+@media (max-width: 700px) {
+    .ranking-dual-columns {
+        flex-direction: column;
+    }
+
+    .ranking-content-dual {
+        max-width: 500px !important;
+    }
+}

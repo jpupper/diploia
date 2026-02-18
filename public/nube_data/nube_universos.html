@@ -51,7 +51,8 @@
             </div>
             <div class="splash-buttons">
                 <button id="splash-start" class="splash-btn">EXPLORAR</button>
-                <button id="splash-game" class="splash-btn splash-btn-game">JUGAR</button>
+                <button id="splash-game" class="splash-btn splash-btn-game">CARRERA ESTELAR</button>
+                <button id="splash-pv" class="splash-btn splash-btn-pv">PLANET VISITOR</button>
                 <button id="splash-ranking" class="splash-btn splash-btn-ranking">RANKING</button>
             </div>
         </div>
@@ -333,16 +334,121 @@
         </div>
     </div>
 
-    <!-- ── Ranking Screen ── -->
+    <!-- ── Planet Visitor: Briefing Screen ── -->
+    <div id="pv-briefing">
+        <div class="briefing-content">
+            <div class="briefing-title">PLANET VISITOR</div>
+            <div class="briefing-instructions">
+                <div class="briefing-step"><span class="briefing-icon">&#x1F30D;</span> <strong>Viaj&aacute;</strong> autom&aacute;ticamente entre planetas</div>
+                <div class="briefing-step"><span class="briefing-icon">&#x1F4CB;</span> <strong>Eleg&iacute;</strong> tu pr&oacute;ximo destino entre 5 opciones</div>
+                <div class="briefing-step"><span class="briefing-icon">&#x1F4D6;</span> <strong>Le&eacute;</strong> la informaci&oacute;n de cada planeta</div>
+                <div class="briefing-step"><span class="briefing-icon">&#x2753;</span> <strong>Respond&eacute;</strong> preguntas al final para sumar puntos</div>
+            </div>
+            <div class="briefing-countdown" id="pv-briefing-countdown">3</div>
+        </div>
+    </div>
+
+    <!-- ── Planet Visitor: Selection Screen ── -->
+    <div id="pv-screen">
+        <div class="pv-screen-content">
+            <div class="pv-header">
+                <div class="pv-header-title">PLANET VISITOR</div>
+                <div class="pv-header-stats">
+                    <span id="pv-progress">Planeta 1 de 10</span>
+                    <span id="pv-score">0 PTS</span>
+                </div>
+            </div>
+            <div class="pv-current">
+                <div class="pv-current-label">PLANETA ACTUAL</div>
+                <div class="pv-current-name" id="pv-current-planet">—</div>
+            </div>
+            <div class="pv-choose-label">&iquest;Qu&eacute; planeta quer&eacute;s visitar?</div>
+            <div id="pv-options" class="pv-options"></div>
+        </div>
+    </div>
+
+    <!-- ── Planet Visitor: Planet Info Panel ── -->
+    <div id="pv-planet-info">
+        <div class="panel-scanline"></div>
+        <div class="panel-inner">
+            <div id="pv-planet-info-content"></div>
+        </div>
+    </div>
+
+    <!-- ── Planet Visitor: Evaluation Screen ── -->
+    <div id="pv-eval-screen">
+        <div class="eval-content">
+            <div class="eval-top-bar">
+                <div id="pv-eval-running-score" class="eval-running-score">0 PTS</div>
+            </div>
+            <div class="eval-header">EVALUACI&Oacute;N</div>
+            <div id="pv-eval-progress">Pregunta 1 de 5</div>
+            <div id="pv-eval-timer">30</div>
+            <div class="eval-question-label">&iquest;A qu&eacute; herramienta corresponde esta descripci&oacute;n?</div>
+            <div id="pv-eval-description"></div>
+            <div id="pv-eval-options"></div>
+            <div id="pv-eval-feedback" class="eval-feedback"></div>
+        </div>
+    </div>
+
+    <!-- ── Planet Visitor: Results Screen ── -->
+    <div id="pv-results-screen">
+        <div class="results-content">
+            <div class="results-title">REPORTE — PLANET VISITOR</div>
+            <div class="results-stats">
+                <div class="results-stat">
+                    <div class="results-stat-value" id="pv-results-visited">0</div>
+                    <div class="results-stat-label">Planetas visitados</div>
+                </div>
+                <div class="results-stat">
+                    <div class="results-stat-value correct" id="pv-results-correct">0</div>
+                    <div class="results-stat-label">Correctas</div>
+                </div>
+                <div class="results-stat">
+                    <div class="results-stat-value wrong" id="pv-results-wrong">0</div>
+                    <div class="results-stat-label">Incorrectas</div>
+                </div>
+            </div>
+            <div class="results-score-container">
+                <div class="results-score-label">PUNTAJE FINAL</div>
+                <div class="results-score-value" id="pv-results-score">0</div>
+            </div>
+            <div class="results-ranking-inline">
+                <div class="results-ranking-title">RANKING PLANET VISITOR</div>
+                <div class="ranking-input-row">
+                    <input type="text" id="pv-results-ranking-name" class="ranking-input" placeholder="Tu nombre..."
+                        maxlength="20" />
+                    <button id="pv-results-ranking-submit"
+                        class="splash-btn splash-btn-pv ranking-submit-btn">GUARDAR</button>
+                </div>
+                <div id="pv-results-ranking-list" class="ranking-list"></div>
+            </div>
+            <div class="results-buttons">
+                <button id="pv-results-replay" class="splash-btn splash-btn-pv">JUGAR DE NUEVO</button>
+                <button id="pv-results-explore" class="splash-btn">EXPLORAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Ranking Screen (dual columns) ── -->
     <div id="ranking-screen">
-        <div class="ranking-content">
+        <div class="ranking-content ranking-content-dual">
             <div class="ranking-title">RANKING ESTELAR</div>
             <div id="ranking-input-row" class="ranking-input-row">
                 <input type="text" id="ranking-name-input" class="ranking-input" placeholder="Tu nombre..."
                     maxlength="20" />
                 <button id="ranking-submit" class="splash-btn splash-btn-game ranking-submit-btn">GUARDAR</button>
             </div>
-            <div id="ranking-list" class="ranking-list"></div>
+            <div class="ranking-dual-columns">
+                <div class="ranking-column">
+                    <div class="ranking-column-title ranking-column-pv">PLANET VISITOR</div>
+                    <div id="ranking-list-pv" class="ranking-list"></div>
+                </div>
+                <div class="ranking-column">
+                    <div class="ranking-column-title ranking-column-ship">CARRERA ESTELAR</div>
+                    <div id="ranking-list" class="ranking-list"></div>
+                </div>
+            </div>
             <div class="ranking-buttons">
                 <button id="ranking-close" class="splash-btn">VOLVER</button>
             </div>

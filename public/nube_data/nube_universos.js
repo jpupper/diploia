@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { CONFIG } from './config.js';
+import { CONFIG, loadSpaceConfig } from './config.js';
 import { Planet } from './Planet.js';
 import { Connection } from './Connection.js';
 import { CameraController } from './CameraController.js';
 import { EnergyParticleSystem } from './EnergyParticleSystem.js';
 import { GameManager } from './GameManager.js';
+import { PlanetVisitorManager } from './PlanetVisitorManager.js';
 
 const CFG = CONFIG;
 const CAT_COLORS = CFG.categoryColors;
@@ -40,6 +41,7 @@ class Universe {
         this._isDrag = false;
         this.shipModel = null;
         this.game = null;
+        this.pvGame = null;
         this.THREE = THREE;
     }
 
@@ -47,6 +49,21 @@ class Universe {
         this.clock = new THREE.Clock();
         const resp = await fetch(CFG.dataUrl);
         this.DATA = await resp.json();
+        if (this.DATA.config) {
+            // Merge per-category distances and other custom config from nodes_data.json
+            if (this.DATA.config.categoryDistancesMain) CFG.categoryDistancesMain = this.DATA.config.categoryDistancesMain;
+            if (this.DATA.config.categoryDistances) CFG.categoryDistances = this.DATA.config.categoryDistances;
+
+            // Optionally merge other global config fields if they exist
+            const fields = ['rootNodeSize', 'primaryNodeSize', 'secondaryNodeSize', 'nodeFontSize', 'categoryFontSize', 'rootFontSize', 'primaryDistance', 'secondaryNodeDist'];
+            fields.forEach(f => {
+                if (this.DATA.config[f] !== undefined) {
+                    // Map these to their corresponding CFG structure if necessary
+                    // For now, most of these are just being used in admin.js but let's make them available
+                    CFG[f] = this.DATA.config[f];
+                }
+            });
+        }
         this.categories = this.DATA.categories;
 
         this.scene = new THREE.Scene();
@@ -85,6 +102,8 @@ class Universe {
         this.loadShipModel();
         this.game = new GameManager(this);
         this.game.bindUI();
+        this.pvGame = new PlanetVisitorManager(this);
+        this.pvGame.bindUI();
         this.bindEvents();
         this.showSplash();
         this.animate();
@@ -304,7 +323,10 @@ class Universe {
         this.categories.forEach((catId, i) => {
             const node = this.DATA.nodes[catId]; if (!node) return;
             const angle = (i / catCount) * Math.PI * 2 - Math.PI / 2;
-            const cx = Math.cos(angle) * ringRadius; const cz = Math.sin(angle) * ringRadius;
+
+            // Use per-category distance from sun if available, else fallback to global ringRadius
+            const currentRingRadius = (CFG.categoryDistancesMain && CFG.categoryDistancesMain[catId]) || ringRadius;
+            const cx = Math.cos(angle) * currentRingRadius; const cz = Math.sin(angle) * currentRingRadius;
             const zMin = CFG.layout.categoryZMin !== undefined ? CFG.layout.categoryZMin : -2000;
             const zMax = CFG.layout.categoryZMax !== undefined ? CFG.layout.categoryZMax : 2000;
             const randomZ = zMin + Math.random() * (zMax - zMin);
@@ -333,7 +355,14 @@ class Universe {
 
             children.forEach((childId, ci) => {
                 const childNode = this.DATA.nodes[childId]; if (!childNode) return;
-                const orbitRadius = O.baseRadius + (ci % 3) * O.radiusStep + Math.random() * O.radiusRandom;
+
+                // Use per-category planet orbit radius if available, else fallback to default orbit formula
+                let orbitRadius;
+                if (CFG.categoryDistances && CFG.categoryDistances[catId]) {
+                    orbitRadius = CFG.categoryDistances[catId] + (ci % 3) * O.radiusStep + (Math.random() - 0.5) * O.radiusRandom;
+                } else {
+                    orbitRadius = O.baseRadius + (ci % 3) * O.radiusStep + Math.random() * O.radiusRandom;
+                }
                 const goldenRatio = (1 + Math.sqrt(5)) / 2;
                 const theta = (2 * Math.PI * ci) / goldenRatio + (Math.random() - 0.5) * 0.8;
                 const basePhi = Math.acos(1 - (2 * (ci + 0.5)) / childCount);
@@ -1066,6 +1095,58 @@ class Universe {
         }
     }
 
+    // ── Dual Ranking Screen ──
+    async _showDualRanking() {
+        const rankingScreen = document.getElementById('ranking-screen');
+        if (rankingScreen) rankingScreen.classList.add('visible');
+
+        const inputRow = document.getElementById('ranking-input-row');
+        if (inputRow) inputRow.style.display = 'none';
+
+        const pvListEl = document.getElementById('ranking-list-pv');
+        const shipListEl = document.getElementById('ranking-list');
+
+        const renderColumn = async (ranking, listEl) => {
+            if (!listEl) return;
+            listEl.innerHTML = '<div class="ranking-loading">Cargando...</div>';
+            const rankings = await ranking.getLeaderboard();
+            if (rankings.length === 0) {
+                listEl.innerHTML = '<div class="ranking-empty">No hay puntajes todav\u00eda</div>';
+                return;
+            }
+            let html = '';
+            rankings.slice(0, 10).forEach((entry, i) => {
+                const posClass = i === 0 ? 'pos-gold' : i === 1 ? 'pos-silver' : i === 2 ? 'pos-bronze' : '';
+                const medal = i === 0 ? '\ud83e\udd47' : i === 1 ? '\ud83e\udd48' : i === 2 ? '\ud83e\udd49' : `${i + 1}.`;
+                html += `<div class="ranking-row ${posClass}">`;
+                html += `<span class="ranking-pos">${medal}</span>`;
+                html += `<span class="ranking-name">${entry.playerName}</span>`;
+                html += `<span class="ranking-score">${entry.score}</span>`;
+                html += `</div>`;
+            });
+            listEl.innerHTML = html;
+        };
+
+        await Promise.all([
+            renderColumn(this.pvGame.ranking, pvListEl),
+            renderColumn(this.game.ranking, shipListEl)
+        ]);
+
+        const closeBtn = document.getElementById('ranking-close');
+        if (closeBtn) {
+            const handler = () => {
+                rankingScreen.classList.remove('visible');
+                closeBtn.removeEventListener('click', handler);
+                if (this.game._openedRankingFromSplash) {
+                    this.game._openedRankingFromSplash = false;
+                    const splash = document.getElementById('splash-screen');
+                    if (splash) splash.classList.add('visible');
+                }
+            };
+            closeBtn.addEventListener('click', handler);
+        }
+    }
+
     // ── Splash Screen ──
     showSplash() {
         setTimeout(() => {
@@ -1087,14 +1168,19 @@ class Universe {
                         setTimeout(() => this.game.startGame(), 600);
                     });
                 }
+                const pvBtn = document.getElementById('splash-pv');
+                if (pvBtn) {
+                    pvBtn.addEventListener('click', () => {
+                        splash.classList.remove('visible');
+                        setTimeout(() => this.pvGame.startGame(), 600);
+                    });
+                }
                 const rankingBtn = document.getElementById('splash-ranking');
                 if (rankingBtn) {
                     rankingBtn.addEventListener('click', () => {
-                        console.log('🏆 Ranking button clicked from splash');
-                        // Set a flag so we know to return to splash if closed
                         this.game._openedRankingFromSplash = true;
                         splash.classList.remove('visible');
-                        this.game.showRankingScreen(false);
+                        this._showDualRanking();
                     });
                 }
             }
@@ -1184,7 +1270,7 @@ class Universe {
                 this.updateShipRaycast(dt);
             }
         } else if (this.currentView === 'camera') {
-            if (this._orbitalWarping && this.cam.warping) {
+            if (this.cam.warping) {
                 this.cam.updateWarp(dt);
             } else if (this.activePlanet) {
                 this.cam.updateFollow(dt, this.activePlanet.getWorldPosition(), this.keys);
@@ -1220,9 +1306,11 @@ class Universe {
 // ═══════════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════════
-const universe = new Universe();
-universe.init().catch(err => {
-    console.error('Error loading:', err);
-    const loadEl = document.getElementById('loading');
-    if (loadEl) loadEl.innerHTML = '<p style="color:#ff6666">Error cargando datos. Verifica que mapa_herramientas_data.json esté en la misma carpeta.</p>';
+loadSpaceConfig().then(() => {
+    const universe = new Universe();
+    universe.init().catch(err => {
+        console.error('Error loading:', err);
+        const loadEl = document.getElementById('loading');
+        if (loadEl) loadEl.innerHTML = '<p style="color:#ff6666">Error cargando datos. Verifica que mapa_herramientas_data.json est\u00e9 en la misma carpeta.</p>';
+    });
 });

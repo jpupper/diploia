@@ -42,7 +42,10 @@
                     <span class="nav-icon">🏆</span> Ranking
                 </a>
                 <a href="#" class="nav-item" data-section="config" id="nav-config">
-                    <span class="nav-icon">⚙️</span> Configuración
+                    <span class="nav-icon">🗺️</span> Config Mapa
+                </a>
+                <a href="#" class="nav-item" data-section="space-config" id="nav-space-config">
+                    <span class="nav-icon">🚀</span> Config Espacio
                 </a>
                 <a href="#" class="nav-item" data-section="import-export" id="nav-import-export">
                     <span class="nav-icon">📦</span> Importar / Exportar
@@ -389,6 +392,102 @@
                             categoría existente en el universo.</p>
                         <div id="category-distances-list" class="items-list">
                             <!-- Se cargará dinámicamente -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════ SPACE CONFIGURATION ═══════ -->
+                <section class="section" id="section-space-config">
+                    <div class="section-header">
+                        <h3>Configuraci&oacute;n del Espacio 3D</h3>
+                        <button class="btn btn-primary" id="btn-save-space-config">&#x1F4BE; Guardar Config Espacio</button>
+                    </div>
+
+                    <!-- Category Setup (dynamic) -->
+                    <div class="card" style="margin-top:12px;">
+                        <h4>&#x1F4C1; Categor&iacute;as</h4>
+                        <p class="hint-text" style="margin-bottom:15px;">Distancia al centro, distancia entre planetas y color de cada categor&iacute;a.</p>
+                        <div id="sc-category-list" class="items-list"></div>
+                    </div>
+
+                    <!-- Game Scoring -->
+                    <div class="cards-row" style="margin-top:12px;">
+                        <div class="card">
+                            <h4>&#x1F3AE; Carrera Estelar</h4>
+                            <div class="form-row">
+                                <div class="form-group"><label>Tiempo de juego (seg)</label><input type="number" step="any" id="sc-game-gameTime"></div>
+                                <div class="form-group"><label>Tiempo eval/pregunta (seg)</label><input type="number" step="any" id="sc-game-evalTimePerQuestion"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Pts Ruta Correcta</label><input type="number" step="any" id="sc-game-pointsRouteCorrect"></div>
+                                <div class="form-group"><label>Pts Random Correcta</label><input type="number" step="any" id="sc-game-pointsRandomCorrect"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Pts Incorrecta</label><input type="number" step="any" id="sc-game-pointsWrong"></div>
+                                <div class="form-group"><label>Collect Time (seg)</label><input type="number" step="any" id="sc-game-collectTime"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4>&#x1F30D; Planet Visitor</h4>
+                            <div class="form-row">
+                                <div class="form-group"><label>Total Planetas</label><input type="number" step="any" id="sc-game-pvTotalPlanets"></div>
+                                <div class="form-group"><label>Pts por Visita</label><input type="number" step="any" id="sc-game-pvPointsPerVisit"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Pts Correcta</label><input type="number" step="any" id="sc-game-pvPointsCorrect"></div>
+                                <div class="form-group"><label>Pts Incorrecta</label><input type="number" step="any" id="sc-game-pvPointsWrong"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ship -->
+                    <div class="card" style="margin-top:12px;">
+                        <h4>&#x1F680; Nave Espacial</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Max Speed</label><input type="number" step="any" id="sc-ship-maxSpeed"></div>
+                            <div class="form-group"><label>Acceleration</label><input type="number" step="any" id="sc-ship-acceleration"></div>
+                            <div class="form-group"><label>Drag</label><input type="number" step="any" id="sc-ship-drag"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Turn Speed</label><input type="number" step="any" id="sc-ship-turnSpeed"></div>
+                            <div class="form-group"><label>Boost Multiplier</label><input type="number" step="any" id="sc-ship-boostMultiplier"></div>
+                            <div class="form-group"><label>Mouse Sensitivity</label><input type="number" step="any" id="sc-ship-mouseSensitivity"></div>
+                        </div>
+                    </div>
+
+                    <!-- Scene & Stars -->
+                    <div class="cards-row" style="margin-top:12px;">
+                        <div class="card">
+                            <h4>&#x1F3AC; Escena</h4>
+                            <div class="form-row">
+                                <div class="form-group"><label>Fog Color (hex)</label><input type="text" id="sc-scene-fogColor" placeholder="0x06060e"></div>
+                                <div class="form-group"><label>Fog Density</label><input type="number" step="any" id="sc-scene-fogDensity"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Ambient Color (hex)</label><input type="text" id="sc-scene-ambientColor" placeholder="0x111122"></div>
+                                <div class="form-group"><label>Ambient Intensity</label><input type="number" step="any" id="sc-scene-ambientIntensity"></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4>&#x2B50; Estrellas</h4>
+                            <div class="form-row">
+                                <div class="form-group"><label>Cantidad</label><input type="number" step="any" id="sc-stars-count"></div>
+                                <div class="form-group"><label>Dist. M&iacute;n</label><input type="number" step="any" id="sc-stars-minDistance"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Dist. M&aacute;x</label><input type="number" step="any" id="sc-stars-maxDistance"></div>
+                                <div class="form-group"><label>Tama&ntilde;o Base</label><input type="number" step="any" id="sc-stars-baseSize"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Connections -->
+                    <div class="card" style="margin-top:12px;">
+                        <h4>&#x1F517; Conexiones</h4>
+                        <div class="form-row">
+                            <div class="form-group"><label>Trace Duration (seg)</label><input type="number" step="any" id="sc-connections-traceDuration"></div>
+                            <div class="form-group"><label>Trace Sphere Radius</label><input type="number" step="any" id="sc-connections-traceSphereRadius"></div>
+                            <div class="form-group"><label>Trace Sphere Glow Mult</label><input type="number" step="any" id="sc-connections-traceSphereGlowMult"></div>
                         </div>
                     </div>
                 </section>

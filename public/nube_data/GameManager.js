@@ -1045,22 +1045,16 @@ export class GameManager {
         listEl.innerHTML = html;
     }
 
-    // ── Ranking System (delegates to Ranking.js) ──
+    // ── Ranking System (delegates to dual ranking in Universe) ──
     showRankingScreen(showInput = true) {
-        console.log('📊 GameManager: Showing ranking screen');
         this.state = 'ranking';
         if (this.dom.resultsScreen) this.dom.resultsScreen.classList.remove('visible');
-
-        this.ranking.show(this.finalScore, {
-            correctAnswers: this.correctCount,
-            wrongAnswers: this.wrongCount,
-            totalQuestions: this.evalQuestions.length,
-            gameTime: Math.round(CONFIG.game.gameTime - this.timeRemaining)
-        }, showInput);
+        this.universe._showDualRanking();
     }
 
     closeRanking() {
-        this.ranking.hide();
+        const rankingScreen = document.getElementById('ranking-screen');
+        if (rankingScreen) rankingScreen.classList.remove('visible');
         if (this._openedRankingFromSplash) {
             this._openedRankingFromSplash = false;
             const splash = document.getElementById('splash-screen');

@@ -22,6 +22,7 @@ const API = BASE_PATH + '/api';
 // ═══════════════════════════════════════════════════════════════
 let nodesData = { nodes: {}, categories: [], categoryChildren: {}, config: {} };
 let rankingData = { rankings: [] };
+let spaceConfigData = {};
 let editingNodeId = null;
 let currentSecondaryTags = []; // Store IDs for the tag picker
 
@@ -85,7 +86,8 @@ function switchSection(sectionId) {
         'nodes': 'Nodos',
         'connections': 'Conexiones',
         'ranking': 'Ranking',
-        'config': 'Configuración',
+        'config': 'Configuración Mapa',
+        'space-config': 'Configuración Espacio',
         'import-export': 'Importar / Exportar'
     };
     document.getElementById('topbar-title').textContent = titles[sectionId] || sectionId;
@@ -155,12 +157,22 @@ async function loadAllData() {
         // Ensure nodesData has config for compatibility
         nodesData.config = configResp.config || {};
 
+        try {
+            const spaceRes = await fetch(API + '/space-config');
+            if (spaceRes.ok) {
+                spaceConfigData = await spaceRes.json();
+            }
+        } catch (e) {
+            console.warn('Space config not available, using defaults');
+        }
+
         renderDashboard();
         renderCategories();
         renderNodes();
         renderConnections();
         renderRanking();
         renderConfig();
+        renderSpaceConfig();
         populateSelects();
 
         showToast('Datos cargados correctamente', 'success');
@@ -556,6 +568,9 @@ function initButtons() {
     // Save Config
     document.getElementById('btn-save-config').addEventListener('click', saveConfig);
 
+    // Save Space Config
+    document.getElementById('btn-save-space-config').addEventListener('click', saveSpaceConfig);
+
     // Sync HTML from text
     document.getElementById('btn-sync-html').addEventListener('click', () => {
         const label = document.getElementById('node-label').value.trim();
@@ -947,6 +962,233 @@ async function saveConfig() {
         }
     } catch (err) {
         showToast('Error de conexión', 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SPACE CONFIGURATION (nube_data/config.js overrides)
+// ═══════════════════════════════════════════════════════════════
+
+const SC_DEFAULTS = {
+    game: {
+        gameTime: 60, evalTimePerQuestion: 30, collectTime: 1.2,
+        pointsRouteCorrect: 300, pointsRandomCorrect: 50, pointsWrong: -100,
+        pvTotalPlanets: 10, pvPointsPerVisit: 100, pvPointsCorrect: 200, pvPointsWrong: -50
+    },
+    ship: {
+        maxSpeed: 3000, acceleration: 1000, drag: 0.97,
+        turnSpeed: 2.0, boostMultiplier: 2, mouseSensitivity: 0.002
+    },
+    scene: { fogColor: 0x06060e, fogDensity: 0.00015, ambientColor: 0x111122, ambientIntensity: 0.5 },
+    stars: { count: 25000, minDistance: 3000, maxDistance: 30000, baseSize: 4 },
+    connections: { traceDuration: 5.5, traceSphereRadius: 10, traceSphereGlowMult: 2.5 }
+};
+
+const SC_FIELD_MAP = [
+    { id: 'sc-game-gameTime',            path: ['game', 'gameTime'] },
+    { id: 'sc-game-evalTimePerQuestion',  path: ['game', 'evalTimePerQuestion'] },
+    { id: 'sc-game-collectTime',          path: ['game', 'collectTime'] },
+    { id: 'sc-game-pointsRouteCorrect',   path: ['game', 'pointsRouteCorrect'] },
+    { id: 'sc-game-pointsRandomCorrect',  path: ['game', 'pointsRandomCorrect'] },
+    { id: 'sc-game-pointsWrong',          path: ['game', 'pointsWrong'] },
+    { id: 'sc-game-pvTotalPlanets',       path: ['game', 'pvTotalPlanets'] },
+    { id: 'sc-game-pvPointsPerVisit',     path: ['game', 'pvPointsPerVisit'] },
+    { id: 'sc-game-pvPointsCorrect',      path: ['game', 'pvPointsCorrect'] },
+    { id: 'sc-game-pvPointsWrong',        path: ['game', 'pvPointsWrong'] },
+    { id: 'sc-ship-maxSpeed',             path: ['ship', 'maxSpeed'] },
+    { id: 'sc-ship-acceleration',         path: ['ship', 'acceleration'] },
+    { id: 'sc-ship-drag',                 path: ['ship', 'drag'] },
+    { id: 'sc-ship-turnSpeed',            path: ['ship', 'turnSpeed'] },
+    { id: 'sc-ship-boostMultiplier',      path: ['ship', 'boostMultiplier'] },
+    { id: 'sc-ship-mouseSensitivity',     path: ['ship', 'mouseSensitivity'] },
+    { id: 'sc-scene-fogColor',            path: ['scene', 'fogColor'], hex: true },
+    { id: 'sc-scene-fogDensity',          path: ['scene', 'fogDensity'] },
+    { id: 'sc-scene-ambientColor',        path: ['scene', 'ambientColor'], hex: true },
+    { id: 'sc-scene-ambientIntensity',    path: ['scene', 'ambientIntensity'] },
+    { id: 'sc-stars-count',               path: ['stars', 'count'] },
+    { id: 'sc-stars-minDistance',          path: ['stars', 'minDistance'] },
+    { id: 'sc-stars-maxDistance',          path: ['stars', 'maxDistance'] },
+    { id: 'sc-stars-baseSize',            path: ['stars', 'baseSize'] },
+    { id: 'sc-connections-traceDuration',      path: ['connections', 'traceDuration'] },
+    { id: 'sc-connections-traceSphereRadius',  path: ['connections', 'traceSphereRadius'] },
+    { id: 'sc-connections-traceSphereGlowMult', path: ['connections', 'traceSphereGlowMult'] },
+];
+
+const SC_CAT_COLOR_DEFAULTS = {
+    engines: 0xff6b35, frameworks: 0x00d4ff, ia: 0xb44dff, shaders: 0x00ff88,
+    db: 0xffd700, ides: 0xff4d8b, languages: 0x00c9a7, llm: 0xe864ff,
+    frontend: 0x4d94ff, os: 0x8bff4d, soportes: 0xff9f43, protocolos: 0x54e0ff,
+    'software-multimedia': 0xff6688, entornos: 0x88cc44, glosario: 0xccaa88
+};
+
+function _scHexStr(val) {
+    if (val === undefined || val === null) return '';
+    if (typeof val === 'string') return val;
+    return '#' + val.toString(16).padStart(6, '0');
+}
+
+function _scParseHex(str) {
+    if (!str) return 0;
+    str = str.trim();
+    if (str.startsWith('0x') || str.startsWith('0X')) return parseInt(str.substring(2), 16);
+    if (str.startsWith('#')) return parseInt(str.substring(1), 16);
+    return parseInt(str, 16);
+}
+
+function _scGet(saved, path) {
+    let cur = saved;
+    for (const k of path) {
+        if (cur === undefined || cur === null) return undefined;
+        cur = cur[k];
+    }
+    return cur;
+}
+
+function _scGetDefault(path) {
+    return _scGet(SC_DEFAULTS, path);
+}
+
+function renderSpaceConfig() {
+    const saved = spaceConfigData || {};
+
+    SC_FIELD_MAP.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (!el) return;
+        const val = _scGet(saved, f.path);
+        const def = _scGetDefault(f.path);
+        const v = (val !== undefined) ? val : def;
+        if (f.hex) {
+            el.value = _scHexStr(v);
+        } else {
+            el.value = (v !== undefined && v !== null) ? v : '';
+        }
+    });
+
+    _renderScCategoryList(saved);
+}
+
+function _renderScCategoryList(saved) {
+    const container = document.getElementById('sc-category-list');
+    const categories = nodesData.categories || [];
+    const nodes = nodesData.nodes || {};
+    const rawConfig = nodesData.config || {};
+    const mapConfig = {
+        categoryDistancesMain: { ...DEFAULT_CONFIG.categoryDistancesMain, ...(rawConfig.categoryDistancesMain || {}) },
+        categoryDistances: { ...DEFAULT_CONFIG.categoryDistances, ...(rawConfig.categoryDistances || {}) }
+    };
+    const savedColors = (saved.categoryColors) || {};
+
+    if (categories.length === 0) {
+        container.innerHTML = '<p class="hint-text" style="padding:10px;">No hay categorías creadas.</p>';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="config-cat-row config-cat-header">
+            <div>Categoría</div>
+            <div style="text-align:center;">Dist. al Centro</div>
+            <div style="text-align:center;">Dist. Planetas</div>
+            <div style="text-align:center;">Color</div>
+        </div>
+    ` + categories.map(catId => {
+        const label = nodes[catId]?.label || catId;
+        const mainDist = mapConfig.categoryDistancesMain?.[catId] || 1000;
+        const subDist = mapConfig.categoryDistances?.[catId] || 250;
+        const colorVal = (savedColors[catId] !== undefined) ? savedColors[catId] : (SC_CAT_COLOR_DEFAULTS[catId] || 0x888888);
+        const colorHex = '#' + colorVal.toString(16).padStart(6, '0');
+
+        return `
+        <div class="config-cat-row">
+            <div class="config-cat-info">
+                <span class="config-cat-label">${label}</span>
+                <span class="config-cat-id">${catId}</span>
+            </div>
+            <div>
+                <input type="number" class="sc-cat-main config-input-small" data-cat="${catId}" value="${mainDist}">
+            </div>
+            <div>
+                <input type="number" class="sc-cat-sub config-input-small" data-cat="${catId}" value="${subDist}">
+            </div>
+            <div>
+                <input type="color" class="sc-cat-color" data-cat="${catId}" value="${colorHex}" style="width:50px;height:32px;border:none;cursor:pointer;background:transparent;">
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+async function saveSpaceConfig() {
+    const config = {};
+
+    SC_FIELD_MAP.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (!el) return;
+        const path = f.path;
+        if (!config[path[0]]) config[path[0]] = {};
+        if (f.hex) {
+            config[path[0]][path[1]] = _scParseHex(el.value);
+        } else {
+            config[path[0]][path[1]] = Number(el.value);
+        }
+    });
+
+    config.categoryColors = {};
+    document.querySelectorAll('.sc-cat-color').forEach(input => {
+        config.categoryColors[input.dataset.cat] = _scParseHex(input.value);
+    });
+
+    const catDistMain = {};
+    const catDistSub = {};
+    document.querySelectorAll('.sc-cat-main').forEach(input => {
+        catDistMain[input.dataset.cat] = Number(input.value);
+    });
+    document.querySelectorAll('.sc-cat-sub').forEach(input => {
+        catDistSub[input.dataset.cat] = Number(input.value);
+    });
+
+    const mapConfig = { ...DEFAULT_CONFIG, ...(nodesData.config || {}) };
+    mapConfig.categoryDistancesMain = { ...DEFAULT_CONFIG.categoryDistancesMain, ...catDistMain };
+    mapConfig.categoryDistances = { ...DEFAULT_CONFIG.categoryDistances, ...catDistSub };
+
+    let mapOk = false;
+    let scOk = false;
+
+    try {
+        const cfgRes = await fetch(API + '/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mapConfig)
+        });
+        const cfgData = await cfgRes.json();
+        if (cfgData.success) {
+            mapOk = true;
+            nodesData.config = mapConfig;
+        }
+    } catch (e) {
+        console.error('Error saving map config:', e);
+    }
+
+    try {
+        const scRes = await fetch(API + '/space-config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        if (scRes.ok) {
+            const scData = await scRes.json();
+            if (scData.success) {
+                scOk = true;
+                spaceConfigData = config;
+            }
+        }
+    } catch (e) {
+        console.warn('Space config API not available');
+    }
+
+    if (mapOk) {
+        showToast(scOk ? 'Configuración de espacio guardada' : 'Distancias guardadas (space-config no disponible)', 'success');
+    } else {
+        showToast('Error al guardar configuración', 'error');
     }
 }
 

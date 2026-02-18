@@ -38,6 +38,8 @@ if (!fs.existsSync(DATA_DIR)) {
 // JSON file paths
 const NODES_FILE = path.join(DATA_DIR, 'nodes_data.json');
 const RANKING_FILE = path.join(DATA_DIR, 'ranking.json');
+const RANKING_PV_FILE = path.join(DATA_DIR, 'ranking_pv.json');
+const SPACE_CONFIG_FILE = path.join(DATA_DIR, 'space_config.json');
 
 // ═══════════════════════════════════════════════════════════════
 //  HELPER FUNCTIONS - Read/Write JSON
@@ -69,6 +71,16 @@ function writeJSON(filePath, data) {
 if (!fs.existsSync(RANKING_FILE)) {
     writeJSON(RANKING_FILE, { rankings: [] });
     console.log('✅ ranking.json created');
+}
+
+if (!fs.existsSync(RANKING_PV_FILE)) {
+    writeJSON(RANKING_PV_FILE, { rankings: [] });
+    console.log('✅ ranking_pv.json created');
+}
+
+if (!fs.existsSync(SPACE_CONFIG_FILE)) {
+    writeJSON(SPACE_CONFIG_FILE, {});
+    console.log('✅ space_config.json created');
 }
 
 if (!fs.existsSync(NODES_FILE)) {
@@ -507,6 +519,62 @@ app.delete(`/${APP_PATH}/api/ranking/:id`, (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
+//  API ROUTES - RANKING PLANET VISITOR
+// ═══════════════════════════════════════════════════════════════
+
+app.get(`/${APP_PATH}/api/ranking_pv`, (req, res) => {
+    const data = readJSON(RANKING_PV_FILE, { rankings: [] });
+    data.rankings.sort((a, b) => b.score - a.score);
+    res.json(data);
+});
+
+app.post(`/${APP_PATH}/api/ranking_pv`, (req, res) => {
+    try {
+        const data = readJSON(RANKING_PV_FILE, { rankings: [] });
+        const { playerName, score, correctAnswers, wrongAnswers, totalQuestions, gameTime, date } = req.body;
+
+        if (!playerName || score === undefined) {
+            return res.status(400).json({ error: 'Se requiere nombre y puntaje' });
+        }
+
+        const entry = {
+            id: Date.now().toString(),
+            playerName,
+            score: Number(score),
+            correctAnswers: correctAnswers || 0,
+            wrongAnswers: wrongAnswers || 0,
+            totalQuestions: totalQuestions || 0,
+            gameTime: gameTime || 0,
+            date: date || new Date().toISOString()
+        };
+
+        data.rankings.push(entry);
+        data.rankings.sort((a, b) => b.score - a.score);
+        if (data.rankings.length > 100) {
+            data.rankings = data.rankings.slice(0, 100);
+        }
+
+        writeJSON(RANKING_PV_FILE, data);
+        res.json({ success: true, entry, position: data.rankings.indexOf(entry) + 1 });
+    } catch (error) {
+        console.error('Error saving planet visitor ranking:', error);
+        res.status(500).json({ error: 'Error al guardar el ranking' });
+    }
+});
+
+app.delete(`/${APP_PATH}/api/ranking_pv/:id`, (req, res) => {
+    try {
+        const data = readJSON(RANKING_PV_FILE, { rankings: [] });
+        data.rankings = data.rankings.filter(r => r.id !== req.params.id);
+        writeJSON(RANKING_PV_FILE, data);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting planet visitor ranking:', error);
+        res.status(500).json({ error: 'Error al eliminar el ranking' });
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════
 //  API ROUTES - IMPORT / EXPORT
 // ═══════════════════════════════════════════════════════════════
 
@@ -561,6 +629,25 @@ app.put(`/${APP_PATH}/api/config`, (req, res) => {
     } catch (error) {
         console.error('Error updating config:', error);
         res.status(500).json({ error: 'Error al actualizar configuración' });
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  API ROUTES - SPACE CONFIG (nube_data/config.js overrides)
+// ═══════════════════════════════════════════════════════════════
+
+app.get(`/${APP_PATH}/api/space-config`, (req, res) => {
+    const data = readJSON(SPACE_CONFIG_FILE, {});
+    res.json(data);
+});
+
+app.put(`/${APP_PATH}/api/space-config`, (req, res) => {
+    try {
+        writeJSON(SPACE_CONFIG_FILE, req.body);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error saving space config:', error);
+        res.status(500).json({ error: 'Error al guardar configuración de espacio' });
     }
 });
 
