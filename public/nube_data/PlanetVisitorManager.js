@@ -137,6 +137,8 @@ export class PlanetVisitorManager {
         document.getElementById('view-mode-toggle').style.display = 'none';
         document.getElementById('connections-toggle').style.display = 'none';
         document.getElementById('info-panel').classList.remove('visible');
+        const navArrows = document.getElementById('nav-arrows');
+        if (navArrows) navArrows.style.display = 'none';
 
         this._pickRandomStartAndWarp();
     }
@@ -155,7 +157,7 @@ export class PlanetVisitorManager {
                 this.universe.cam.initFollowFrom(planet.getWorldPosition());
                 this._registerVisit(planet);
                 this._showPlanetSelectionScreen();
-            });
+            }, planet);
         }
     }
 
@@ -304,6 +306,9 @@ export class PlanetVisitorManager {
             html += `<p style="margin-top:12px"><a href="${node.url}" target="_blank">${node.url}</a></p>`;
         }
         this.dom.pvPlanetInfoContent.innerHTML = html;
+        const G = CONFIG.game || {};
+        const fontSize = G.pvInfoFontSize || 14;
+        this.dom.pvPlanetInfoContent.style.fontSize = `${fontSize}px`;
         this.dom.pvPlanetInfo.classList.add('visible');
     }
 
@@ -330,7 +335,7 @@ export class PlanetVisitorManager {
             this.universe.cam.initFollowFrom(planet.getWorldPosition());
             this._registerVisit(planet);
             this._showPlanetSelectionScreen();
-        });
+        }, planet);
     }
 
     _endVisiting() {
@@ -605,6 +610,8 @@ export class PlanetVisitorManager {
 
         document.getElementById('view-mode-toggle').style.display = '';
         document.getElementById('connections-toggle').style.display = '';
+        const navArrows = document.getElementById('nav-arrows');
+        if (navArrows) navArrows.style.display = '';
 
         this.universe.setViewMode('global');
     }

@@ -386,7 +386,7 @@ class Universe {
                 const pColor = color.clone().lerp(new THREE.Color(0xffffff), P.colorLerpToWhite);
                 const texSeed = Math.abs((childId.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 2654435761) | 0);
                 const pTex = this._makePlanetTexture(pColor, texSeed);
-                const pMat = new THREE.MeshStandardMaterial({ map: pTex, emissive: pColor, emissiveIntensity: P.emissiveIntensity * 0.6, roughness: 0.75, metalness: 0.1, transparent: true, opacity: 0.95 });
+                const pMat = new THREE.MeshStandardMaterial({ map: pTex, emissive: pColor, emissiveIntensity: P.emissiveIntensity * 0.15, roughness: 0.65, metalness: 0.05, transparent: true, opacity: 0.95 });
                 const planetMesh = new THREE.Mesh(pGeo, pMat); planetMesh.position.set(px, py, pz);
                 group.add(planetMesh);
                 planetMesh.add(new THREE.Mesh(new THREE.SphereGeometry(P.glowRadius, 16, 16), new THREE.MeshBasicMaterial({ color: pColor, transparent: true, opacity: 0.06, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
@@ -459,15 +459,15 @@ class Universe {
 
         for (let py = 0; py < size; py++) {
             for (let px = 0; px < size; px++) {
-                const nx = px / size * 4 + seed * 0.001;
-                const ny = py / size * 4 + seed * 0.001;
+                const nx = px / size * 5 + seed * 0.001;
+                const ny = py / size * 5 + seed * 0.001;
                 const n = fbm(nx, ny, 6);
 
-                // Blend from planet color toward dark/light based on noise
-                const bright = 0.55 + n * 0.9;
-                const pr = Math.min(255, Math.round(r * 255 * bright));
-                const pg = Math.min(255, Math.round(g * 255 * bright));
-                const pb = Math.min(255, Math.round(b * 255 * bright));
+                // High-contrast blend: dark valleys, bright peaks
+                const bright = 0.3 + n * 1.4;
+                const pr = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
+                const pg = Math.min(255, Math.max(0, Math.round(g * 255 * bright)));
+                const pb = Math.min(255, Math.max(0, Math.round(b * 255 * bright)));
 
                 const i = (py * size + px) * 4;
                 d[i] = pr; d[i + 1] = pg; d[i + 2] = pb; d[i + 3] = 255;

@@ -974,7 +974,7 @@ const SC_DEFAULTS = {
         gameTime: 60, evalTimePerQuestion: 30, collectTime: 1.2,
         pointsRouteCorrect: 300, pointsRandomCorrect: 50, pointsWrong: -100,
         pvTotalPlanets: 10, pvPointsPerVisit: 100, pvPointsCorrect: 200, pvPointsWrong: -50,
-        pvStopDistance: 120, pvAutoAdvanceTime: 15
+        pvStopDistance: 120, pvAutoAdvanceTime: 15, pvInfoFontSize: 14
     },
     ship: {
         maxSpeed: 3000, acceleration: 1000, drag: 0.97,
@@ -998,6 +998,7 @@ const SC_FIELD_MAP = [
     { id: 'sc-game-pvPointsWrong',        path: ['game', 'pvPointsWrong'] },
     { id: 'sc-game-pvStopDistance',       path: ['game', 'pvStopDistance'] },
     { id: 'sc-game-pvAutoAdvanceTime',    path: ['game', 'pvAutoAdvanceTime'] },
+    { id: 'sc-game-pvInfoFontSize',        path: ['game', 'pvInfoFontSize'] },
     { id: 'sc-ship-maxSpeed',             path: ['ship', 'maxSpeed'] },
     { id: 'sc-ship-acceleration',         path: ['ship', 'acceleration'] },
     { id: 'sc-ship-drag',                 path: ['ship', 'drag'] },

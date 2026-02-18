@@ -209,9 +209,11 @@ export class CameraController {
         return { speed, throttle: this.shipThrottle };
     }
 
-    startWarp(targetPos, stopDistance, callback) {
+    startWarp(targetPos, stopDistance, callback, trackedPlanet) {
         this.warping = true;
         this.warpStart = this.camera.position.clone();
+        this.warpStopDistance = stopDistance;
+        this._warpTrackedPlanet = trackedPlanet || null;
         // Stop at stopDistance from the planet along the approach direction
         const dir = new THREE.Vector3().subVectors(targetPos, this.warpStart).normalize();
         this.warpTarget = targetPos.clone().sub(dir.multiplyScalar(stopDistance));
@@ -226,6 +228,16 @@ export class CameraController {
         if (!this.warping) return false;
         this.warpTime += dt;
         const t = Math.min(this.warpTime / this.warpDuration, 1);
+
+        // If tracking a moving planet, update the target each frame so the
+        // camera always arrives exactly where the planet currently is.
+        if (this._warpTrackedPlanet) {
+            const currentPlanetPos = this._warpTrackedPlanet.getWorldPosition();
+            const dir = new THREE.Vector3().subVectors(currentPlanetPos, this.warpStart).normalize();
+            this.warpTarget = currentPlanetPos.clone().sub(dir.multiplyScalar(this.warpStopDistance));
+            this.warpLookAt = currentPlanetPos.clone();
+        }
+
         // Ease-in-out with a sharp acceleration feel
         const ease = t < 0.5
             ? 4 * t * t * t
@@ -238,6 +250,7 @@ export class CameraController {
         this.shipPitch = Math.asin(Math.max(-1, Math.min(1, faceDir.y)));
         if (t >= 1) {
             this.warping = false;
+            this._warpTrackedPlanet = null;
             this.shipVelocity.set(0, 0, 0);
             if (this.warpCallback) this.warpCallback();
             return false;
