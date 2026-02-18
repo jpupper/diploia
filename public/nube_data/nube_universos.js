@@ -797,6 +797,11 @@ class Universe {
         document.getElementById('btn-zout').addEventListener('click', (e) => { e.stopPropagation(); this.adjustZoom(CFG.camera.zoomStep); });
         document.getElementById('info-close').addEventListener('click', () => this.closeInfoPanel());
 
+        document.getElementById('btn-view-home').addEventListener('click', () => {
+            this.setViewMode('global');
+            const splash = document.getElementById('splash-screen');
+            if (splash) splash.classList.add('visible');
+        });
         document.getElementById('btn-view-global').addEventListener('click', () => this.setViewMode('global'));
         document.getElementById('btn-view-camera').addEventListener('click', () => this.setViewMode('camera'));
         document.getElementById('btn-view-ship').addEventListener('click', () => this.setViewMode('ship'));

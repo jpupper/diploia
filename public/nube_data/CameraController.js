@@ -31,6 +31,8 @@ export class CameraController {
         this.mouseDown = false;
         this.lastMouseX = 0;
         this.lastMouseY = 0;
+        this._prevPlanetPos = new THREE.Vector3();
+        this._followInitialized = false;
 
         // Ship
         this.shipVelocity = new THREE.Vector3();
@@ -106,6 +108,8 @@ export class CameraController {
         this.followYaw = Math.atan2(diff.x, diff.z);
         this.followPitch = Math.atan2(diff.y, Math.sqrt(diff.x * diff.x + diff.z * diff.z));
         this.followDistance = diff.length();
+        this._prevPlanetPos.copy(targetWorldPos);
+        this._followInitialized = true;
     }
 
     updateFollow(dt, targetWorldPos, keys) {
@@ -140,6 +144,15 @@ export class CameraController {
             Math.cos(this.followYaw) * Math.cos(this.followPitch) * this.followDistance
         );
         const desiredPos = targetWorldPos.clone().add(camOffset);
+
+        // Compensate for planet's orbital movement so camera doesn't lag/snap
+        if (this._followInitialized) {
+            const planetDelta = new THREE.Vector3().subVectors(targetWorldPos, this._prevPlanetPos);
+            this.camera.position.add(planetDelta);
+        }
+        this._prevPlanetPos.copy(targetWorldPos);
+        this._followInitialized = true;
+
         this.camera.position.lerp(desiredPos, F.lerpSpeed);
         this.camera.lookAt(targetWorldPos);
     }
