@@ -50,9 +50,18 @@ class Universe {
         const resp = await fetch(CFG.dataUrl);
         this.DATA = await resp.json();
         if (this.DATA.config) {
-            // Merge per-category distances and other custom config from nodes_data.json
-            if (this.DATA.config.categoryDistancesMain) CFG.categoryDistancesMain = this.DATA.config.categoryDistancesMain;
-            if (this.DATA.config.categoryDistances) CFG.categoryDistances = this.DATA.config.categoryDistances;
+            // Merge per-category distances from nodes_data.json only if space-config didn't already set them
+            if (this.DATA.config.categoryDistancesMain && !CFG.categoryDistancesMain) {
+                CFG.categoryDistancesMain = this.DATA.config.categoryDistancesMain;
+            } else if (this.DATA.config.categoryDistancesMain) {
+                // Merge: space-config values take priority, fill missing keys from nodes_data.json
+                CFG.categoryDistancesMain = { ...this.DATA.config.categoryDistancesMain, ...CFG.categoryDistancesMain };
+            }
+            if (this.DATA.config.categoryDistances && !CFG.categoryDistances) {
+                CFG.categoryDistances = this.DATA.config.categoryDistances;
+            } else if (this.DATA.config.categoryDistances) {
+                CFG.categoryDistances = { ...this.DATA.config.categoryDistances, ...CFG.categoryDistances };
+            }
 
             // Optionally merge other global config fields if they exist
             const fields = ['rootNodeSize', 'primaryNodeSize', 'secondaryNodeSize', 'nodeFontSize', 'categoryFontSize', 'rootFontSize', 'primaryDistance', 'secondaryNodeDist'];

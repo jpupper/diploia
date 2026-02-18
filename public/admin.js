@@ -1073,8 +1073,8 @@ function _renderScCategoryList(saved) {
     const nodes = nodesData.nodes || {};
     const rawConfig = nodesData.config || {};
     const mapConfig = {
-        categoryDistancesMain: { ...DEFAULT_CONFIG.categoryDistancesMain, ...(rawConfig.categoryDistancesMain || {}) },
-        categoryDistances: { ...DEFAULT_CONFIG.categoryDistances, ...(rawConfig.categoryDistances || {}) }
+        categoryDistancesMain: { ...DEFAULT_CONFIG.categoryDistancesMain, ...(rawConfig.categoryDistancesMain || {}), ...(saved.categoryDistancesMain || {}) },
+        categoryDistances: { ...DEFAULT_CONFIG.categoryDistances, ...(rawConfig.categoryDistances || {}), ...(saved.categoryDistances || {}) }
     };
     const savedColors = (saved.categoryColors) || {};
 
@@ -1145,6 +1145,9 @@ async function saveSpaceConfig() {
     document.querySelectorAll('.sc-cat-sub').forEach(input => {
         catDistSub[input.dataset.cat] = Number(input.value);
     });
+
+    config.categoryDistancesMain = catDistMain;
+    config.categoryDistances = catDistSub;
 
     const mapConfig = { ...DEFAULT_CONFIG, ...(nodesData.config || {}) };
     mapConfig.categoryDistancesMain = { ...DEFAULT_CONFIG.categoryDistancesMain, ...catDistMain };
