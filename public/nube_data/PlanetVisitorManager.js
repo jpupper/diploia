@@ -26,6 +26,9 @@ export class PlanetVisitorManager {
 
         this._visitedRings = [];
 
+        this._autoAdvanceTimer = null;
+        this._countdownInterval = null;
+
         this.dom = {};
     }
 
@@ -56,6 +59,8 @@ export class PlanetVisitorManager {
         this.dom.pvResultsRankingSubmit = document.getElementById('pv-results-ranking-submit');
         this.dom.pvResultsRankingList = document.getElementById('pv-results-ranking-list');
         this.dom.pvResultsReplay = document.getElementById('pv-results-replay');
+        this.dom.pvAutoCountdown = document.getElementById('pv-auto-countdown');
+        this.dom.pvAutoAdvanceFill = document.getElementById('pv-auto-advance-fill');
         this.dom.pvResultsExplore = document.getElementById('pv-results-explore');
 
         this.dom.pvBriefing = document.getElementById('pv-briefing');
@@ -144,11 +149,13 @@ export class PlanetVisitorManager {
             this.universe.setActivePlanet(planet);
             this.universe.setViewMode('camera');
             const targetPos = planet.getWorldPosition();
-            this.universe.cam.startWarp(targetPos, 80, () => {
+            const G = CONFIG.game || {};
+            const stopDist = G.pvStopDistance || 120;
+            this.universe.cam.startWarp(targetPos, stopDist, () => {
+                this.universe.cam.initFollowFrom(planet.getWorldPosition());
                 this._registerVisit(planet);
                 this._showPlanetSelectionScreen();
             });
-            this.universe.cam.initFollowFrom(targetPos);
         }
     }
 
@@ -186,6 +193,48 @@ export class PlanetVisitorManager {
         this._visitedRings.push(ring);
     }
 
+    _startAutoAdvanceTimer() {
+        this._clearAutoAdvanceTimer();
+        const G = CONFIG.game || {};
+        const totalSecs = G.pvAutoAdvanceTime || 15;
+        let remaining = totalSecs;
+
+        const updateUI = () => {
+            if (this.dom.pvAutoCountdown) this.dom.pvAutoCountdown.textContent = remaining;
+            if (this.dom.pvAutoAdvanceFill) {
+                this.dom.pvAutoAdvanceFill.style.width = `${(remaining / totalSecs) * 100}%`;
+            }
+        };
+        updateUI();
+
+        this._countdownInterval = setInterval(() => {
+            remaining -= 1;
+            if (remaining < 0) remaining = 0;
+            updateUI();
+        }, 1000);
+
+        this._autoAdvanceTimer = setTimeout(() => {
+            this._clearAutoAdvanceTimer();
+            const candidates = this._getCandidates(1);
+            if (candidates.length > 0) {
+                this._selectPlanet(candidates[0]);
+            } else {
+                this._endVisiting();
+            }
+        }, totalSecs * 1000);
+    }
+
+    _clearAutoAdvanceTimer() {
+        if (this._autoAdvanceTimer) {
+            clearTimeout(this._autoAdvanceTimer);
+            this._autoAdvanceTimer = null;
+        }
+        if (this._countdownInterval) {
+            clearInterval(this._countdownInterval);
+            this._countdownInterval = null;
+        }
+    }
+
     _showPlanetSelectionScreen() {
         if (this.visitedPlanets.length >= this.totalPlanetsToVisit) {
             this._endVisiting();
@@ -199,6 +248,7 @@ export class PlanetVisitorManager {
         }
 
         this._showPlanetInfo(this.currentPlanet.node);
+        this._startAutoAdvanceTimer();
 
         if (this.dom.pvScreen) this.dom.pvScreen.classList.add('visible');
         if (this.dom.pvCurrentPlanet) {
@@ -265,6 +315,7 @@ export class PlanetVisitorManager {
     }
 
     _selectPlanet(node) {
+        this._clearAutoAdvanceTimer();
         if (this.dom.pvScreen) this.dom.pvScreen.classList.remove('visible');
         if (this.dom.pvPlanetInfo) this.dom.pvPlanetInfo.classList.remove('visible');
 
@@ -273,14 +324,17 @@ export class PlanetVisitorManager {
 
         this.universe.setActivePlanet(planet);
         const targetPos = planet.getWorldPosition();
-        this.universe.cam.startWarp(targetPos, 80, () => {
+        const G = CONFIG.game || {};
+        const stopDist = G.pvStopDistance || 120;
+        this.universe.cam.startWarp(targetPos, stopDist, () => {
+            this.universe.cam.initFollowFrom(planet.getWorldPosition());
             this._registerVisit(planet);
-            this.universe.cam.initFollowFrom(targetPos);
             this._showPlanetSelectionScreen();
         });
     }
 
     _endVisiting() {
+        this._clearAutoAdvanceTimer();
         this.state = 'evaluation';
 
         if (this.dom.pvScreen) this.dom.pvScreen.classList.remove('visible');

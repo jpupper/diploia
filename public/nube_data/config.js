@@ -227,6 +227,8 @@ export const CONFIG = {
         pvPointsCorrect: 200,     // points for correct quiz answer
         pvPointsWrong: -50,       // points for wrong quiz answer
         pvTotalPlanets: 10,       // number of planets to visit
+        pvStopDistance:  120,     // camera stop distance when warping to a planet in PV mode
+        pvAutoAdvanceTime: 15,    // seconds before auto-advancing to a random planet
     },
 
     // ── Selection Visual ─────────────────────────────────────

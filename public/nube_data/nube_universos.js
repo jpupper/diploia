@@ -179,7 +179,7 @@ class Universe {
             planet.activate();
             this.updateSelectionIndicator(planet);
             this.updateActiveConnections(true);
-            this.particles.spawn(planet);
+            if (!this.pvGame || this.pvGame.state === 'idle') this.particles.spawn(planet);
         } else {
             this.hideSelectionIndicator();
             this.updateActiveConnections();
@@ -931,7 +931,7 @@ class Universe {
                 this.cam.startWarp(targetPos, stopDist, () => {
                     this._orbitalWarping = false;
                     this.cam.initFollowFrom(planet.getWorldPosition());
-                    this.particles.spawn(planet);
+                    if (!this.pvGame || this.pvGame.state === 'idle') this.particles.spawn(planet);
                 });
             } else if (this.currentView === 'global') {
                 // GLOBAL MODE: select planet, show info, move camera close
@@ -973,7 +973,8 @@ class Universe {
                 const stopDist = Math.max(pRadius * 5, 60);
                 this.showWarpFlash();
                 this.cam.startWarp(targetPos, stopDist, () => {
-                    if (!isGameMode) this.particles.spawn(planet);
+                    const isPvMode = this.pvGame && this.pvGame.state !== 'idle';
+                    if (!isGameMode && !isPvMode) this.particles.spawn(planet);
                     if (isGameMode) {
                         this.game.onPlanetReached(planet);
                     }
