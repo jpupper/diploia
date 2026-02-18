@@ -49,8 +49,9 @@ export class CameraController {
         this.warpTarget = null;
         this.warpStart = null;
         this.warpTime = 0;
-        this.warpDuration = 1.2;       // seconds
+        this.warpDuration = 2.0;       // seconds
         this.warpCallback = null;
+        this._warpLookQuat = new THREE.Quaternion();
     }
 
     goHome(instant = false) {
@@ -222,6 +223,8 @@ export class CameraController {
         this.warpCallback = callback || null;
         this.shipVelocity.set(0, 0, 0);
         this.shipThrottle = 0;
+        // Capture the camera's current quaternion so we can slerp rotation smoothly
+        this._warpLookQuat.copy(this.camera.quaternion);
     }
 
     updateWarp(dt) {
@@ -229,26 +232,41 @@ export class CameraController {
         this.warpTime += dt;
         const t = Math.min(this.warpTime / this.warpDuration, 1);
 
-        // If tracking a moving planet, update the target each frame so the
-        // camera always arrives exactly where the planet currently is.
+        // If tracking a moving planet, recompute the stop-point from the
+        // camera's CURRENT position each frame so there is no snap on departure.
         if (this._warpTrackedPlanet) {
             const currentPlanetPos = this._warpTrackedPlanet.getWorldPosition();
-            const dir = new THREE.Vector3().subVectors(currentPlanetPos, this.warpStart).normalize();
+            const dir = new THREE.Vector3().subVectors(currentPlanetPos, this.camera.position).normalize();
             this.warpTarget = currentPlanetPos.clone().sub(dir.multiplyScalar(this.warpStopDistance));
             this.warpLookAt = currentPlanetPos.clone();
         }
 
-        // Ease-in-out with a sharp acceleration feel
+        // Ease-in-out curve for position speed
         const ease = t < 0.5
             ? 4 * t * t * t
             : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        this.camera.position.lerpVectors(this.warpStart, this.warpTarget, ease);
-        this.camera.lookAt(this.warpLookAt);
+
+        // Move camera incrementally toward warpTarget from its CURRENT position.
+        // This avoids the snap caused by lerpVectors(fixedStart, movingTarget, t).
+        const posLerpSpeed = Math.max(0.04, ease * 0.18);
+        this.camera.position.lerp(this.warpTarget, posLerpSpeed);
+
+        // Smoothly rotate toward the planet using quaternion slerp
+        const _m = new THREE.Matrix4();
+        _m.lookAt(this.camera.position, this.warpLookAt, this.camera.up);
+        const targetQuat = new THREE.Quaternion().setFromRotationMatrix(_m);
+        const rotLerpSpeed = Math.max(0.06, ease * 0.22);
+        this.camera.quaternion.slerp(targetQuat, rotLerpSpeed);
+
         // Update shipYaw/shipPitch to match facing direction toward planet
         const faceDir = new THREE.Vector3().subVectors(this.warpLookAt, this.camera.position).normalize();
         this.shipYaw = Math.atan2(faceDir.x, faceDir.z);
         this.shipPitch = Math.asin(Math.max(-1, Math.min(1, faceDir.y)));
+
         if (t >= 1) {
+            // Snap to final position so initFollowFrom gets a clean state
+            this.camera.position.copy(this.warpTarget);
+            this.camera.lookAt(this.warpLookAt);
             this.warping = false;
             this._warpTrackedPlanet = null;
             this.shipVelocity.set(0, 0, 0);

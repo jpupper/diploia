@@ -374,6 +374,8 @@ export class PlanetVisitorManager {
     }
 
     _showNextQuestion() {
+        if (this._evalAdvanceTimer) { clearTimeout(this._evalAdvanceTimer); this._evalAdvanceTimer = null; }
+        this._waitingForAdvance = false;
         if (this.evalCurrentIndex >= this.evalQuestions.length) {
             this.stopEvalTimer();
             if (this.dom.pvEvalScreen) this.dom.pvEvalScreen.classList.remove('visible');
@@ -428,10 +430,16 @@ export class PlanetVisitorManager {
         return text;
     }
 
+    _advanceEval() {
+        if (this._evalAdvanceTimer) { clearTimeout(this._evalAdvanceTimer); this._evalAdvanceTimer = null; }
+        this._waitingForAdvance = false;
+        this.evalCurrentIndex++;
+        this._showNextQuestion();
+    }
+
     _handleAnswer(selected, correct, btnEl) {
         this.stopEvalTimer();
         const allBtns = this.dom.pvEvalOptions.querySelectorAll('.eval-option-btn');
-        allBtns.forEach(b => { b.disabled = true; });
 
         const G = CONFIG.game || {};
         const pointsCorrect = G.pvPointsCorrect || 200;
@@ -465,10 +473,16 @@ export class PlanetVisitorManager {
             setTimeout(() => this.dom.pvEvalRunningScore.classList.remove('score-updated'), 600);
         }
 
-        setTimeout(() => {
-            this.evalCurrentIndex++;
-            this._showNextQuestion();
-        }, 2000);
+        // Re-enable buttons so the user can click to advance immediately.
+        // Any click on an option after answering advances to the next question.
+        this._waitingForAdvance = true;
+        allBtns.forEach(b => {
+            b.disabled = false;
+            b.addEventListener('click', () => { if (this._waitingForAdvance) this._advanceEval(); }, { once: true });
+        });
+
+        // Auto-advance after 2s if user doesn't click
+        this._evalAdvanceTimer = setTimeout(() => this._advanceEval(), 2000);
     }
 
     handleEvalTimeout() {
@@ -489,10 +503,7 @@ export class PlanetVisitorManager {
             this.dom.pvEvalRunningScore.textContent = `${Math.max(0, this.score)} PTS`;
         }
 
-        setTimeout(() => {
-            this.evalCurrentIndex++;
-            this._showNextQuestion();
-        }, 2000);
+        this._evalAdvanceTimer = setTimeout(() => this._advanceEval(), 2000);
     }
 
     startEvalTimer() {

@@ -93,6 +93,13 @@ class Universe {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.scene.add(new THREE.AmbientLight(CFG.scene.ambientColor, CFG.scene.ambientIntensity));
+        // Directional lights so planets show 3D spherical shading
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight1.position.set(1, 1, 1).normalize();
+        this.scene.add(dirLight1);
+        const dirLight2 = new THREE.DirectionalLight(0x8899ff, 0.5);
+        dirLight2.position.set(-1, -0.5, -1).normalize();
+        this.scene.add(dirLight2);
         this.particles = new EnergyParticleSystem(this.scene);
 
         this.createStarfield();
@@ -386,7 +393,7 @@ class Universe {
                 const pColor = color.clone().lerp(new THREE.Color(0xffffff), P.colorLerpToWhite);
                 const texSeed = Math.abs((childId.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 2654435761) | 0);
                 const pTex = this._makePlanetTexture(pColor, texSeed);
-                const pMat = new THREE.MeshStandardMaterial({ map: pTex, emissive: pColor, emissiveIntensity: P.emissiveIntensity * 0.15, roughness: 0.65, metalness: 0.05, transparent: true, opacity: 0.95 });
+                const pMat = new THREE.MeshStandardMaterial({ map: pTex, emissive: pColor, emissiveIntensity: P.emissiveIntensity * 0.25, roughness: 0.6, metalness: 0.05, transparent: true, opacity: 0.95 });
                 const planetMesh = new THREE.Mesh(pGeo, pMat); planetMesh.position.set(px, py, pz);
                 group.add(planetMesh);
                 planetMesh.add(new THREE.Mesh(new THREE.SphereGeometry(P.glowRadius, 16, 16), new THREE.MeshBasicMaterial({ color: pColor, transparent: true, opacity: 0.06, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
