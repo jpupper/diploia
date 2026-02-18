@@ -108,9 +108,12 @@ export class CameraController {
         const diff = new THREE.Vector3().subVectors(this.camera.position, targetWorldPos);
         this.followYaw = Math.atan2(diff.x, diff.z);
         this.followPitch = Math.atan2(diff.y, Math.sqrt(diff.x * diff.x + diff.z * diff.z));
-        this.followDistance = diff.length();
+        const F = this.cfg.follow;
+        // Clamp distance so the first updateFollow frame doesn't jump
+        this.followDistance = Math.max(F.zoomMin || 20, Math.min(F.zoomMax || 400, diff.length()));
+        // Initialize prevPlanetPos to current so orbital compensation doesn't fire on frame 1
         this._prevPlanetPos.copy(targetWorldPos);
-        this._followInitialized = true;
+        this._followInitialized = false;  // skip orbital delta on the very first updateFollow frame
     }
 
     updateFollow(dt, targetWorldPos, keys) {
@@ -264,9 +267,6 @@ export class CameraController {
         this.shipPitch = Math.asin(Math.max(-1, Math.min(1, faceDir.y)));
 
         if (t >= 1) {
-            // Snap to final position so initFollowFrom gets a clean state
-            this.camera.position.copy(this.warpTarget);
-            this.camera.lookAt(this.warpLookAt);
             this.warping = false;
             this._warpTrackedPlanet = null;
             this.shipVelocity.set(0, 0, 0);

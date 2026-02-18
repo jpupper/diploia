@@ -426,35 +426,37 @@ class Universe {
 
     // ── Procedural Planet Texture ──
     _makePlanetTexture(baseColor, seed) {
-        const size = 256;
+        const size = 512;
         const canvas = document.createElement('canvas');
         canvas.width = size; canvas.height = size;
         const ctx = canvas.getContext('2d');
 
-        // Seeded pseudo-random
-        let s = seed || 1;
-        const rng = () => { s = (s * 16807 + 0) % 2147483647; return (s - 1) / 2147483646; };
-
-        // Simple value noise helpers
-        const hash = (x, y) => {
-            let h = (x * 374761393 + y * 668265263) ^ seed;
-            h = (h ^ (h >>> 13)) * 1274126177;
-            return ((h ^ (h >>> 16)) & 0x7fffffff) / 0x7fffffff;
-        };
         const lerp = (a, b, t) => a + (t * t * (3 - 2 * t)) * (b - a);
-        const noise2 = (x, y) => {
-            const ix = Math.floor(x), iy = Math.floor(y);
-            const fx = x - ix, fy = y - iy;
+
+        // 3D noise sampler — takes a point on the unit sphere surface.
+        // This is inherently seamless: no UV seam, no wrapping artifact.
+        const noise3 = (x, y, z) => {
+            // Hash 3D integer lattice point
+            const h3 = (ix, iy, iz) => {
+                let h = (ix * 374761393 + iy * 668265263 + iz * 2147483647) ^ seed;
+                h = (h ^ (h >>> 13)) * 1274126177;
+                return ((h ^ (h >>> 16)) & 0x7fffffff) / 0x7fffffff;
+            };
+            const ix = Math.floor(x), iy = Math.floor(y), iz = Math.floor(z);
+            const fx = x - ix, fy = y - iy, fz = z - iz;
+            const ux = fx * fx * (3 - 2 * fx);
+            const uy = fy * fy * (3 - 2 * fy);
+            const uz = fz * fz * (3 - 2 * fz);
             return lerp(
-                lerp(hash(ix, iy), hash(ix + 1, iy), fx),
-                lerp(hash(ix, iy + 1), hash(ix + 1, iy + 1), fx),
-                fy
+                lerp(lerp(h3(ix,iy,iz), h3(ix+1,iy,iz), ux), lerp(h3(ix,iy+1,iz), h3(ix+1,iy+1,iz), ux), uy),
+                lerp(lerp(h3(ix,iy,iz+1), h3(ix+1,iy,iz+1), ux), lerp(h3(ix,iy+1,iz+1), h3(ix+1,iy+1,iz+1), ux), uy),
+                uz
             );
         };
-        const fbm = (x, y, oct) => {
+        const fbm3 = (x, y, z, oct) => {
             let v = 0, amp = 0.5, freq = 1, max = 0;
             for (let i = 0; i < oct; i++) {
-                v += noise2(x * freq, y * freq) * amp;
+                v += noise3(x * freq, y * freq, z * freq) * amp;
                 max += amp; amp *= 0.5; freq *= 2.1;
             }
             return v / max;
@@ -464,21 +466,38 @@ class Universe {
         const imgData = ctx.createImageData(size, size);
         const d = imgData.data;
 
+        // Pre-sample to find actual min/max for contrast stretching
+        const scale = 3.5;  // controls feature size on sphere
+        const samples = [];
         for (let py = 0; py < size; py++) {
             for (let px = 0; px < size; px++) {
-                const nx = px / size * 5 + seed * 0.001;
-                const ny = py / size * 5 + seed * 0.001;
-                const n = fbm(nx, ny, 6);
-
-                // High-contrast blend: dark valleys, bright peaks
-                const bright = 0.3 + n * 1.4;
-                const pr = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
-                const pg = Math.min(255, Math.max(0, Math.round(g * 255 * bright)));
-                const pb = Math.min(255, Math.max(0, Math.round(b * 255 * bright)));
-
-                const i = (py * size + px) * 4;
-                d[i] = pr; d[i + 1] = pg; d[i + 2] = pb; d[i + 3] = 255;
+                // Convert pixel UV to a point on the unit sphere surface
+                const u = px / size;
+                const v = py / size;
+                const theta = u * Math.PI * 2;   // longitude [0, 2π]
+                const phi   = v * Math.PI;        // latitude  [0, π]
+                const sx = Math.sin(phi) * Math.cos(theta) * scale;
+                const sy = Math.sin(phi) * Math.sin(theta) * scale;
+                const sz = Math.cos(phi) * scale;
+                samples.push(fbm3(sx, sy, sz, 7));
             }
+        }
+        let nMin = Infinity, nMax = -Infinity;
+        for (const s of samples) { if (s < nMin) nMin = s; if (s > nMax) nMax = s; }
+        const nRange = nMax - nMin || 1;
+
+        for (let i = 0; i < samples.length; i++) {
+            // Remap to [0,1] using actual min/max, then apply contrast curve
+            const n01 = (samples[i] - nMin) / nRange;
+            // S-curve for extra punch: darks darker, brights brighter
+            const nc = n01 * n01 * (3 - 2 * n01);
+            // Map to brightness: 0.15 (dark) → 1.5 (bright)
+            const bright = 0.15 + nc * 1.35;
+            const pr = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
+            const pg = Math.min(255, Math.max(0, Math.round(g * 255 * bright)));
+            const pb = Math.min(255, Math.max(0, Math.round(b * 255 * bright)));
+            const pi = i * 4;
+            d[pi] = pr; d[pi + 1] = pg; d[pi + 2] = pb; d[pi + 3] = 255;
         }
         ctx.putImageData(imgData, 0, 0);
 
