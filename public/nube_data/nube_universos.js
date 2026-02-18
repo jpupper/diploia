@@ -382,9 +382,11 @@ class Universe {
                 const py = Math.cos(phi) * orbitRadius;
                 const pz = Math.sin(phi) * Math.sin(theta) * orbitRadius;
 
-                const pGeo = new THREE.SphereGeometry(P.radius, 24, 24);
+                const pGeo = new THREE.SphereGeometry(P.radius, 32, 32);
                 const pColor = color.clone().lerp(new THREE.Color(0xffffff), P.colorLerpToWhite);
-                const pMat = new THREE.MeshStandardMaterial({ color: pColor, emissive: pColor, emissiveIntensity: P.emissiveIntensity, roughness: 0.5, metalness: 0.3, transparent: true, opacity: 0.9 });
+                const texSeed = Math.abs((childId.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 2654435761) | 0);
+                const pTex = this._makePlanetTexture(pColor, texSeed);
+                const pMat = new THREE.MeshStandardMaterial({ map: pTex, emissive: pColor, emissiveIntensity: P.emissiveIntensity * 0.6, roughness: 0.75, metalness: 0.1, transparent: true, opacity: 0.95 });
                 const planetMesh = new THREE.Mesh(pGeo, pMat); planetMesh.position.set(px, py, pz);
                 group.add(planetMesh);
                 planetMesh.add(new THREE.Mesh(new THREE.SphereGeometry(P.glowRadius, 16, 16), new THREE.MeshBasicMaterial({ color: pColor, transparent: true, opacity: 0.06, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
@@ -395,7 +397,7 @@ class Universe {
                 const hitMesh = new THREE.Mesh(hitGeo, hitMat);
                 planetMesh.add(hitMesh);
 
-                planetMesh.userData = { orbitRadius, orbitSpeed: O.speedMin + Math.random() * O.speedRandom, orbitOffset: orbitAngle, orbitTilt, parentGroup: group, categoryId: catId };
+                planetMesh.userData = { orbitRadius, orbitSpeed: O.speedMin + Math.random() * O.speedRandom, orbitOffset: orbitAngle, orbitTilt, parentGroup: group, categoryId: catId, selfRotSpeed: 0.08 + Math.random() * 0.22 };
 
                 const pLabel = this.createTextSprite(childNode.label || childId, CAT_COLORS[catId] || 0xffffff, P.labelFontSize);
                 pLabel.position.set(0, P.labelOffsetY, 0); pLabel.visible = false;
@@ -413,6 +415,69 @@ class Universe {
             ring.rotation.x = -Math.PI / 2; group.add(ring);
             this.categoryGroups[catId] = { group, nucleus, planets: planetMeshes, color };
         });
+    }
+
+    // ── Procedural Planet Texture ──
+    _makePlanetTexture(baseColor, seed) {
+        const size = 256;
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Seeded pseudo-random
+        let s = seed || 1;
+        const rng = () => { s = (s * 16807 + 0) % 2147483647; return (s - 1) / 2147483646; };
+
+        // Simple value noise helpers
+        const hash = (x, y) => {
+            let h = (x * 374761393 + y * 668265263) ^ seed;
+            h = (h ^ (h >>> 13)) * 1274126177;
+            return ((h ^ (h >>> 16)) & 0x7fffffff) / 0x7fffffff;
+        };
+        const lerp = (a, b, t) => a + (t * t * (3 - 2 * t)) * (b - a);
+        const noise2 = (x, y) => {
+            const ix = Math.floor(x), iy = Math.floor(y);
+            const fx = x - ix, fy = y - iy;
+            return lerp(
+                lerp(hash(ix, iy), hash(ix + 1, iy), fx),
+                lerp(hash(ix, iy + 1), hash(ix + 1, iy + 1), fx),
+                fy
+            );
+        };
+        const fbm = (x, y, oct) => {
+            let v = 0, amp = 0.5, freq = 1, max = 0;
+            for (let i = 0; i < oct; i++) {
+                v += noise2(x * freq, y * freq) * amp;
+                max += amp; amp *= 0.5; freq *= 2.1;
+            }
+            return v / max;
+        };
+
+        const r = baseColor.r, g = baseColor.g, b = baseColor.b;
+        const imgData = ctx.createImageData(size, size);
+        const d = imgData.data;
+
+        for (let py = 0; py < size; py++) {
+            for (let px = 0; px < size; px++) {
+                const nx = px / size * 4 + seed * 0.001;
+                const ny = py / size * 4 + seed * 0.001;
+                const n = fbm(nx, ny, 6);
+
+                // Blend from planet color toward dark/light based on noise
+                const bright = 0.55 + n * 0.9;
+                const pr = Math.min(255, Math.round(r * 255 * bright));
+                const pg = Math.min(255, Math.round(g * 255 * bright));
+                const pb = Math.min(255, Math.round(b * 255 * bright));
+
+                const i = (py * size + px) * 4;
+                d[i] = pr; d[i + 1] = pg; d[i + 2] = pb; d[i + 3] = 255;
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
     }
 
     // ── Connections ──
@@ -787,9 +852,9 @@ class Universe {
         window.addEventListener('keyup', (e) => this.onKeyUp(e));
         this.renderer.domElement.addEventListener('click', (e) => this.onClick(e));
         this.renderer.domElement.addEventListener('dblclick', (e) => this.onDoubleClick(e));
-        this.renderer.domElement.addEventListener('mousemove', (e) => this.onMouseMove(e));
-        this.renderer.domElement.addEventListener('mousedown', (e) => this.onMouseDown(e));
-        this.renderer.domElement.addEventListener('mouseup', () => this.onMouseUp());
+        window.addEventListener('mousemove', (e) => this.onMouseMove(e));
+        window.addEventListener('mousedown', (e) => this.onMouseDown(e));
+        window.addEventListener('mouseup', () => this.onMouseUp());
 
         document.getElementById('btn-prev').addEventListener('click', (e) => { e.stopPropagation(); this.navigateToCategory(this.currentCatIndex - 1); });
         document.getElementById('btn-next').addEventListener('click', (e) => { e.stopPropagation(); this.navigateToCategory(this.currentCatIndex + 1); });
@@ -1052,9 +1117,13 @@ class Universe {
         this._mouseDownPos = { x: e.clientX, y: e.clientY };
         this._isDrag = false;
         if (this.currentView === 'camera') {
-            this.cam.mouseDown = true;
-            this.cam.lastMouseX = e.clientX;
-            this.cam.lastMouseY = e.clientY;
+            const tag = e.target.tagName;
+            const isUI = tag === 'BUTTON' || tag === 'INPUT' || tag === 'A' || e.target.closest('button, input, a, .pv-screen-content, #pv-planet-info, #info-panel, #game-info-panel');
+            if (!isUI) {
+                this.cam.mouseDown = true;
+                this.cam.lastMouseX = e.clientX;
+                this.cam.lastMouseY = e.clientY;
+            }
         }
     }
 
@@ -1218,6 +1287,7 @@ class Universe {
                 pm.position.x = Math.sin(phi) * Math.cos(theta) * r;
                 pm.position.y = Math.cos(phi) * r;
                 pm.position.z = Math.sin(phi) * Math.sin(theta) * r;
+                pm.rotation.y = this.animTime * (u.selfRotSpeed || 0.18);
             });
             const pulse = 0.92 + Math.sin(this.animTime * 1.5) * 0.05;
             catObj.nucleus.material.opacity = pulse;

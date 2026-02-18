@@ -1732,29 +1732,35 @@ header.nube-header .menu-toggle:hover {
 #eval-options {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 18px;
     margin-bottom: 24px;
 }
 
+#pv-eval-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 28px;
+    margin-top: 8px;
+}
+
 .eval-option-btn {
-    padding: 0 28px;
+    padding: 20px 28px;
     border-radius: 12px;
     border: 2px solid rgba(0, 255, 255, 0.15);
     background: rgba(0, 20, 40, 0.5);
     color: rgba(0, 255, 255, 0.9);
     font-family: 'Outfit', sans-serif;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     letter-spacing: 1px;
     text-align: left;
-    height: 72px;
     min-height: 72px;
-    max-height: 72px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
     position: relative;
     overflow: hidden;
     width: 100%;
@@ -3436,6 +3442,10 @@ header.nube-header .menu-toggle:hover {
 
 #pv-screen.visible {
     opacity: 1;
+    pointer-events: none;
+}
+
+#pv-screen.visible .pv-screen-content {
     pointer-events: auto;
 }
 
@@ -3625,11 +3635,12 @@ header.nube-header .menu-toggle:hover {
 /* ── Planet Visitor: Planet Info Panel ── */
 #pv-planet-info {
     position: fixed;
-    bottom: 24px;
+    top: 60px;
     left: 24px;
-    transform: translateY(12px) scale(0.97);
-    width: min(480px, 44vw);
-    max-height: calc(100vh - 120px);
+    bottom: 80px;
+    transform: translateX(-12px) scale(0.97);
+    width: min(520px, 40vw);
+    max-height: calc(100vh - 140px);
     overflow-y: auto;
     pointer-events: auto;
     background: linear-gradient(160deg, rgba(6, 2, 20, 0.97), rgba(2, 0, 12, 0.99));
@@ -3663,33 +3674,33 @@ header.nube-header .menu-toggle:hover {
 
 #pv-planet-info.visible {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(0) scale(1);
     pointer-events: auto;
 }
 
 #pv-planet-info .panel-inner {
-    padding: 24px 28px 20px;
+    padding: 32px 36px 28px;
     position: relative;
 }
 
 #pv-planet-info h3 {
-    font-size: 1.4rem;
+    font-size: 2rem;
     font-weight: 800;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
     color: #d080ff;
     text-shadow: 0 0 30px rgba(180, 77, 255, 0.6), 0 0 60px rgba(180, 77, 255, 0.2);
     letter-spacing: 2px;
     line-height: 1.2;
     border-bottom: 1px solid rgba(180, 77, 255, 0.2);
-    padding-bottom: 10px;
+    padding-bottom: 14px;
 }
 
 #pv-planet-info p {
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: rgba(230, 235, 255, 0.92);
-    margin-bottom: 10px;
-    font-weight: 300;
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: rgba(230, 235, 255, 0.95);
+    margin-bottom: 14px;
+    font-weight: 400;
 }
 
 #pv-planet-info strong {
@@ -3700,7 +3711,7 @@ header.nube-header .menu-toggle:hover {
 #pv-planet-info a {
     color: #90c8ff;
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 1rem;
     padding: 10px 18px;
     display: inline-block;
     background: rgba(108, 180, 255, 0.08);
