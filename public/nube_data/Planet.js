@@ -42,26 +42,18 @@ export class Planet {
         const innerMat = new THREE.MeshBasicMaterial({
             color: color,
             transparent: true,
-            opacity: E.innerOpacity,
+            opacity: 0, // Start invisible for fade-in
             blending: THREE.AdditiveBlending,
             depthWrite: false,
             wireframe: true,
         });
         this._energyFieldInner = new THREE.Mesh(innerGeo, innerMat);
         this.mesh.add(this._energyFieldInner);
+        this._fadeIn = 0;
 
-        // Outer pulsing shell
-        const outerGeo = new THREE.IcosahedronGeometry(pRadius * E.outerRadius, 0);
-        const outerMat = new THREE.MeshBasicMaterial({
-            color: color,
-            transparent: true,
-            opacity: E.outerOpacity,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-            side: THREE.BackSide,
-        });
-        this._energyFieldOuter = new THREE.Mesh(outerGeo, outerMat);
-        this.mesh.add(this._energyFieldOuter);
+        // Outer pulsing shell REMOVED as per user request
+        // const outerGeo = new THREE.IcosahedronGeometry(pRadius * E.outerRadius, 0);
+        // ...
     }
 
     _removeEnergyField() {
@@ -71,6 +63,7 @@ export class Planet {
             this._energyFieldInner.material.dispose();
             this._energyFieldInner = null;
         }
+        // Outer field removed from creation, so no need to remove here.
         if (this._energyFieldOuter) {
             this.mesh.remove(this._energyFieldOuter);
             this._energyFieldOuter.geometry.dispose();
@@ -80,22 +73,21 @@ export class Planet {
     }
 
     updateEnergyField(time) {
-        if (!this._energyFieldInner || !this._energyFieldOuter) return;
+        if (!this._energyFieldInner) return;
         const E = CFG.energyField;
+
+        // Fade-in logic
+        if (this._fadeIn < 1.0) {
+            this._fadeIn += 0.025; // Fade in over ~40 frames
+            if (this._fadeIn > 1.0) this._fadeIn = 1.0;
+        }
+
         // Rotate inner wireframe shell
         this._energyFieldInner.rotation.y = time * E.rotationSpeed;
         this._energyFieldInner.rotation.x = time * E.rotationSpeed * 0.7;
         // Pulse inner opacity
         const pulse = Math.sin(time * E.pulseSpeed) * E.pulseAmplitude;
-        this._energyFieldInner.material.opacity = E.innerOpacity + pulse * 0.5;
-        // Pulse outer scale and opacity
-        const outerPulse = Math.sin(time * E.pulseSpeed * 0.8 + 1.0);
-        const scaleF = 1.0 + outerPulse * 0.08;
-        this._energyFieldOuter.scale.setScalar(scaleF);
-        this._energyFieldOuter.material.opacity = E.outerOpacity + outerPulse * E.pulseAmplitude * 0.3;
-        // Rotate outer shell in opposite direction
-        this._energyFieldOuter.rotation.y = -time * E.rotationSpeed * 0.5;
-        this._energyFieldOuter.rotation.z = time * E.rotationSpeed * 0.3;
+        this._energyFieldInner.material.opacity = (E.innerOpacity + pulse * 0.5) * this._fadeIn;
     }
 
     activate() {

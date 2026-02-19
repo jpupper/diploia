@@ -237,7 +237,7 @@ export const CONFIG = {
         pvPointsCorrect: 200,     // points for correct quiz answer
         pvPointsWrong: -50,       // points for wrong quiz answer
         pvTotalPlanets: 10,       // number of planets to visit
-        pvStopDistance:  120,     // camera stop distance when warping to a planet in PV mode
+        pvStopDistance: 120,     // camera stop distance when warping to a planet in PV mode
         pvAutoAdvanceTime: 15,    // seconds before auto-advancing to a random planet
         pvInfoFontSize: 14,       // font size (px) for the planet info panel in PV mode
         pvArrivalDelay: 1800,     // ms to wait after arriving at a planet before showing the selection screen
@@ -258,7 +258,7 @@ export const CONFIG = {
         innerRadius: 1.7,    // multiplier of planet radius
         outerRadius: 2.4,    // multiplier of planet radius
         color: null,   // null = use planet/category color
-        innerOpacity: 0.55,
+        innerOpacity: 0.2,     // Lowered from 0.55
         outerOpacity: 0.22,
         pulseSpeed: 2.5,    // pulse animation speed
         pulseAmplitude: 0.3,    // how much opacity varies

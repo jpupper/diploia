@@ -337,7 +337,8 @@ class Universe {
         const N = CFG.nucleus; const P = CFG.planet; const O = CFG.orbit;
         const ringRadius = CFG.layout.ringRadius;
 
-        for (let i = 0; i < this.categories.length; i++) { const catId = this.categories[i];
+        for (let i = 0; i < this.categories.length; i++) {
+            const catId = this.categories[i];
             const node = this.DATA.nodes[catId]; if (!node) continue;
             const angle = (i / catCount) * Math.PI * 2 - Math.PI / 2;
 
@@ -436,12 +437,12 @@ class Universe {
         if (Universe._noisePool) return;   // already built
         const T = CFG.planetTexture;
         const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
-        const size   = isMobile ? 256 : (T.size || 512);
-        const oct    = isMobile ? 4   : Math.round(T.octaves);
-        const scale  = T.noiseScale;
-        const POOL   = 6;   // number of distinct noise patterns
+        const size = isMobile ? 256 : (T.size || 512);
+        const oct = isMobile ? 4 : Math.round(T.octaves);
+        const scale = T.noiseScale;
+        const POOL = 6;   // number of distinct noise patterns
         // Fixed seeds so the pool is always the same across page loads
-        const SEEDS  = [0x1A2B3C, 0x4D5E6F, 0x7A8B9C, 0xABCDEF, 0x112233, 0x998877];
+        const SEEDS = [0x1A2B3C, 0x4D5E6F, 0x7A8B9C, 0xABCDEF, 0x112233, 0x998877];
 
         const lerp = (a, b, t) => a + (t * t * (3 - 2 * t)) * (b - a);
         const makeNoise3 = (seed) => (x, y, z) => {
@@ -456,8 +457,8 @@ class Universe {
             const uy = fy * fy * (3 - 2 * fy);
             const uz = fz * fz * (3 - 2 * fz);
             return lerp(
-                lerp(lerp(h3(ix,iy,iz), h3(ix+1,iy,iz), ux), lerp(h3(ix,iy+1,iz), h3(ix+1,iy+1,iz), ux), uy),
-                lerp(lerp(h3(ix,iy,iz+1), h3(ix+1,iy,iz+1), ux), lerp(h3(ix,iy+1,iz+1), h3(ix+1,iy+1,iz+1), ux), uy),
+                lerp(lerp(h3(ix, iy, iz), h3(ix + 1, iy, iz), ux), lerp(h3(ix, iy + 1, iz), h3(ix + 1, iy + 1, iz), ux), uy),
+                lerp(lerp(h3(ix, iy, iz + 1), h3(ix + 1, iy, iz + 1), ux), lerp(h3(ix, iy + 1, iz + 1), h3(ix + 1, iy + 1, iz + 1), ux), uy),
                 uz
             );
         };
@@ -482,7 +483,7 @@ class Universe {
                     const u = px / size;
                     const v = py / size;
                     const theta = u * Math.PI * 2;
-                    const phi   = v * Math.PI;
+                    const phi = v * Math.PI;
                     const sx = Math.sin(phi) * Math.cos(theta) * scale;
                     const sy = Math.sin(phi) * Math.sin(theta) * scale;
                     const sz = Math.cos(phi) * scale;
@@ -498,7 +499,7 @@ class Universe {
             const contrast = T.contrast;
             for (let i = 0; i < samples.length; i++) {
                 const n01 = (samples[i] - nMin) / nRange;
-                const nc  = n01 * n01 * (3 - 2 * n01);
+                const nc = n01 * n01 * (3 - 2 * n01);
                 brightness[i] = contrast !== 1.0 ? Math.pow(nc, 1.0 / contrast) : nc;
             }
             Universe._noisePool.push(brightness);
@@ -511,9 +512,9 @@ class Universe {
         if (Universe._texCache.has(cacheKey)) return Universe._texCache.get(cacheKey);
 
         Universe._buildNoisePool();
-        const size       = Universe._noisePoolSize;
+        const size = Universe._noisePoolSize;
         const brightness = Universe._noisePool[seed % 6];
-        const darkBase   = T.darkBase;
+        const darkBase = T.darkBase;
         const brightRange = T.brightRange;
         const r = baseColor.r, g = baseColor.g, b = baseColor.b;
 
@@ -526,7 +527,7 @@ class Universe {
         for (let i = 0; i < brightness.length; i++) {
             const bright = darkBase + brightness[i] * brightRange;
             const pi = i * 4;
-            d[pi]     = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
+            d[pi] = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
             d[pi + 1] = Math.min(255, Math.max(0, Math.round(g * 255 * bright)));
             d[pi + 2] = Math.min(255, Math.max(0, Math.round(b * 255 * bright)));
             d[pi + 3] = 255;
@@ -1045,7 +1046,7 @@ class Universe {
 
             if (this.currentView === 'camera') {
                 // ORBITAL MODE: always warp to clicked planet (even if same)
-                this.setActivePlanet(planet);
+                if (this.activePlanet !== planet) this.clearActivePlanet();
                 this.showInfoPanel(planet.node);
                 const targetPos = planet.getWorldPosition();
                 const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
@@ -1054,6 +1055,7 @@ class Universe {
                 this._orbitalWarping = true;
                 this.cam.startWarp(targetPos, stopDist, () => {
                     this._orbitalWarping = false;
+                    this.setActivePlanet(planet);
                     this.cam.initFollowFrom(planet.getWorldPosition());
                     if (!this.pvGame || this.pvGame.state === 'idle') this.particles.spawn(planet);
                 });
@@ -1090,13 +1092,14 @@ class Universe {
                 if (isGameMode) {
                     this.game.showGameInfoPanel(planet.node);
                 } else {
-                    this.setActivePlanet(planet);
+                    if (this.activePlanet !== planet) this.clearActivePlanet();
                     this.showInfoPanel(planet.node);
                 }
                 const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
                 const stopDist = Math.max(pRadius * 5, 60);
                 this.showWarpFlash();
                 this.cam.startWarp(targetPos, stopDist, () => {
+                    if (!isGameMode) this.setActivePlanet(planet);
                     const isPvMode = this.pvGame && this.pvGame.state !== 'idle';
                     if (!isGameMode && !isPvMode) this.particles.spawn(planet);
                     if (isGameMode) {
@@ -1116,7 +1119,7 @@ class Universe {
             if (hits.length > 0) {
                 const planet = this.getPlanetByMesh(hits[0].object);
                 if (!planet) return;
-                this.setActivePlanet(planet);
+                if (this.activePlanet !== planet) this.clearActivePlanet();
                 this.showInfoPanel(planet.node);
                 const targetPos = planet.getWorldPosition();
                 const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
@@ -1125,6 +1128,7 @@ class Universe {
                 this._orbitalWarping = true;
                 this.cam.startWarp(targetPos, stopDist, () => {
                     this._orbitalWarping = false;
+                    this.setActivePlanet(planet);
                     this.cam.initFollowFrom(planet.getWorldPosition());
                     this.particles.spawn(planet);
                 });
@@ -1451,8 +1455,8 @@ class Universe {
     }
 }
 
-Universe._texCache     = new Map();
-Universe._noisePool    = null;
+Universe._texCache = new Map();
+Universe._noisePool = null;
 Universe._noisePoolSize = 512;
 
 // ═══════════════════════════════════════════════
