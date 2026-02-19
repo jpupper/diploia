@@ -982,7 +982,8 @@ const SC_DEFAULTS = {
     },
     scene: { fogColor: 0x06060e, fogDensity: 0.00015, ambientColor: 0x111122, ambientIntensity: 0.5 },
     stars: { count: 25000, minDistance: 3000, maxDistance: 30000, baseSize: 4 },
-    connections: { traceDuration: 5.5, traceSphereRadius: 10, traceSphereGlowMult: 2.5 }
+    connections: { traceDuration: 5.5, traceSphereRadius: 10, traceSphereGlowMult: 2.5 },
+    planetTexture: { size: 512, noiseScale: 4.5, octaves: 8, darkBase: 0.0, brightRange: 3.0, contrast: 1.4 }
 };
 
 const SC_FIELD_MAP = [
@@ -1016,6 +1017,12 @@ const SC_FIELD_MAP = [
     { id: 'sc-connections-traceDuration',      path: ['connections', 'traceDuration'] },
     { id: 'sc-connections-traceSphereRadius',  path: ['connections', 'traceSphereRadius'] },
     { id: 'sc-connections-traceSphereGlowMult', path: ['connections', 'traceSphereGlowMult'] },
+    { id: 'sc-planetTexture-size',        path: ['planetTexture', 'size'] },
+    { id: 'sc-planetTexture-noiseScale',  path: ['planetTexture', 'noiseScale'] },
+    { id: 'sc-planetTexture-octaves',     path: ['planetTexture', 'octaves'] },
+    { id: 'sc-planetTexture-darkBase',    path: ['planetTexture', 'darkBase'] },
+    { id: 'sc-planetTexture-brightRange', path: ['planetTexture', 'brightRange'] },
+    { id: 'sc-planetTexture-contrast',    path: ['planetTexture', 'contrast'] },
 ];
 
 const SC_CAT_COLOR_DEFAULTS = {

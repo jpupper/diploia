@@ -483,18 +483,33 @@
                             </div>
                             <div class="form-row">
                                 <div class="form-group"><label>Dist. M&aacute;x</label><input type="number" step="any" id="sc-stars-maxDistance"></div>
-                                <div class="form-group"><label>Tama&ntilde;o Base</label><input type="number" step="any" id="sc-stars-baseSize"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Connections -->
                     <div class="card" style="margin-top:12px;">
-                        <h4>&#x1F517; Conexiones</h4>
+                        <h4> Conexiones</h4>
                         <div class="form-row">
                             <div class="form-group"><label>Trace Duration (seg)</label><input type="number" step="any" id="sc-connections-traceDuration"></div>
                             <div class="form-group"><label>Trace Sphere Radius</label><input type="number" step="any" id="sc-connections-traceSphereRadius"></div>
                             <div class="form-group"><label>Trace Sphere Glow Mult</label><input type="number" step="any" id="sc-connections-traceSphereGlowMult"></div>
+                        </div>
+                    </div>
+
+                    <!-- Planet Texture -->
+                    <div class="card" style="margin-top:12px;">
+                        <h4> Textura de Planetas</h4>
+                        <p class="hint-text" style="margin-bottom:12px;">Controla el ruido procedural de la textura de cada planeta. Los cambios se aplican al recargar la página.</p>
+                        <div class="form-row">
+                            <div class="form-group"><label>Resolución (px)</label><input type="number" step="1" id="sc-planetTexture-size"></div>
+                            <div class="form-group"><label>Escala de Ruido</label><input type="number" step="0.1" id="sc-planetTexture-noiseScale"></div>
+                            <div class="form-group"><label>Octavas FBM</label><input type="number" step="1" min="1" max="12" id="sc-planetTexture-octaves"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Base Oscura (0–1)</label><input type="number" step="0.01" id="sc-planetTexture-darkBase"></div>
+                            <div class="form-group"><label>Rango Brillo</label><input type="number" step="0.05" id="sc-planetTexture-brightRange"></div>
+                            <div class="form-group"><label>Contraste</label><input type="number" step="0.05" id="sc-planetTexture-contrast"></div>
                         </div>
                     </div>
                 </section>
