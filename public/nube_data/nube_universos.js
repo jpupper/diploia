@@ -104,7 +104,7 @@ class Universe {
 
         this.createStarfield();
         this.buildCentralSun();
-        this.buildUniverses();
+        await this.buildUniverses();
         this.buildConnections();
         this.buildSunConnections();
         this.buildCategoryDots();
@@ -331,13 +331,13 @@ class Universe {
     }
 
     // ── Build Universes ──
-    buildUniverses() {
+    async buildUniverses() {
         const catCount = this.categories.length;
         const N = CFG.nucleus; const P = CFG.planet; const O = CFG.orbit;
         const ringRadius = CFG.layout.ringRadius;
 
-        this.categories.forEach((catId, i) => {
-            const node = this.DATA.nodes[catId]; if (!node) return;
+        for (let i = 0; i < this.categories.length; i++) { const catId = this.categories[i];
+            const node = this.DATA.nodes[catId]; if (!node) continue;
             const angle = (i / catCount) * Math.PI * 2 - Math.PI / 2;
 
             // Use per-category distance from sun if available, else fallback to global ringRadius
@@ -421,12 +421,17 @@ class Universe {
             const ring = new THREE.Mesh(new THREE.RingGeometry(O.ringInner, O.ringOuter, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.06, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
             ring.rotation.x = -Math.PI / 2; group.add(ring);
             this.categoryGroups[catId] = { group, nucleus, planets: planetMeshes, color };
-        });
+            if (window._loadingScreen) window._loadingScreen.setProgress(5 + Math.round((i + 1) / catCount * 85));
+            await new Promise(r => setTimeout(r, 0));
+        }
     }
 
     // ── Procedural Planet Texture ──
     _makePlanetTexture(baseColor, seed) {
-        const size = 512;
+        const T = CFG.planetTexture;
+        const cacheKey = `${baseColor.getHexString()}_${seed}_${T.noiseScale}_${T.octaves}_${T.darkBase}_${T.brightRange}_${T.contrast}`;
+        if (Universe._texCache.has(cacheKey)) return Universe._texCache.get(cacheKey);
+        const size = T.size || 512;
         const canvas = document.createElement('canvas');
         canvas.width = size; canvas.height = size;
         const ctx = canvas.getContext('2d');
@@ -466,33 +471,35 @@ class Universe {
         const imgData = ctx.createImageData(size, size);
         const d = imgData.data;
 
-        // Pre-sample to find actual min/max for contrast stretching
-        const scale = 3.5;  // controls feature size on sphere
+        const scale = T.noiseScale;
+        const oct   = Math.round(T.octaves);
         const samples = [];
         for (let py = 0; py < size; py++) {
             for (let px = 0; px < size; px++) {
-                // Convert pixel UV to a point on the unit sphere surface
                 const u = px / size;
                 const v = py / size;
-                const theta = u * Math.PI * 2;   // longitude [0, 2π]
-                const phi   = v * Math.PI;        // latitude  [0, π]
+                const theta = u * Math.PI * 2;
+                const phi   = v * Math.PI;
                 const sx = Math.sin(phi) * Math.cos(theta) * scale;
                 const sy = Math.sin(phi) * Math.sin(theta) * scale;
                 const sz = Math.cos(phi) * scale;
-                samples.push(fbm3(sx, sy, sz, 7));
+                samples.push(fbm3(sx, sy, sz, oct));
             }
         }
         let nMin = Infinity, nMax = -Infinity;
         for (const s of samples) { if (s < nMin) nMin = s; if (s > nMax) nMax = s; }
         const nRange = nMax - nMin || 1;
 
+        const darkBase    = T.darkBase;
+        const brightRange = T.brightRange;
+        const contrast    = T.contrast;
+
         for (let i = 0; i < samples.length; i++) {
-            // Remap to [0,1] using actual min/max, then apply contrast curve
             const n01 = (samples[i] - nMin) / nRange;
-            // S-curve for extra punch: darks darker, brights brighter
+            // S-curve with configurable contrast multiplier
             const nc = n01 * n01 * (3 - 2 * n01);
-            // Map to brightness: 0.15 (dark) → 1.5 (bright)
-            const bright = 0.15 + nc * 1.35;
+            const ncc = contrast !== 1.0 ? Math.pow(nc, 1.0 / contrast) : nc;
+            const bright = darkBase + ncc * brightRange;
             const pr = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
             const pg = Math.min(255, Math.max(0, Math.round(g * 255 * bright)));
             const pb = Math.min(255, Math.max(0, Math.round(b * 255 * bright)));
@@ -503,6 +510,7 @@ class Universe {
 
         const tex = new THREE.CanvasTexture(canvas);
         tex.needsUpdate = true;
+        Universe._texCache.set(cacheKey, tex);
         return tex;
     }
 
@@ -1259,9 +1267,13 @@ class Universe {
 
     // ── Splash Screen ──
     showSplash() {
+        if (window._loadingScreen) {
+            window._loadingScreen.complete();
+        } else {
+            const el = document.getElementById('loading');
+            if (el) { el.classList.add('hidden'); setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 1000); }
+        }
         setTimeout(() => {
-            document.getElementById('loading').classList.add('hidden');
-            setTimeout(() => { const el = document.getElementById('loading'); if (el) el.remove(); }, 800);
             const splash = document.getElementById('splash-screen');
             if (splash) {
                 splash.classList.add('visible');
@@ -1413,6 +1425,8 @@ class Universe {
         this.renderer.render(this.scene, this.camera);
     }
 }
+
+Universe._texCache = new Map();
 
 // ═══════════════════════════════════════════════
 //  START
