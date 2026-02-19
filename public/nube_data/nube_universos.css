@@ -3668,6 +3668,156 @@ header.nube-header .menu-toggle:hover {
     pointer-events: auto;
 }
 
+.pv-screen-content {
+    width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin-right: 40px;
+    padding: 32px 28px;
+    background: linear-gradient(160deg, rgba(8, 4, 22, 0.98), rgba(4, 2, 16, 0.99));
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(180, 77, 255, 0.2);
+    border-right: 3px solid rgba(180, 77, 255, 0.5);
+    border-radius: 12px;
+    box-shadow:
+        0 0 60px rgba(180, 77, 255, 0.12),
+        0 0 120px rgba(0, 0, 0, 0.8),
+        inset 0 0 40px rgba(180, 77, 255, 0.03);
+}
+
+.pv-current {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.pv-current-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(180, 77, 255, 0.5);
+    margin-bottom: 6px;
+}
+
+.pv-current-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(180, 77, 255, 0.4);
+}
+
+.pv-auto-advance-bar {
+    margin-bottom: 16px;
+}
+
+.pv-auto-advance-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(180, 77, 255, 0.5);
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.pv-auto-advance-track {
+    height: 3px;
+    background: rgba(180, 77, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.pv-auto-advance-fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(180, 77, 255, 0.6), rgba(220, 140, 255, 0.9));
+    border-radius: 2px;
+    transition: width 1s linear;
+    box-shadow: 0 0 8px rgba(180, 77, 255, 0.4);
+}
+
+.pv-choose-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.pv-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pv-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(12, 6, 28, 0.92);
+    border: 1px solid rgba(180, 77, 255, 0.25);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    text-align: left;
+    color: inherit;
+    font-family: inherit;
+}
+
+.pv-option-btn:hover {
+    background: rgba(30, 10, 60, 0.95);
+    border-color: rgba(180, 77, 255, 0.5);
+    transform: translateX(-4px);
+}
+
+.pv-option-btn:active {
+    transform: translateX(-2px) scale(0.99);
+}
+
+.pv-option-dot {
+    width: 13px;
+    height: 13px;
+    min-width: 13px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.pv-option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pv-option-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pv-option-cat {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: rgba(180, 77, 255, 0.6);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
 /* ── Planet Visitor: Planet Info Panel ── */
 #pv-planet-info {
     position: fixed;
