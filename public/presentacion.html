@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modo Presentación — Nube de Universos</title>
+    <link rel="stylesheet" href="css/presentacion.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="shader-bg"></div>
+    <div class="scanline"></div>
+
+    <header class="pres-header">
+        <a href="index.html" class="back-btn">← VOLVER</a>
+        <div class="pres-title">NUBE DE UNIVERSOS</div>
+    </header>
+
+    <div id="presentation-container">
+        <div class="slide-content" id="slide-content">
+            <div class="slide-category-badge" id="slide-category"></div>
+            <h1 class="slide-title" id="slide-title"></h1>
+            <p class="slide-desc" id="slide-desc"></p>
+            <div class="slide-meta" id="slide-meta"></div>
+            <div class="slide-tags" id="slide-tags"></div>
+        </div>
+        <div class="slide-visual" id="slide-visual">
+            <!-- Icon or visual representation could go here -->
+            <div class="visual-circle"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="prev-btn" class="nav-btn">←</button>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <button id="next-btn" class="nav-btn">→</button>
+    </div>
+
+    <div class="category-filter" id="category-filter">
+        <!-- Categories injected here -->
+    </div>
+
+    <div id="loading-overlay">
+        <div class="loader">Loading Data...</div>
+    </div>
+
+    <!-- Import Map for Three.js -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      }
+    }
+    </script>
+
+    <script type="module" src="js/presentacion.js"></script>
+</body>
+
+</html>

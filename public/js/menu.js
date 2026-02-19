@@ -4,6 +4,7 @@ function createMenu() {
         { text: 'Trabajo Práctico', url: 'trabajopractico.html' },
         { text: 'Mapa de Herramientas', url: 'mapadeherramientas.html' },
         { text: 'Nube de Universos', url: 'nube_data/nube_universos.html' },
+        { text: 'Presentación', url: 'presentacion.html' },
         { text: 'Tutoriales', url: 'tutoriales.html' },
         { text: 'Prompting', url: 'prompting.html' },
         { text: 'Protocolo de Revisión', url: 'protocolo-revision.html' }
@@ -24,13 +25,13 @@ function createMenu() {
         link.href = basePrefix + item.url;
         link.className = 'nav-link';
         link.textContent = item.text;
-        
+
         // Highlight current page
         const itemFile = item.url.split('/').pop();
         if (currentFile === itemFile) {
             link.classList.add('active');
         }
-        
+
         nav.appendChild(link);
     });
 
@@ -57,9 +58,9 @@ function initMenu() {
     menuToggle.className = 'menu-toggle';
     menuToggle.innerHTML = '☰';
     menuToggle.setAttribute('aria-label', 'Toggle menu');
-    
+
     const menu = createMenu();
-    
+
     // Add toggle functionality
     menuToggle.addEventListener('click', () => {
         menu.classList.toggle('active');
@@ -71,8 +72,9 @@ function initMenu() {
         headerContent.appendChild(menuToggle);
         headerContent.appendChild(menu);
     } else {
-        headerContainer.appendChild(menuToggle);
-        headerContainer.appendChild(menu);
+        // Insert at top
+        headerContainer.insertBefore(menu, headerContainer.firstChild);
+        headerContainer.insertBefore(menuToggle, headerContainer.firstChild);
     }
 }
 
