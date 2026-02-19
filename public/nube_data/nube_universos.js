@@ -104,6 +104,7 @@ class Universe {
 
         this.createStarfield();
         this.buildCentralSun();
+        Universe._buildNoisePool();
         await this.buildUniverses();
         this.buildConnections();
         this.buildSunConnections();
@@ -427,21 +428,23 @@ class Universe {
     }
 
     // ── Procedural Planet Texture ──
-    _makePlanetTexture(baseColor, seed) {
+    // Strategy: pre-generate a small pool of grayscale noise canvases (cheap, done once).
+    // Per planet: pick a pool slot by seed, then tint it with the planet color in a fast
+    // pixel-multiply pass. Total cost per planet ≈ 1 canvas draw call, not a full FBM run.
+
+    static _buildNoisePool() {
+        if (Universe._noisePool) return;   // already built
         const T = CFG.planetTexture;
-        const cacheKey = `${baseColor.getHexString()}_${seed}_${T.noiseScale}_${T.octaves}_${T.darkBase}_${T.brightRange}_${T.contrast}`;
-        if (Universe._texCache.has(cacheKey)) return Universe._texCache.get(cacheKey);
-        const size = T.size || 512;
-        const canvas = document.createElement('canvas');
-        canvas.width = size; canvas.height = size;
-        const ctx = canvas.getContext('2d');
+        const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+        const size   = isMobile ? 256 : (T.size || 512);
+        const oct    = isMobile ? 4   : Math.round(T.octaves);
+        const scale  = T.noiseScale;
+        const POOL   = 6;   // number of distinct noise patterns
+        // Fixed seeds so the pool is always the same across page loads
+        const SEEDS  = [0x1A2B3C, 0x4D5E6F, 0x7A8B9C, 0xABCDEF, 0x112233, 0x998877];
 
         const lerp = (a, b, t) => a + (t * t * (3 - 2 * t)) * (b - a);
-
-        // 3D noise sampler — takes a point on the unit sphere surface.
-        // This is inherently seamless: no UV seam, no wrapping artifact.
-        const noise3 = (x, y, z) => {
-            // Hash 3D integer lattice point
+        const makeNoise3 = (seed) => (x, y, z) => {
             const h3 = (ix, iy, iz) => {
                 let h = (ix * 374761393 + iy * 668265263 + iz * 2147483647) ^ seed;
                 h = (h ^ (h >>> 13)) * 1274126177;
@@ -458,7 +461,7 @@ class Universe {
                 uz
             );
         };
-        const fbm3 = (x, y, z, oct) => {
+        const fbm3 = (noise3, x, y, z) => {
             let v = 0, amp = 0.5, freq = 1, max = 0;
             for (let i = 0; i < oct; i++) {
                 v += noise3(x * freq, y * freq, z * freq) * amp;
@@ -467,44 +470,66 @@ class Universe {
             return v / max;
         };
 
+        Universe._noisePool = [];
+        Universe._noisePoolSize = size;
+
+        for (let p = 0; p < POOL; p++) {
+            const noise3 = makeNoise3(SEEDS[p]);
+            const brightness = new Float32Array(size * size); // normalised 0-1 per pixel
+            const samples = new Float32Array(size * size);
+            for (let py = 0; py < size; py++) {
+                for (let px = 0; px < size; px++) {
+                    const u = px / size;
+                    const v = py / size;
+                    const theta = u * Math.PI * 2;
+                    const phi   = v * Math.PI;
+                    const sx = Math.sin(phi) * Math.cos(theta) * scale;
+                    const sy = Math.sin(phi) * Math.sin(theta) * scale;
+                    const sz = Math.cos(phi) * scale;
+                    samples[py * size + px] = fbm3(noise3, sx, sy, sz);
+                }
+            }
+            let nMin = Infinity, nMax = -Infinity;
+            for (let i = 0; i < samples.length; i++) {
+                if (samples[i] < nMin) nMin = samples[i];
+                if (samples[i] > nMax) nMax = samples[i];
+            }
+            const nRange = nMax - nMin || 1;
+            const contrast = T.contrast;
+            for (let i = 0; i < samples.length; i++) {
+                const n01 = (samples[i] - nMin) / nRange;
+                const nc  = n01 * n01 * (3 - 2 * n01);
+                brightness[i] = contrast !== 1.0 ? Math.pow(nc, 1.0 / contrast) : nc;
+            }
+            Universe._noisePool.push(brightness);
+        }
+    }
+
+    _makePlanetTexture(baseColor, seed) {
+        const T = CFG.planetTexture;
+        const cacheKey = `${baseColor.getHexString()}_${seed % 6}`; // slot 0-5 + color
+        if (Universe._texCache.has(cacheKey)) return Universe._texCache.get(cacheKey);
+
+        Universe._buildNoisePool();
+        const size       = Universe._noisePoolSize;
+        const brightness = Universe._noisePool[seed % 6];
+        const darkBase   = T.darkBase;
+        const brightRange = T.brightRange;
         const r = baseColor.r, g = baseColor.g, b = baseColor.b;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
         const imgData = ctx.createImageData(size, size);
         const d = imgData.data;
 
-        const scale = T.noiseScale;
-        const oct   = Math.round(T.octaves);
-        const samples = [];
-        for (let py = 0; py < size; py++) {
-            for (let px = 0; px < size; px++) {
-                const u = px / size;
-                const v = py / size;
-                const theta = u * Math.PI * 2;
-                const phi   = v * Math.PI;
-                const sx = Math.sin(phi) * Math.cos(theta) * scale;
-                const sy = Math.sin(phi) * Math.sin(theta) * scale;
-                const sz = Math.cos(phi) * scale;
-                samples.push(fbm3(sx, sy, sz, oct));
-            }
-        }
-        let nMin = Infinity, nMax = -Infinity;
-        for (const s of samples) { if (s < nMin) nMin = s; if (s > nMax) nMax = s; }
-        const nRange = nMax - nMin || 1;
-
-        const darkBase    = T.darkBase;
-        const brightRange = T.brightRange;
-        const contrast    = T.contrast;
-
-        for (let i = 0; i < samples.length; i++) {
-            const n01 = (samples[i] - nMin) / nRange;
-            // S-curve with configurable contrast multiplier
-            const nc = n01 * n01 * (3 - 2 * n01);
-            const ncc = contrast !== 1.0 ? Math.pow(nc, 1.0 / contrast) : nc;
-            const bright = darkBase + ncc * brightRange;
-            const pr = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
-            const pg = Math.min(255, Math.max(0, Math.round(g * 255 * bright)));
-            const pb = Math.min(255, Math.max(0, Math.round(b * 255 * bright)));
+        for (let i = 0; i < brightness.length; i++) {
+            const bright = darkBase + brightness[i] * brightRange;
             const pi = i * 4;
-            d[pi] = pr; d[pi + 1] = pg; d[pi + 2] = pb; d[pi + 3] = 255;
+            d[pi]     = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
+            d[pi + 1] = Math.min(255, Math.max(0, Math.round(g * 255 * bright)));
+            d[pi + 2] = Math.min(255, Math.max(0, Math.round(b * 255 * bright)));
+            d[pi + 3] = 255;
         }
         ctx.putImageData(imgData, 0, 0);
 
@@ -1426,7 +1451,9 @@ class Universe {
     }
 }
 
-Universe._texCache = new Map();
+Universe._texCache     = new Map();
+Universe._noisePool    = null;
+Universe._noisePoolSize = 512;
 
 // ═══════════════════════════════════════════════
 //  START
