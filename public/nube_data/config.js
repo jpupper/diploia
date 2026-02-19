@@ -240,6 +240,7 @@ export const CONFIG = {
         pvStopDistance:  120,     // camera stop distance when warping to a planet in PV mode
         pvAutoAdvanceTime: 15,    // seconds before auto-advancing to a random planet
         pvInfoFontSize: 14,       // font size (px) for the planet info panel in PV mode
+        pvArrivalDelay: 1800,     // ms to wait after arriving at a planet before showing the selection screen
     },
 
     // ── Selection Visual ─────────────────────────────────────

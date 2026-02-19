@@ -153,10 +153,13 @@ export class PlanetVisitorManager {
             const targetPos = planet.getWorldPosition();
             const G = CONFIG.game || {};
             const stopDist = G.pvStopDistance || 120;
+            const arrivalDelay = (G.pvArrivalDelay !== undefined ? G.pvArrivalDelay : 1800);
             this.universe.cam.startWarp(targetPos, stopDist, () => {
                 this.universe.cam.initFollowFrom(planet.getWorldPosition());
                 this._registerVisit(planet);
-                this._showPlanetSelectionScreen();
+                setTimeout(() => {
+                    this._showPlanetSelectionScreen();
+                }, arrivalDelay);
             }, planet);
         }
     }
@@ -252,7 +255,10 @@ export class PlanetVisitorManager {
         this._showPlanetInfo(this.currentPlanet.node);
         this._startAutoAdvanceTimer();
 
-        if (this.dom.pvScreen) this.dom.pvScreen.classList.add('visible');
+        if (this.dom.pvScreen) {
+            void this.dom.pvScreen.offsetWidth;
+            this.dom.pvScreen.classList.add('visible');
+        }
         if (this.dom.pvCurrentPlanet) {
             this.dom.pvCurrentPlanet.textContent = this.currentPlanet.node.label || this.currentPlanet.node.id;
         }
@@ -331,10 +337,13 @@ export class PlanetVisitorManager {
         const targetPos = planet.getWorldPosition();
         const G = CONFIG.game || {};
         const stopDist = G.pvStopDistance || 120;
+        const arrivalDelay = (G.pvArrivalDelay !== undefined ? G.pvArrivalDelay : 1800);
         this.universe.cam.startWarp(targetPos, stopDist, () => {
             this.universe.cam.initFollowFrom(planet.getWorldPosition());
             this._registerVisit(planet);
-            this._showPlanetSelectionScreen();
+            setTimeout(() => {
+                this._showPlanetSelectionScreen();
+            }, arrivalDelay);
         }, planet);
     }
 
@@ -362,7 +371,10 @@ export class PlanetVisitorManager {
     }
 
     _showEvalScreen() {
-        if (this.dom.pvEvalScreen) this.dom.pvEvalScreen.classList.add('visible');
+        if (this.dom.pvEvalScreen) {
+            void this.dom.pvEvalScreen.offsetWidth;
+            this.dom.pvEvalScreen.classList.add('visible');
+        }
         if (this.dom.pvEvalFeedback) {
             this.dom.pvEvalFeedback.textContent = '';
             this.dom.pvEvalFeedback.className = 'eval-feedback';
@@ -547,7 +559,10 @@ export class PlanetVisitorManager {
         if (this.dom.pvResultsCorrect) this.dom.pvResultsCorrect.textContent = this.correctCount;
         if (this.dom.pvResultsWrong) this.dom.pvResultsWrong.textContent = this.wrongCount;
         if (this.dom.pvResultsScore) this.dom.pvResultsScore.textContent = this.finalScore;
-        if (this.dom.pvResultsScreen) this.dom.pvResultsScreen.classList.add('visible');
+        if (this.dom.pvResultsScreen) {
+            void this.dom.pvResultsScreen.offsetWidth;
+            this.dom.pvResultsScreen.classList.add('visible');
+        }
 
         if (this.dom.pvResultsRankingName) {
             this.dom.pvResultsRankingName.value = '';

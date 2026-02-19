@@ -3653,199 +3653,19 @@ header.nube-header .menu-toggle:hover {
     justify-content: flex-end;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0s linear 0.5s;
 }
 
 #pv-screen.visible {
     opacity: 1;
+    visibility: visible;
     pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0s linear 0s;
 }
 
 #pv-screen.visible .pv-screen-content {
     pointer-events: auto;
-}
-
-.pv-screen-content {
-    width: 420px;
-    max-height: 90vh;
-    overflow-y: auto;
-    margin-right: 40px;
-    padding: 32px 28px;
-    background: linear-gradient(160deg, rgba(12, 8, 30, 0.96), rgba(4, 2, 16, 0.98));
-    backdrop-filter: blur(30px);
-    border: 1px solid rgba(180, 77, 255, 0.2);
-    border-right: 3px solid rgba(180, 77, 255, 0.5);
-    border-radius: 12px;
-    box-shadow:
-        0 0 60px rgba(180, 77, 255, 0.08),
-        inset 0 0 40px rgba(180, 77, 255, 0.02);
-}
-
-.pv-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid rgba(180, 77, 255, 0.15);
-}
-
-.pv-header-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: rgba(180, 77, 255, 0.8);
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    text-shadow: 0 0 12px rgba(180, 77, 255, 0.4);
-}
-
-.pv-header-stats {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
-
-.pv-header-stats span {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 1px;
-}
-
-#pv-score {
-    color: rgba(255, 215, 0, 0.9) !important;
-    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-}
-
-.pv-current {
-    text-align: center;
-    margin-bottom: 24px;
-}
-
-.pv-current-label {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.6rem;
-    font-weight: 600;
-    color: rgba(180, 77, 255, 0.6);
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-}
-
-.pv-current-name {
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: rgba(180, 77, 255, 0.95);
-    text-shadow: 0 0 25px rgba(180, 77, 255, 0.5), 0 0 50px rgba(180, 77, 255, 0.15);
-    letter-spacing: 2px;
-}
-
-.pv-auto-advance-bar {
-    margin-bottom: 16px;
-}
-
-.pv-auto-advance-label {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: rgba(180, 77, 255, 0.55);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    text-align: center;
-}
-
-.pv-auto-advance-label span {
-    color: rgba(220, 140, 255, 0.9);
-    font-weight: 800;
-}
-
-.pv-auto-advance-track {
-    width: 100%;
-    height: 3px;
-    background: rgba(180, 77, 255, 0.12);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.pv-auto-advance-fill {
-    height: 100%;
-    width: 100%;
-    background: linear-gradient(90deg, rgba(180, 77, 255, 0.4), rgba(220, 140, 255, 0.8));
-    border-radius: 2px;
-    transform-origin: left;
-    transition: width 1s linear;
-}
-
-.pv-choose-label {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    text-align: center;
-}
-
-.pv-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.pv-option-btn {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    border-radius: 10px;
-    border: 1px solid rgba(180, 77, 255, 0.15);
-    background: rgba(180, 77, 255, 0.04);
-    color: rgba(255, 255, 255, 0.9);
-    font-family: 'Outfit', sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: left;
-}
-
-.pv-option-btn:hover {
-    background: rgba(180, 77, 255, 0.12);
-    border-color: rgba(180, 77, 255, 0.5);
-    box-shadow: 0 0 20px rgba(180, 77, 255, 0.15);
-    transform: translateX(6px);
-}
-
-.pv-option-dot {
-    width: 14px;
-    height: 14px;
-    min-width: 14px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.pv-option-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.pv-option-name {
-    font-weight: 600;
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.9);
-    letter-spacing: 0.5px;
-}
-
-.pv-option-cat {
-    font-size: 0.65rem;
-    font-weight: 500;
-    color: rgba(180, 77, 255, 0.6);
-    letter-spacing: 2px;
-    text-transform: uppercase;
 }
 
 /* ── Planet Visitor: Planet Info Panel ── */
@@ -4002,15 +3822,19 @@ header.nube-header .menu-toggle:hover {
     justify-content: center;
     background: rgba(2, 4, 12, 0.95);
     backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease, visibility 0s linear 0.5s;
     overflow-y: auto;
 }
 
 #pv-eval-screen.visible {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition: opacity 0.5s ease, visibility 0s linear 0s;
 }
 
 /* ── Planet Visitor: Results Screen ── */
@@ -4023,15 +3847,20 @@ header.nube-header .menu-toggle:hover {
     justify-content: center;
     background: rgba(4, 4, 14, 0.94);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease, visibility 0s linear 0.5s;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 #pv-results-screen.visible {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition: opacity 0.5s ease, visibility 0s linear 0s;
 }
 
 #pv-results-screen .results-title {
