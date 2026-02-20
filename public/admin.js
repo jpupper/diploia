@@ -158,13 +158,16 @@ async function loadAllData() {
         nodesData.config = configResp.config || {};
 
         try {
-            const spaceRes = await fetch(API + '/space-config');
-            if (spaceRes.ok) {
-                spaceConfigData = await spaceRes.json();
-            }
-        } catch (e) {
-            console.warn('Space config not available, using defaults');
+        const spaceRes = await fetch(API + '/space-config');
+        if (spaceRes.ok) {
+            spaceConfigData = await spaceRes.json();
+            console.log('Space config loaded:', spaceConfigData);
+        } else {
+            console.warn('Space config endpoint returned:', spaceRes.status);
         }
+    } catch (e) {
+        console.warn('Space config not available, using defaults:', e);
+    }
 
         renderDashboard();
         renderCategories();
@@ -974,7 +977,9 @@ const SC_DEFAULTS = {
         gameTime: 60, evalTimePerQuestion: 30, collectTime: 1.2,
         pointsRouteCorrect: 300, pointsRandomCorrect: 50, pointsWrong: -100,
         pvTotalPlanets: 10, pvPointsPerVisit: 100, pvPointsCorrect: 200, pvPointsWrong: -50,
-        pvStopDistance: 120, pvAutoAdvanceTime: 15, pvInfoFontSize: 14
+        pvStopDistance: 120, pvAutoAdvanceTime: 15, pvInfoFontSize: 14,
+        pvMobileTitleFontSize: 1.2, pvMobileDescFontSize: 1.3, pvMobileOptionFontSize: 1.4,
+        pvMobileQuestionFontSize: 0.95, pvMobileAnswerFontSize: 0.95
     },
     ship: {
         maxSpeed: 3000, acceleration: 1000, drag: 0.97,
@@ -1000,6 +1005,11 @@ const SC_FIELD_MAP = [
     { id: 'sc-game-pvStopDistance',       path: ['game', 'pvStopDistance'] },
     { id: 'sc-game-pvAutoAdvanceTime',    path: ['game', 'pvAutoAdvanceTime'] },
     { id: 'sc-game-pvInfoFontSize',        path: ['game', 'pvInfoFontSize'] },
+    { id: 'sc-game-pvMobileTitleFontSize',    path: ['game', 'pvMobileTitleFontSize'] },
+    { id: 'sc-game-pvMobileDescFontSize',     path: ['game', 'pvMobileDescFontSize'] },
+    { id: 'sc-game-pvMobileOptionFontSize',   path: ['game', 'pvMobileOptionFontSize'] },
+    { id: 'sc-game-pvMobileQuestionFontSize', path: ['game', 'pvMobileQuestionFontSize'] },
+    { id: 'sc-game-pvMobileAnswerFontSize',   path: ['game', 'pvMobileAnswerFontSize'] },
     { id: 'sc-ship-maxSpeed',             path: ['ship', 'maxSpeed'] },
     { id: 'sc-ship-acceleration',         path: ['ship', 'acceleration'] },
     { id: 'sc-ship-drag',                 path: ['ship', 'drag'] },
@@ -1061,13 +1071,23 @@ function _scGetDefault(path) {
 
 function renderSpaceConfig() {
     const saved = spaceConfigData || {};
+    console.log('Rendering space config with data:', saved);
 
     SC_FIELD_MAP.forEach(f => {
         const el = document.getElementById(f.id);
-        if (!el) return;
+        if (!el) {
+            console.warn(`Element not found: ${f.id}`);
+            return;
+        }
         const val = _scGet(saved, f.path);
         const def = _scGetDefault(f.path);
         const v = (val !== undefined) ? val : def;
+        
+        // Log específico para las variables de fuente
+        if (f.path.includes('pvMobile') || f.path.includes('pvInfoFontSize')) {
+            console.log(`Font field ${f.id}: path=${f.path.join('.')}, value=${v}, default=${def}, saved=${val}`);
+        }
+        
         if (f.hex) {
             el.value = _scHexStr(v);
         } else {

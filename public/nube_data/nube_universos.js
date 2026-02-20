@@ -1034,6 +1034,11 @@ class Universe {
     }
 
     _handleSingleClick(clientX, clientY) {
+        // Prevent planet changes when in Planet Visitor mode
+        if (this.pvGame && this.pvGame.state !== 'idle') {
+            return;
+        }
+        
         this.mouse.x = (clientX / innerWidth) * 2 - 1;
         this.mouse.y = -(clientY / innerHeight) * 2 + 1;
         this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -1079,6 +1084,11 @@ class Universe {
         e.preventDefault();
         // Cancel pending single-click so it doesn't interfere
         if (this._clickTimer) { clearTimeout(this._clickTimer); this._clickTimer = null; }
+
+        // Prevent planet changes when in Planet Visitor mode
+        if (this.pvGame && this.pvGame.state !== 'idle') {
+            return;
+        }
 
         if (this.isShipMode()) {
             // Ship mode: warp to aimed planet
@@ -1460,9 +1470,82 @@ Universe._noisePool = null;
 Universe._noisePoolSize = 512;
 
 // ═══════════════════════════════════════════════
+//  APPLY CONFIGURABLE FONT SIZES
+// ═══════════════════════════════════════════════
+function applyPlanetVisitorFontSizes() {
+    const game = CONFIG.game || {};
+    
+    // Remove existing font size styles to prevent conflicts
+    const existingStyle = document.getElementById('pv-font-styles');
+    if (existingStyle) {
+        existingStyle.remove();
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'pv-font-styles';
+    style.textContent = `
+        /* Desktop font sizes for Planet Visitor */
+        #pv-planet-info-content {
+            font-size: ${game.pvInfoFontSize || 14}px !important;
+        }
+        #pv-planet-info-content h3 {
+            font-size: ${(game.pvInfoFontSize || 14) * 1.2}px !important;
+        }
+        #pv-planet-info-content p {
+            font-size: ${game.pvInfoFontSize || 14}px !important;
+            line-height: 1.6 !important;
+        }
+        #pv-planet-info-content a {
+            font-size: ${(game.pvInfoFontSize || 14) * 0.9}px !important;
+        }
+        
+        /* Mobile font sizes for Planet Visitor */
+        @media (max-width: 768px) {
+            #pv-planet-info h3 {
+                font-size: ${game.pvMobileTitleFontSize || 1.2}rem !important;
+            }
+            #pv-planet-info p {
+                font-size: ${game.pvMobileDescFontSize || 1.3}rem !important;
+            }
+            .pv-option-btn {
+                font-size: ${game.pvMobileOptionFontSize || 1.4}rem !important;
+            }
+            .pv-option-name {
+                font-size: ${game.pvMobileOptionFontSize || 1.4}rem !important;
+            }
+            #pv-eval-description {
+                font-size: ${game.pvMobileQuestionFontSize || 0.95}rem !important;
+            }
+            #pv-eval-options .eval-option-btn {
+                font-size: ${game.pvMobileAnswerFontSize || 0.95}rem !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Log para verificar que los valores se están aplicando correctamente
+    console.log('Font sizes applied:', {
+        pvInfoFontSize: game.pvInfoFontSize,
+        pvMobileTitleFontSize: game.pvMobileTitleFontSize,
+        pvMobileDescFontSize: game.pvMobileDescFontSize,
+        pvMobileOptionFontSize: game.pvMobileOptionFontSize,
+        pvMobileQuestionFontSize: game.pvMobileQuestionFontSize,
+        pvMobileAnswerFontSize: game.pvMobileAnswerFontSize,
+        source: 'CONFIG.game'
+    });
+}
+
+// Función para recargar estilos si la configuración cambia dinámicamente
+function reloadPlanetVisitorFontSizes() {
+    console.log('Reloading Planet Visitor font sizes...');
+    applyPlanetVisitorFontSizes();
+}
+
+// ═══════════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════════
 loadSpaceConfig().then(() => {
+    applyPlanetVisitorFontSizes();
     const universe = new Universe();
     universe.init().catch(err => {
         console.error('Error loading:', err);

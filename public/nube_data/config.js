@@ -240,7 +240,14 @@ export const CONFIG = {
         pvStopDistance: 120,     // camera stop distance when warping to a planet in PV mode
         pvAutoAdvanceTime: 15,    // seconds before auto-advancing to a random planet
         pvInfoFontSize: 14,       // font size (px) for the planet info panel in PV mode
-        pvArrivalDelay: 1800,     // ms to wait after arriving at a planet before showing the selection screen
+        pvArrivalDelay: 1000,     // ms to wait after arriving at a planet before showing the selection screen
+        
+        // Planet Visitor font sizes (mobile)
+        pvMobileTitleFontSize: 1.2,     // rem for planet title in mobile
+        pvMobileDescFontSize: 1.3,      // rem for planet description in mobile
+        pvMobileOptionFontSize: 1.4,    // rem for planet option buttons in mobile
+        pvMobileQuestionFontSize: 0.95, // rem for evaluation questions in mobile
+        pvMobileAnswerFontSize: 0.95,   // rem for evaluation answers in mobile
     },
 
     // ── Selection Visual ─────────────────────────────────────

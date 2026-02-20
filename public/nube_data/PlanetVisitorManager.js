@@ -318,9 +318,8 @@ export class PlanetVisitorManager {
             html += `<p style="margin-top:12px"><a href="${node.url}" target="_blank">${node.url}</a></p>`;
         }
         this.dom.pvPlanetInfoContent.innerHTML = html;
-        const G = CONFIG.game || {};
-        const fontSize = G.pvInfoFontSize || 14;
-        this.dom.pvPlanetInfoContent.style.fontSize = `${fontSize}px`;
+        
+        // Don't apply inline styles - let CSS handle everything through applyPlanetVisitorFontSizes()
         this.dom.pvPlanetInfo.classList.add('visible');
     }
 
