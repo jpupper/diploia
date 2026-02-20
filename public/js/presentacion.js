@@ -23,8 +23,7 @@ const els = {
     nextBtn: document.getElementById('next-btn'),
     progress: document.getElementById('progress-fill'),
     filters: document.getElementById('category-filter'),
-    loading: document.getElementById('loading-overlay'),
-    visual: document.querySelector('.visual-circle')
+    loading: document.getElementById('loading-overlay')
 };
 
 // ── Initialization ───────────────────────────────────────────────────────────
@@ -42,7 +41,7 @@ async function init() {
 
 async function loadData() {
     try {
-        const url = CONFIG.dataUrl;
+        const url = '/diploia/api/nodes';
         const res = await fetch(url);
         const data = await res.json();
 
@@ -110,6 +109,8 @@ function renderSlide(index, direction = 1) {
     state.currentIndex = index;
     const node = state.filteredNodes[index];
 
+    updateShaderParams(node, state.currentIndex);
+
     // Animate Out
     els.content.classList.remove('visible');
 
@@ -118,48 +119,58 @@ function renderSlide(index, direction = 1) {
         els.title.textContent = node.label;
         els.desc.innerHTML = '';
 
-        // Resolve Description
-        // Priority: node.description > node.info (cleaned) > node.infoHTML (cleaned)
-        let descText = node.description;
-
-        if (!descText && node.info) {
-            // Clean up "Title Description..." pattern if present
-            // Example: "Cursor Editor de código..." -> "Editor de código..."
-            const label = node.label || '';
-            // Simple check if info starts with label
-            if (node.info.trim().startsWith(label)) {
-                descText = node.info.trim().substring(label.length).trim();
-            } else {
-                descText = node.info;
+        if (node.customHtml) {
+            els.desc.innerHTML = node.customHtml;
+            if (node.customCss) {
+                const styleId = `custom-style-${node.id}`;
+                let style = document.getElementById(styleId);
+                if (!style) {
+                    style = document.createElement('style');
+                    style.id = styleId;
+                    document.head.appendChild(style);
+                }
+                style.textContent = node.customCss;
             }
+        } else if (node.infoHTML) {
+            // Check for image and inject if missing
+            let html = node.infoHTML;
+            if (!html.includes('<img')) {
+                const term = encodeURIComponent(node.label.toLowerCase());
+                const imgUrl = `https://loremflickr.com/800/600/${term}`;
+                const imgTag = `<div class="node-image-container" style="margin: 20px 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <img src="${imgUrl}" alt="${node.label}" style="width: 100%; height: auto; display: block; object-fit: cover; max-height: 350px;">
+                </div>`;
+
+                if (html.includes('</h3>')) {
+                    html = html.replace('</h3>', `</h3>${imgTag}`);
+                } else {
+                    html = imgTag + html;
+                }
+            }
+            els.desc.innerHTML = html;
+        } else if (node.description || node.info) {
+            const text = node.description || node.info;
+            const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+
+            // Client-side image injection for text nodes
+            const term = encodeURIComponent(node.label.toLowerCase());
+            const imgUrl = `https://loremflickr.com/800/600/${term}`;
+            const imgTag = `<div class="node-image-container" style="margin: 20px 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <img src="${imgUrl}" alt="${node.label}" style="width: 100%; height: auto; display: block; object-fit: cover; max-height: 350px;">
+            </div>`;
+            els.desc.innerHTML = imgTag;
+
+            sentences.forEach((s, i) => {
+                if (!s.trim()) return;
+                const span = document.createElement('span');
+                span.className = 'slide-line';
+                span.style.animationDelay = `${i * 0.1}s`;
+                span.textContent = s.trim() + ' ';
+                els.desc.appendChild(span);
+            });
+        } else {
+            els.desc.textContent = "Sin descripción disponible.";
         }
-
-        if (!descText && node.infoHTML) {
-            // Primitive strip tags using browser DOM
-            const tmp = document.createElement('div');
-            tmp.innerHTML = node.infoHTML;
-            // Remove h3 which usually repeats title
-            const h3 = tmp.querySelector('h3');
-            if (h3) h3.remove();
-            descText = tmp.textContent.trim();
-        }
-
-        if (!descText) descText = "Sin descripción disponible.";
-
-        // Split description into sentences for animation
-        // Simple heuristic: split by period followed by space
-        // We also want to keep the periods.
-        // Regex split keeping delimiter is complex in split, so we just split and re-add.
-        const sentences = descText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [descText];
-
-        sentences.forEach((s, i) => {
-            if (!s.trim()) return;
-            const span = document.createElement('span');
-            span.className = 'slide-line';
-            span.style.animationDelay = `${i * 0.1}s`;
-            span.textContent = s.trim() + ' ';
-            els.desc.appendChild(span);
-        });
 
         // Category & Color
         const catColorHex = CONFIG.categoryColors[node.category] || 0xffffff;
@@ -178,6 +189,9 @@ function renderSlide(index, direction = 1) {
 
         // Animate In
         els.content.classList.add('visible');
+
+        // Update Sidebar
+        updateSidebar(node);
     }, 300);
 }
 
@@ -186,40 +200,127 @@ function renderSlide(index, direction = 1) {
 function setupFilters() {
     els.filters.innerHTML = '';
 
-    // All
-    createFilterDot('ALL', 0xffffff);
+    // Header
+    const header = document.createElement('div');
+    header.className = 'sidebar-header';
+
+    const label = document.createElement('div');
+    label.className = 'cat-label-small';
+    label.textContent = 'SELECCIONAR CATEGORÍA';
+    header.appendChild(label);
+
+    // Category Nav Dots
+    const dotsContainer = document.createElement('div');
+    dotsContainer.className = 'cat-nav-dots';
+    dotsContainer.id = 'cat-nav-dots';
+    header.appendChild(dotsContainer);
+
+    // All option
+    createCatDot('ALL', 0xffffff, dotsContainer);
 
     state.categories.forEach(cat => {
-        if (cat === 'GENERAL') return; // Skip GENERAL in filter list if you want, or keep it
-        createFilterDot(cat, CONFIG.categoryColors[cat] || 0xffffff);
+        if (cat === 'GENERAL') return;
+        createCatDot(cat, CONFIG.categoryColors[cat] || 0xffffff, dotsContainer);
     });
+
+    const title = document.createElement('div');
+    title.className = 'cat-title';
+    title.id = 'sidebar-cat-title';
+    header.appendChild(title);
+
+    els.filters.appendChild(header);
+
+    // Node List Container
+    const listContainer = document.createElement('div');
+    listContainer.className = 'node-list-container';
+    listContainer.id = 'sidebar-node-list';
+    els.filters.appendChild(listContainer);
 }
 
-function createFilterDot(cat, colorHex) {
+function createCatDot(cat, colorHex, container) {
     const dot = document.createElement('div');
-    dot.className = 'cat-filter-dot';
+    dot.className = 'cat-dot';
     const color = '#' + new THREE.Color(colorHex).getHexString();
-    dot.style.setProperty('--cat-color', color);
+    dot.style.setProperty('--dot-color', color);
 
-    const tooltip = document.createElement('div');
-    tooltip.className = 'cat-tooltip';
-    tooltip.textContent = cat;
-    dot.appendChild(tooltip);
+    // Tooltip / Meta
+    dot.title = cat;
+    dot.dataset.cat = cat;
 
     dot.addEventListener('click', () => filterCategory(cat));
 
-    if (cat === 'ALL') dot.classList.add('active');
-
-    els.filters.appendChild(dot);
+    container.appendChild(dot);
 }
+
+function updateSidebar(node) {
+    const titleEl = document.getElementById('sidebar-cat-title');
+    const listEl = document.getElementById('sidebar-node-list');
+    const dots = document.querySelectorAll('.cat-dot');
+
+    if (!titleEl || !listEl) return;
+
+    // Update Category Title & List if changed
+    const currentCat = node.category || 'GENERAL';
+    if (titleEl.textContent !== currentCat) {
+        titleEl.textContent = currentCat;
+        renderNodeList(node.category, listEl);
+    }
+
+    // Highlight Category Dot
+    dots.forEach(dot => {
+        dot.classList.remove('active');
+        if (dot.dataset.cat === state.currentCategory) dot.classList.add('active');
+    });
+
+    // Highlight Active Node
+    const items = listEl.querySelectorAll('.node-item');
+    items.forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.nodeId === node.id) {
+            item.classList.add('active');
+            item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
+}
+
+function renderNodeList(category, container) {
+    container.innerHTML = '';
+    // Find all nodes for this category from the full list
+    const nodesInCat = state.nodes.filter(n => (n.category || 'GENERAL') === (category || 'GENERAL'));
+
+    nodesInCat.forEach(n => {
+        const item = document.createElement('div');
+        item.className = 'node-item';
+        item.textContent = n.label;
+        item.dataset.nodeId = n.id;
+
+        // Add click handler to jump to this node
+        item.addEventListener('click', () => {
+            // We need to find the index in the CURRENT filtered list.
+            // If the current filtered list doesn't include this node (unlikely if we are viewing the category),
+            // we might need to reset filter, but usually it should be there.
+            const idx = state.filteredNodes.findIndex(fn => fn.id === n.id);
+            if (idx !== -1) {
+                renderSlide(idx);
+            } else {
+                // If not in filtered list (e.g. we are in a different filter mode but somehow seeing this?), 
+                // Force switch? For now assume valid.
+                console.warn('Node not in current filtered list');
+            }
+        });
+
+        container.appendChild(item);
+    });
+}
+
 
 function filterCategory(cat) {
     state.currentCategory = cat;
 
-    // Update active dot
-    document.querySelectorAll('.cat-filter-dot').forEach(d => {
+    // Update active dot in sidebar
+    document.querySelectorAll('.cat-dot').forEach(d => {
         d.classList.remove('active');
-        if (d.querySelector('.cat-tooltip').textContent === cat) d.classList.add('active');
+        if (d.dataset.cat === cat) d.classList.add('active');
     });
 
     // Filter nodes
@@ -229,7 +330,7 @@ function filterCategory(cat) {
         state.filteredNodes = state.nodes.filter(n => n.category === cat);
     }
 
-    // Reset index
+    // Reset index to start of filtered set
     renderSlide(0);
 }
 
@@ -261,7 +362,21 @@ function initBackgroundShader() {
     const uniforms = {
         uTime: { value: 0 },
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        uColor: { value: new THREE.Color(0x000000) } // We will blend this
+        uColor1: { value: new THREE.Color(0.0, 1.0, 1.0) },
+        uColor2: { value: new THREE.Color(0.6, 0.0, 1.0) },
+        uSpeed: { value: 0.1 },
+        uScale: { value: 3.0 },
+        uDistortion: { value: 0.1 }
+    };
+
+    // Store in state for access
+    state.shaderUniforms = uniforms;
+    state.shaderTargets = {
+        color1: new THREE.Color(0.0, 1.0, 1.0),
+        color2: new THREE.Color(0.6, 0.0, 1.0),
+        speed: 0.1,
+        scale: 3.0,
+        distortion: 0.1
     };
 
     const material = new THREE.ShaderMaterial({
@@ -276,6 +391,11 @@ function initBackgroundShader() {
         fragmentShader: `
             uniform float uTime;
             uniform vec2 uResolution;
+            uniform vec3 uColor1;
+            uniform vec3 uColor2;
+            uniform float uSpeed;
+            uniform float uScale;
+            uniform float uDistortion;
             varying vec2 vUv;
 
             // Simplex noise function
@@ -307,21 +427,21 @@ function initBackgroundShader() {
             void main() {
                 vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
                 
-                float noise = snoise(uv * 3.0 + uTime * 0.1);
-                float noise2 = snoise(uv * 1.5 - uTime * 0.05);
+                // Use uniforms
+                float noise = snoise(uv * uScale + uTime * uSpeed);
+                float noise2 = snoise(uv * (uScale * 0.5) - uTime * (uSpeed * 0.5));
                 
-                // Deep space background
-                vec3 bg = vec3(0.02, 0.02, 0.05); // Dark blue/black
+                // Distortion
+                vec2 distUV = uv + vec2(noise * 0.1, noise2 * 0.1) * uDistortion;
+                float noise3 = snoise(distUV * 1.5 + uTime * 0.05);
+
+                vec3 bg = vec3(0.02, 0.02, 0.05); 
                 
-                // Nebula effect
-                vec3 color1 = vec3(0.0, 1.0, 1.0); // Cyan
-                vec3 color2 = vec3(0.6, 0.0, 1.0); // Purple
+                float n = smoothstep(0.2, 0.8, noise + noise3 * 0.5);
                 
-                float n = smoothstep(0.2, 0.8, noise);
+                vec3 finalColor = bg + n * uColor1 * 0.15 + noise2 * uColor2 * 0.1;
                 
-                vec3 finalColor = bg + n * color1 * 0.15 + noise2 * color2 * 0.1;
-                
-                // Scanline vibe
+                // Scanline
                 float scan = sin(gl_FragCoord.y * 0.2 - uTime * 2.0) * 0.02;
                 finalColor += scan;
 
@@ -336,6 +456,17 @@ function initBackgroundShader() {
     function animate() {
         requestAnimationFrame(animate);
         uniforms.uTime.value += 0.01;
+
+        // Smoothly interpolate towards targets
+        if (state.shaderTargets) {
+            const lerpFactor = 0.02;
+            uniforms.uColor1.value.lerp(state.shaderTargets.color1, lerpFactor);
+            uniforms.uColor2.value.lerp(state.shaderTargets.color2, lerpFactor);
+            uniforms.uSpeed.value += (state.shaderTargets.speed - uniforms.uSpeed.value) * lerpFactor;
+            uniforms.uScale.value += (state.shaderTargets.scale - uniforms.uScale.value) * lerpFactor;
+            uniforms.uDistortion.value += (state.shaderTargets.distortion - uniforms.uDistortion.value) * lerpFactor;
+        }
+
         renderer.render(scene, camera);
     }
     animate();
@@ -348,3 +479,57 @@ function initBackgroundShader() {
 
 // start
 init();
+
+// ── Shader Utilities ─────────────────────────────────────────────────────────
+
+function updateShaderParams(node, index) {
+    if (!state.shaderTargets) return;
+
+    // Create a seed based on unique ID or index if ID is missing.
+    // Use index + ID hash to ensure it's stable for this specific item.
+    // Use a string hash for the seed
+    const str = (node.id || 'node') + index;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    let seed = Math.abs(hash);
+
+    function rand() {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    }
+
+    // Generate procedural values
+
+    // Color 1: Primary
+    const r1 = rand();
+    const g1 = rand();
+    const b1 = rand();
+
+    // Color 2: Secondary
+    const r2 = rand();
+    const g2 = rand();
+    const b2 = rand();
+
+    // Params
+    // Speed: 0.05 - 0.5
+    const speed = 0.05 + rand() * 0.45;
+
+    // Scale: 1.0 - 6.0
+    const scale = 1.0 + rand() * 5.0;
+
+    // Distortion: 0.0 - 2.0
+    const distortion = rand() * 2.0;
+
+    // Apply to targets
+    state.shaderTargets.color1.setRGB(r1, g1, b1);
+    state.shaderTargets.color2.setRGB(r2, g2, b2);
+    state.shaderTargets.speed = speed;
+    state.shaderTargets.scale = scale;
+    state.shaderTargets.distortion = distortion;
+}
+
+
+

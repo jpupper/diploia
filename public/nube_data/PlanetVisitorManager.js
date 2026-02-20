@@ -139,6 +139,12 @@ export class PlanetVisitorManager {
         document.getElementById('info-panel').classList.remove('visible');
         const navArrows = document.getElementById('nav-arrows');
         if (navArrows) navArrows.style.display = 'none';
+        
+        // Hide category interface in PLANET VISITOR mode
+        const universeIndicator = document.getElementById('universe-indicator');
+        const catDots = document.getElementById('cat-dots');
+        if (universeIndicator) universeIndicator.style.display = 'none';
+        if (catDots) catDots.style.display = 'none';
 
         this._pickRandomStartAndWarp();
     }
@@ -153,7 +159,7 @@ export class PlanetVisitorManager {
             const targetPos = planet.getWorldPosition();
             const G = CONFIG.game || {};
             const stopDist = G.pvStopDistance || 120;
-            const arrivalDelay = (G.pvArrivalDelay !== undefined ? G.pvArrivalDelay : 1800);
+            const arrivalDelay = (G.pvArrivalDelay !== undefined ? G.pvArrivalDelay : 1000);
             this.universe.cam.startWarp(targetPos, stopDist, () => {
                 this.universe.cam.initFollowFrom(planet.getWorldPosition());
                 this._registerVisit(planet);
@@ -337,7 +343,7 @@ export class PlanetVisitorManager {
         const targetPos = planet.getWorldPosition();
         const G = CONFIG.game || {};
         const stopDist = G.pvStopDistance || 120;
-        const arrivalDelay = (G.pvArrivalDelay !== undefined ? G.pvArrivalDelay : 1800);
+        const arrivalDelay = (G.pvArrivalDelay !== undefined ? G.pvArrivalDelay : 1000);
         this.universe.cam.startWarp(targetPos, stopDist, () => {
             this.universe.cam.initFollowFrom(planet.getWorldPosition());
             this._registerVisit(planet);
@@ -638,6 +644,12 @@ export class PlanetVisitorManager {
         document.getElementById('connections-toggle').style.display = '';
         const navArrows = document.getElementById('nav-arrows');
         if (navArrows) navArrows.style.display = '';
+        
+        // Restore category interface when exiting PLANET VISITOR mode
+        const universeIndicator = document.getElementById('universe-indicator');
+        const catDots = document.getElementById('cat-dots');
+        if (universeIndicator) universeIndicator.style.display = '';
+        if (catDots) catDots.style.display = '';
 
         this.universe.setViewMode('global');
     }

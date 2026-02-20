@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════
+ // ═══════════════════════════════════════════════════════════════
 //  CONFIG — All configurable variables for Nube de Universos
 //  Edit this file to tweak the experience without touching logic.
 //  Values can be overridden from the Admin Panel (space-config API).

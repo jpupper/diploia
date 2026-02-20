@@ -4220,12 +4220,12 @@ header.nube-header .menu-toggle:hover {
     }
 
     .pv-auto-advance-label {
-        font-size: 0.6rem;
+        font-size: 0.8rem;
         letter-spacing: 2px;
     }
 
     .pv-choose-label {
-        font-size: 0.78rem;
+        font-size: 1.1rem;
         margin-bottom: 10px;
     }
 
@@ -4236,7 +4236,7 @@ header.nube-header .menu-toggle:hover {
     .pv-option-btn {
         padding: 11px 14px;
         gap: 10px;
-        font-size: 0.9rem;
+        font-size: 1.3rem;
         border-radius: 8px;
     }
 
@@ -4251,11 +4251,11 @@ header.nube-header .menu-toggle:hover {
     }
 
     .pv-option-name {
-        font-size: 0.9rem;
+        font-size: 1.3rem;
     }
 
     .pv-option-cat {
-        font-size: 0.6rem;
+        font-size: 0.9rem;
     }
 
     /* ── PV Planet Info Panel ── */
