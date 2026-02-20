@@ -4173,24 +4173,26 @@ header.nube-header .menu-toggle:hover {
 
     .pv-screen-content {
         width: 100%;
-        max-height: 55vh;
+        max-height: 65vh;
         margin-right: 0;
         margin-bottom: 0;
-        padding: 16px 14px 20px;
+        padding: 12px 12px 16px;
         border-radius: 16px 16px 0 0;
         border-right: 1px solid rgba(180, 77, 255, 0.2);
         border-top: 3px solid rgba(180, 77, 255, 0.5);
         border-bottom: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .pv-header {
-        margin-bottom: 12px;
-        padding-bottom: 10px;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
     }
 
     .pv-header-title {
-        font-size: 0.6rem;
-        letter-spacing: 3px;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
     }
 
     .pv-header-stats {
@@ -4198,46 +4200,46 @@ header.nube-header .menu-toggle:hover {
     }
 
     .pv-header-stats span {
-        font-size: 0.7rem;
+        font-size: 0.85rem;
     }
 
     .pv-current {
-        margin-bottom: 12px;
+        margin-bottom: 8px;
     }
 
     .pv-current-label {
-        font-size: 0.55rem;
-        letter-spacing: 3px;
+        font-size: 0.5rem;
+        letter-spacing: 2px;
     }
 
     .pv-current-name {
-        font-size: 1.2rem;
+        font-size: 1rem;
         letter-spacing: 1px;
     }
 
     .pv-auto-advance-bar {
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .pv-auto-advance-label {
-        font-size: 0.8rem;
-        letter-spacing: 2px;
+        font-size: 0.6rem;
+        letter-spacing: 1.5px;
     }
 
     .pv-choose-label {
-        font-size: 1.1rem;
-        margin-bottom: 10px;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
     }
 
     .pv-options {
-        gap: 7px;
+        gap: 6px;
     }
 
     .pv-option-btn {
-        padding: 11px 14px;
-        gap: 10px;
-        font-size: 1.3rem;
-        border-radius: 8px;
+        padding: 8px 12px;
+        gap: 8px;
+        font-size: 0.9rem;
+        border-radius: 6px;
     }
 
     .pv-option-btn:hover {
@@ -4245,33 +4247,33 @@ header.nube-header .menu-toggle:hover {
     }
 
     .pv-option-dot {
-        width: 11px;
-        height: 11px;
-        min-width: 11px;
+        width: 10px;
+        height: 10px;
+        min-width: 10px;
     }
 
     .pv-option-name {
-        font-size: 1.3rem;
+        font-size: 0.95rem;
     }
 
     .pv-option-cat {
-        font-size: 0.9rem;
+        font-size: 0.6rem;
     }
 
     /* ── PV Planet Info Panel ── */
     #pv-planet-info {
         top: auto;
-        bottom: 55vh;
+        bottom: 60vh;
         left: 0;
         right: 0;
         width: 100%;
-        max-height: 40vh;
+        max-height: 35vh;
         border-radius: 0;
         border-left: none;
         border-right: none;
         border-top: 3px solid rgba(180, 77, 255, 0.7);
         border-bottom: 1px solid rgba(180, 77, 255, 0.2);
-        transform: translateY(12px) scale(0.98);
+        transform: translateY(8px) scale(0.98);
         z-index: 490;
     }
 
@@ -4280,25 +4282,25 @@ header.nube-header .menu-toggle:hover {
     }
 
     #pv-planet-info .panel-inner {
-        padding: 16px 18px 14px;
+        padding: 12px 14px 12px;
     }
 
     #pv-planet-info h3 {
-        font-size: 1.3rem;
-        margin-bottom: 10px;
-        padding-bottom: 8px;
-        letter-spacing: 1px;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        letter-spacing: 0.8px;
     }
 
     #pv-planet-info p {
-        font-size: 1.1rem;
-        line-height: 1.6;
-        margin-bottom: 8px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 6px;
     }
 
     #pv-planet-info a {
-        font-size: 0.82rem;
-        padding: 7px 12px;
+        font-size: 0.75rem;
+        padding: 6px 10px;
     }
 
     /* ── PV Eval Screen ── */
@@ -4313,7 +4315,7 @@ header.nube-header .menu-toggle:hover {
         min-height: 100vh;
         border-radius: 0;
         border: none;
-        padding: 16px 14px 24px;
+        padding: 12px 12px 20px;
         background: linear-gradient(170deg, rgba(6, 16, 36, 0.98), rgba(2, 8, 20, 1));
         display: flex;
         flex-direction: column;
@@ -4330,9 +4332,9 @@ header.nube-header .menu-toggle:hover {
     }
 
     #pv-eval-screen .eval-header {
-        font-size: 1.6rem;
-        letter-spacing: 6px;
-        margin-bottom: 4px;
+        font-size: 1.4rem;
+        letter-spacing: 4px;
+        margin-bottom: 3px;
     }
 
     #pv-eval-progress {
@@ -4342,23 +4344,23 @@ header.nube-header .menu-toggle:hover {
     }
 
     #pv-eval-timer {
-        font-size: 1.6rem;
-        letter-spacing: 3px;
-        margin-bottom: 8px;
+        font-size: 1.4rem;
+        letter-spacing: 2px;
+        margin-bottom: 6px;
     }
 
     #pv-eval-screen .eval-question-label {
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-        margin-bottom: 10px;
+        font-size: 0.8rem;
+        letter-spacing: 0.3px;
+        margin-bottom: 8px;
     }
 
     #pv-eval-description {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        padding: 16px 14px;
-        margin-bottom: 14px;
-        border-radius: 8px;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        padding: 12px 12px;
+        margin-bottom: 12px;
+        border-radius: 6px;
     }
 
     #pv-eval-description::before {
@@ -4368,16 +4370,16 @@ header.nube-header .menu-toggle:hover {
     }
 
     #pv-eval-options {
-        gap: 10px;
-        margin-bottom: 14px;
+        gap: 8px;
+        margin-bottom: 12px;
     }
 
     #pv-eval-options .eval-option-btn {
-        padding: 14px 14px;
-        min-height: 56px;
-        font-size: 0.9rem;
-        gap: 12px;
-        border-radius: 10px;
+        padding: 12px 12px;
+        min-height: 48px;
+        font-size: 0.85rem;
+        gap: 10px;
+        border-radius: 8px;
     }
 
     #pv-eval-options .eval-option-btn:hover:not(:disabled) {
@@ -4385,16 +4387,16 @@ header.nube-header .menu-toggle:hover {
     }
 
     #pv-eval-options .eval-option-letter {
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
-        font-size: 0.85rem;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        font-size: 0.8rem;
     }
 
     #pv-eval-screen .eval-feedback {
-        font-size: 1rem;
-        letter-spacing: 2px;
-        min-height: 36px;
+        font-size: 0.9rem;
+        letter-spacing: 1.5px;
+        min-height: 32px;
     }
 
     #pv-eval-screen .feedback-icon {

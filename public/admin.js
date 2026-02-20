@@ -92,6 +92,23 @@ function switchSection(sectionId) {
     };
     document.getElementById('topbar-title').textContent = titles[sectionId] || sectionId;
 
+    // Show/hide header save button based on section
+    const headerSaveBtn = document.getElementById('btn-save-current-section');
+    const sectionsWithSave = ['config', 'space-config'];
+    
+    if (sectionsWithSave.includes(sectionId)) {
+        headerSaveBtn.style.display = 'block';
+        headerSaveBtn.onclick = () => {
+            if (sectionId === 'config') {
+                saveConfig();
+            } else if (sectionId === 'space-config') {
+                saveSpaceConfig();
+            }
+        };
+    } else {
+        headerSaveBtn.style.display = 'none';
+    }
+
     // Close mobile sidebar
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebar-overlay').classList.remove('open');
@@ -978,6 +995,7 @@ const SC_DEFAULTS = {
         pointsRouteCorrect: 300, pointsRandomCorrect: 50, pointsWrong: -100,
         pvTotalPlanets: 10, pvPointsPerVisit: 100, pvPointsCorrect: 200, pvPointsWrong: -50,
         pvStopDistance: 120, pvAutoAdvanceTime: 15, pvInfoFontSize: 14,
+        pvPanelTitleFontSize: 2.0, pvPanelDescFontSize: 1.15,
         pvMobileTitleFontSize: 1.2, pvMobileDescFontSize: 1.3, pvMobileOptionFontSize: 1.4,
         pvMobileQuestionFontSize: 0.95, pvMobileAnswerFontSize: 0.95
     },
@@ -1005,6 +1023,8 @@ const SC_FIELD_MAP = [
     { id: 'sc-game-pvStopDistance',       path: ['game', 'pvStopDistance'] },
     { id: 'sc-game-pvAutoAdvanceTime',    path: ['game', 'pvAutoAdvanceTime'] },
     { id: 'sc-game-pvInfoFontSize',        path: ['game', 'pvInfoFontSize'] },
+    { id: 'sc-game-pvPanelTitleFontSize', path: ['game', 'pvPanelTitleFontSize'] },
+    { id: 'sc-game-pvPanelDescFontSize',  path: ['game', 'pvPanelDescFontSize'] },
     { id: 'sc-game-pvMobileTitleFontSize',    path: ['game', 'pvMobileTitleFontSize'] },
     { id: 'sc-game-pvMobileDescFontSize',     path: ['game', 'pvMobileDescFontSize'] },
     { id: 'sc-game-pvMobileOptionFontSize',   path: ['game', 'pvMobileOptionFontSize'] },

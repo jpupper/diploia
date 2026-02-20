@@ -1499,6 +1499,14 @@ function applyPlanetVisitorFontSizes() {
             font-size: ${(game.pvInfoFontSize || 14) * 0.9}px !important;
         }
         
+        /* Planet Visitor Panel font sizes (overrides CSS) */
+        #pv-planet-info h3 {
+            font-size: ${game.pvPanelTitleFontSize || 2.0}rem !important;
+        }
+        #pv-planet-info p {
+            font-size: ${game.pvPanelDescFontSize || 1.15}rem !important;
+        }
+        
         /* Mobile font sizes for Planet Visitor */
         @media (max-width: 768px) {
             #pv-planet-info h3 {
@@ -1526,6 +1534,8 @@ function applyPlanetVisitorFontSizes() {
     // Log para verificar que los valores se están aplicando correctamente
     console.log('Font sizes applied:', {
         pvInfoFontSize: game.pvInfoFontSize,
+        pvPanelTitleFontSize: game.pvPanelTitleFontSize,
+        pvPanelDescFontSize: game.pvPanelDescFontSize,
         pvMobileTitleFontSize: game.pvMobileTitleFontSize,
         pvMobileDescFontSize: game.pvMobileDescFontSize,
         pvMobileOptionFontSize: game.pvMobileOptionFontSize,
