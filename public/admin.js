@@ -1,6 +1,6 @@
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  DIPLOIA ADMIN - JavaScript Client
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 
 // Centralized API Configuration
 const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
@@ -17,18 +17,18 @@ const BASE_PATH = (() => {
 
 const API = BASE_PATH + '/api';
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  STATE
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 let nodesData = { nodes: {}, categories: [], categoryChildren: {}, config: {} };
 let rankingData = { rankings: [] };
 let spaceConfigData = {};
 let editingNodeId = null;
 let currentSecondaryTags = []; // Store IDs for the tag picker
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  INIT
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initModals();
@@ -38,9 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAllData();
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  NAVIGATION
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function initNavigation() {
     document.querySelectorAll('.nav-item[data-section]').forEach(item => {
         item.addEventListener('click', (e) => {
@@ -95,7 +95,7 @@ function switchSection(sectionId) {
     // Show/hide header save button based on section
     const headerSaveBtn = document.getElementById('btn-save-current-section');
     const sectionsWithSave = ['config', 'space-config'];
-    
+
     if (sectionsWithSave.includes(sectionId)) {
         headerSaveBtn.style.display = 'block';
         headerSaveBtn.onclick = () => {
@@ -175,16 +175,16 @@ async function loadAllData() {
         nodesData.config = configResp.config || {};
 
         try {
-        const spaceRes = await fetch(API + '/space-config');
-        if (spaceRes.ok) {
-            spaceConfigData = await spaceRes.json();
-            console.log('Space config loaded:', spaceConfigData);
-        } else {
-            console.warn('Space config endpoint returned:', spaceRes.status);
+            const spaceRes = await fetch(API + '/space-config');
+            if (spaceRes.ok) {
+                spaceConfigData = await spaceRes.json();
+                console.log('Space config loaded:', spaceConfigData);
+            } else {
+                console.warn('Space config endpoint returned:', spaceRes.status);
+            }
+        } catch (e) {
+            console.warn('Space config not available, using defaults:', e);
         }
-    } catch (e) {
-        console.warn('Space config not available, using defaults:', e);
-    }
 
         renderDashboard();
         renderCategories();
@@ -1010,49 +1010,49 @@ const SC_DEFAULTS = {
 };
 
 const SC_FIELD_MAP = [
-    { id: 'sc-game-gameTime',            path: ['game', 'gameTime'] },
-    { id: 'sc-game-evalTimePerQuestion',  path: ['game', 'evalTimePerQuestion'] },
-    { id: 'sc-game-collectTime',          path: ['game', 'collectTime'] },
-    { id: 'sc-game-pointsRouteCorrect',   path: ['game', 'pointsRouteCorrect'] },
-    { id: 'sc-game-pointsRandomCorrect',  path: ['game', 'pointsRandomCorrect'] },
-    { id: 'sc-game-pointsWrong',          path: ['game', 'pointsWrong'] },
-    { id: 'sc-game-pvTotalPlanets',       path: ['game', 'pvTotalPlanets'] },
-    { id: 'sc-game-pvPointsPerVisit',     path: ['game', 'pvPointsPerVisit'] },
-    { id: 'sc-game-pvPointsCorrect',      path: ['game', 'pvPointsCorrect'] },
-    { id: 'sc-game-pvPointsWrong',        path: ['game', 'pvPointsWrong'] },
-    { id: 'sc-game-pvStopDistance',       path: ['game', 'pvStopDistance'] },
-    { id: 'sc-game-pvAutoAdvanceTime',    path: ['game', 'pvAutoAdvanceTime'] },
-    { id: 'sc-game-pvInfoFontSize',        path: ['game', 'pvInfoFontSize'] },
+    { id: 'sc-game-gameTime', path: ['game', 'gameTime'] },
+    { id: 'sc-game-evalTimePerQuestion', path: ['game', 'evalTimePerQuestion'] },
+    { id: 'sc-game-collectTime', path: ['game', 'collectTime'] },
+    { id: 'sc-game-pointsRouteCorrect', path: ['game', 'pointsRouteCorrect'] },
+    { id: 'sc-game-pointsRandomCorrect', path: ['game', 'pointsRandomCorrect'] },
+    { id: 'sc-game-pointsWrong', path: ['game', 'pointsWrong'] },
+    { id: 'sc-game-pvTotalPlanets', path: ['game', 'pvTotalPlanets'] },
+    { id: 'sc-game-pvPointsPerVisit', path: ['game', 'pvPointsPerVisit'] },
+    { id: 'sc-game-pvPointsCorrect', path: ['game', 'pvPointsCorrect'] },
+    { id: 'sc-game-pvPointsWrong', path: ['game', 'pvPointsWrong'] },
+    { id: 'sc-game-pvStopDistance', path: ['game', 'pvStopDistance'] },
+    { id: 'sc-game-pvAutoAdvanceTime', path: ['game', 'pvAutoAdvanceTime'] },
+    { id: 'sc-game-pvInfoFontSize', path: ['game', 'pvInfoFontSize'] },
     { id: 'sc-game-pvPanelTitleFontSize', path: ['game', 'pvPanelTitleFontSize'] },
-    { id: 'sc-game-pvPanelDescFontSize',  path: ['game', 'pvPanelDescFontSize'] },
-    { id: 'sc-game-pvMobileTitleFontSize',    path: ['game', 'pvMobileTitleFontSize'] },
-    { id: 'sc-game-pvMobileDescFontSize',     path: ['game', 'pvMobileDescFontSize'] },
-    { id: 'sc-game-pvMobileOptionFontSize',   path: ['game', 'pvMobileOptionFontSize'] },
+    { id: 'sc-game-pvPanelDescFontSize', path: ['game', 'pvPanelDescFontSize'] },
+    { id: 'sc-game-pvMobileTitleFontSize', path: ['game', 'pvMobileTitleFontSize'] },
+    { id: 'sc-game-pvMobileDescFontSize', path: ['game', 'pvMobileDescFontSize'] },
+    { id: 'sc-game-pvMobileOptionFontSize', path: ['game', 'pvMobileOptionFontSize'] },
     { id: 'sc-game-pvMobileQuestionFontSize', path: ['game', 'pvMobileQuestionFontSize'] },
-    { id: 'sc-game-pvMobileAnswerFontSize',   path: ['game', 'pvMobileAnswerFontSize'] },
-    { id: 'sc-ship-maxSpeed',             path: ['ship', 'maxSpeed'] },
-    { id: 'sc-ship-acceleration',         path: ['ship', 'acceleration'] },
-    { id: 'sc-ship-drag',                 path: ['ship', 'drag'] },
-    { id: 'sc-ship-turnSpeed',            path: ['ship', 'turnSpeed'] },
-    { id: 'sc-ship-boostMultiplier',      path: ['ship', 'boostMultiplier'] },
-    { id: 'sc-ship-mouseSensitivity',     path: ['ship', 'mouseSensitivity'] },
-    { id: 'sc-scene-fogColor',            path: ['scene', 'fogColor'], hex: true },
-    { id: 'sc-scene-fogDensity',          path: ['scene', 'fogDensity'] },
-    { id: 'sc-scene-ambientColor',        path: ['scene', 'ambientColor'], hex: true },
-    { id: 'sc-scene-ambientIntensity',    path: ['scene', 'ambientIntensity'] },
-    { id: 'sc-stars-count',               path: ['stars', 'count'] },
-    { id: 'sc-stars-minDistance',          path: ['stars', 'minDistance'] },
-    { id: 'sc-stars-maxDistance',          path: ['stars', 'maxDistance'] },
-    { id: 'sc-stars-baseSize',            path: ['stars', 'baseSize'] },
-    { id: 'sc-connections-traceDuration',      path: ['connections', 'traceDuration'] },
-    { id: 'sc-connections-traceSphereRadius',  path: ['connections', 'traceSphereRadius'] },
+    { id: 'sc-game-pvMobileAnswerFontSize', path: ['game', 'pvMobileAnswerFontSize'] },
+    { id: 'sc-ship-maxSpeed', path: ['ship', 'maxSpeed'] },
+    { id: 'sc-ship-acceleration', path: ['ship', 'acceleration'] },
+    { id: 'sc-ship-drag', path: ['ship', 'drag'] },
+    { id: 'sc-ship-turnSpeed', path: ['ship', 'turnSpeed'] },
+    { id: 'sc-ship-boostMultiplier', path: ['ship', 'boostMultiplier'] },
+    { id: 'sc-ship-mouseSensitivity', path: ['ship', 'mouseSensitivity'] },
+    { id: 'sc-scene-fogColor', path: ['scene', 'fogColor'], hex: true },
+    { id: 'sc-scene-fogDensity', path: ['scene', 'fogDensity'] },
+    { id: 'sc-scene-ambientColor', path: ['scene', 'ambientColor'], hex: true },
+    { id: 'sc-scene-ambientIntensity', path: ['scene', 'ambientIntensity'] },
+    { id: 'sc-stars-count', path: ['stars', 'count'] },
+    { id: 'sc-stars-minDistance', path: ['stars', 'minDistance'] },
+    { id: 'sc-stars-maxDistance', path: ['stars', 'maxDistance'] },
+    { id: 'sc-stars-baseSize', path: ['stars', 'baseSize'] },
+    { id: 'sc-connections-traceDuration', path: ['connections', 'traceDuration'] },
+    { id: 'sc-connections-traceSphereRadius', path: ['connections', 'traceSphereRadius'] },
     { id: 'sc-connections-traceSphereGlowMult', path: ['connections', 'traceSphereGlowMult'] },
-    { id: 'sc-planetTexture-size',        path: ['planetTexture', 'size'] },
-    { id: 'sc-planetTexture-noiseScale',  path: ['planetTexture', 'noiseScale'] },
-    { id: 'sc-planetTexture-octaves',     path: ['planetTexture', 'octaves'] },
-    { id: 'sc-planetTexture-darkBase',    path: ['planetTexture', 'darkBase'] },
+    { id: 'sc-planetTexture-size', path: ['planetTexture', 'size'] },
+    { id: 'sc-planetTexture-noiseScale', path: ['planetTexture', 'noiseScale'] },
+    { id: 'sc-planetTexture-octaves', path: ['planetTexture', 'octaves'] },
+    { id: 'sc-planetTexture-darkBase', path: ['planetTexture', 'darkBase'] },
     { id: 'sc-planetTexture-brightRange', path: ['planetTexture', 'brightRange'] },
-    { id: 'sc-planetTexture-contrast',    path: ['planetTexture', 'contrast'] },
+    { id: 'sc-planetTexture-contrast', path: ['planetTexture', 'contrast'] },
 ];
 
 const SC_CAT_COLOR_DEFAULTS = {
@@ -1102,12 +1102,12 @@ function renderSpaceConfig() {
         const val = _scGet(saved, f.path);
         const def = _scGetDefault(f.path);
         const v = (val !== undefined) ? val : def;
-        
+
         // Log específico para las variables de fuente
         if (f.path.includes('pvMobile') || f.path.includes('pvInfoFontSize')) {
             console.log(`Font field ${f.id}: path=${f.path.join('.')}, value=${v}, default=${def}, saved=${val}`);
         }
-        
+
         if (f.hex) {
             el.value = _scHexStr(v);
         } else {

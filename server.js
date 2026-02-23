@@ -8,9 +8,9 @@ const app = express();
 const port = 3060;
 const APP_PATH = 'diploia';
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  CORS configuration - Allow requests from any origin
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
@@ -25,9 +25,9 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  DATA DIRECTORY & JSON FILES
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 const DATA_DIR = path.join(__dirname, 'data');
 
 // Ensure data directory exists
@@ -41,9 +41,9 @@ const RANKING_FILE = path.join(DATA_DIR, 'ranking.json');
 const RANKING_PV_FILE = path.join(DATA_DIR, 'ranking_pv.json');
 const SPACE_CONFIG_FILE = path.join(DATA_DIR, 'space_config.json');
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  HELPER FUNCTIONS - Read/Write JSON
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 function readJSON(filePath, defaultValue = null) {
     try {
         if (fs.existsSync(filePath)) {
@@ -70,17 +70,17 @@ function writeJSON(filePath, data) {
 // Initialize files if they don't exist
 if (!fs.existsSync(RANKING_FILE)) {
     writeJSON(RANKING_FILE, { rankings: [] });
-    console.log('✅ ranking.json created');
+    console.log('[OK] ranking.json created');
 }
 
 if (!fs.existsSync(RANKING_PV_FILE)) {
     writeJSON(RANKING_PV_FILE, { rankings: [] });
-    console.log('✅ ranking_pv.json created');
+    console.log('[OK] ranking_pv.json created');
 }
 
 if (!fs.existsSync(SPACE_CONFIG_FILE)) {
     writeJSON(SPACE_CONFIG_FILE, {});
-    console.log('✅ space_config.json created');
+    console.log('[OK] space_config.json created');
 }
 
 if (!fs.existsSync(NODES_FILE)) {
@@ -94,12 +94,12 @@ if (!fs.existsSync(NODES_FILE)) {
         nodes: {},
         connections: []
     });
-    console.log('✅ nodes_data.json created');
+    console.log('[OK] nodes_data.json created');
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  SERVE STATIC FILES
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
+//  STATIC FILES
+// ===============================================================
 
 // Serve at root and /diploia for maximum flexibility
 app.use(express.static(path.join(__dirname, 'public')));
@@ -609,9 +609,9 @@ app.get(`/${APP_PATH}/api/export`, (req, res) => {
     res.json(data);
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  API ROUTES - CONFIG (Map configuration)
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 
 // GET config
 app.get(`/${APP_PATH}/api/config`, (req, res) => {
@@ -632,9 +632,9 @@ app.put(`/${APP_PATH}/api/config`, (req, res) => {
     }
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  API ROUTES - SPACE CONFIG (nube_data/config.js overrides)
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 
 app.get(`/${APP_PATH}/api/space-config`, (req, res) => {
     const data = readJSON(SPACE_CONFIG_FILE, {});
@@ -651,15 +651,15 @@ app.put(`/${APP_PATH}/api/space-config`, (req, res) => {
     }
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 //  START SERVER
-// ═══════════════════════════════════════════════════════════════
+// ===============================================================
 const server = http.createServer(app);
 
 server.listen(port, () => {
-    console.log('═══════════════════════════════════════════════════');
+    console.log('===================================================');
     console.log(`  DiploIA Server is UP on port ${port}`);
     console.log(`  App path: /${APP_PATH}`);
     console.log(`  Full URL: http://localhost:${port}/${APP_PATH}`);
-    console.log('═══════════════════════════════════════════════════');
+    console.log('===================================================');
 });

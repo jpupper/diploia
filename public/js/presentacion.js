@@ -132,33 +132,12 @@ function renderSlide(index, direction = 1) {
                 style.textContent = node.customCss;
             }
         } else if (node.infoHTML) {
-            // Check for image and inject if missing
-            let html = node.infoHTML;
-            if (!html.includes('<img')) {
-                const term = encodeURIComponent(node.label.toLowerCase());
-                const imgUrl = `https://loremflickr.com/800/600/${term}`;
-                const imgTag = `<div class="node-image-container" style="margin: 20px 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                    <img src="${imgUrl}" alt="${node.label}" style="width: 100%; height: auto; display: block; object-fit: cover; max-height: 350px;">
-                </div>`;
-
-                if (html.includes('</h3>')) {
-                    html = html.replace('</h3>', `</h3>${imgTag}`);
-                } else {
-                    html = imgTag + html;
-                }
-            }
-            els.desc.innerHTML = html;
+            els.desc.innerHTML = node.infoHTML;
         } else if (node.description || node.info) {
             const text = node.description || node.info;
             const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
 
-            // Client-side image injection for text nodes
-            const term = encodeURIComponent(node.label.toLowerCase());
-            const imgUrl = `https://loremflickr.com/800/600/${term}`;
-            const imgTag = `<div class="node-image-container" style="margin: 20px 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                <img src="${imgUrl}" alt="${node.label}" style="width: 100%; height: auto; display: block; object-fit: cover; max-height: 350px;">
-            </div>`;
-            els.desc.innerHTML = imgTag;
+            els.desc.innerHTML = '';
 
             sentences.forEach((s, i) => {
                 if (!s.trim()) return;
