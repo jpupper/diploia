@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════
+ // ═══════════════════════════════════════════════════════════════
 //  CONFIG — All configurable variables for Nube de Universos
 //  Edit this file to tweak the experience without touching logic.
 //  Values can be overridden from the Admin Panel (space-config API).
@@ -75,6 +75,16 @@ export const CONFIG = {
         'software-multimedia': 0xff6688,
         entornos: 0x88cc44,
         glosario: 0xccaa88,
+    },
+
+    // ── Planet Texture ───────────────────────────────────────
+    planetTexture: {
+        size: 512,          // canvas resolution (px)
+        noiseScale: 4.5,    // feature size on sphere — higher = bigger blobs
+        octaves: 8,         // FBM octaves — more = finer detail
+        darkBase: 0.0,      // minimum brightness (0–1) for darkest areas
+        brightRange: 3.0,   // how much brighter the brightest areas get
+        contrast: 1.4,      // S-curve contrast multiplier (1 = normal, >1 = more contrast)
     },
 
     // ── Sun (central node) ───────────────────────────────────
@@ -227,25 +237,29 @@ export const CONFIG = {
         pvPointsCorrect: 200,     // points for correct quiz answer
         pvPointsWrong: -50,       // points for wrong quiz answer
         pvTotalPlanets: 10,       // number of planets to visit
+        pvStopDistance: 120,     // camera stop distance when warping to a planet in PV mode
+        pvAutoAdvanceTime: 15,    // seconds before auto-advancing to a random planet
+        pvInfoFontSize: 14,       // font size (px) for the planet info panel in PV mode
+        pvArrivalDelay: 1000,     // ms to wait after arriving at a planet before showing the selection screen
     },
 
     // ── Selection Visual ─────────────────────────────────────
     selection: {
-        emissiveIntensity: 1.5,
+        emissiveIntensity: 0.08,
         scaleFactor: 1.3,
-        hoverEmissive: 1.0,
+        hoverEmissive: 0.18,
         hoverScale: 1.15,
-        hoverSelectedEmissive: 1.6,
+        hoverSelectedEmissive: 0.12,
         hoverSelectedScale: 1.35,
     },
 
     // ── Energy Field (selected planet aura) ─────────────────
     energyField: {
-        innerRadius: 1.6,    // multiplier of planet radius
-        outerRadius: 2.2,    // multiplier of planet radius
+        innerRadius: 1.7,    // multiplier of planet radius
+        outerRadius: 2.4,    // multiplier of planet radius
         color: null,   // null = use planet/category color
-        innerOpacity: 0.18,
-        outerOpacity: 0.07,
+        innerOpacity: 0.2,     // Lowered from 0.55
+        outerOpacity: 0.22,
         pulseSpeed: 2.5,    // pulse animation speed
         pulseAmplitude: 0.3,    // how much opacity varies
         rotationSpeed: 0.8,    // rotation speed (rad/s)

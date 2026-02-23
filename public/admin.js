@@ -92,6 +92,23 @@ function switchSection(sectionId) {
     };
     document.getElementById('topbar-title').textContent = titles[sectionId] || sectionId;
 
+    // Show/hide header save button based on section
+    const headerSaveBtn = document.getElementById('btn-save-current-section');
+    const sectionsWithSave = ['config', 'space-config'];
+    
+    if (sectionsWithSave.includes(sectionId)) {
+        headerSaveBtn.style.display = 'block';
+        headerSaveBtn.onclick = () => {
+            if (sectionId === 'config') {
+                saveConfig();
+            } else if (sectionId === 'space-config') {
+                saveSpaceConfig();
+            }
+        };
+    } else {
+        headerSaveBtn.style.display = 'none';
+    }
+
     // Close mobile sidebar
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebar-overlay').classList.remove('open');
@@ -158,13 +175,16 @@ async function loadAllData() {
         nodesData.config = configResp.config || {};
 
         try {
-            const spaceRes = await fetch(API + '/space-config');
-            if (spaceRes.ok) {
-                spaceConfigData = await spaceRes.json();
-            }
-        } catch (e) {
-            console.warn('Space config not available, using defaults');
+        const spaceRes = await fetch(API + '/space-config');
+        if (spaceRes.ok) {
+            spaceConfigData = await spaceRes.json();
+            console.log('Space config loaded:', spaceConfigData);
+        } else {
+            console.warn('Space config endpoint returned:', spaceRes.status);
         }
+    } catch (e) {
+        console.warn('Space config not available, using defaults:', e);
+    }
 
         renderDashboard();
         renderCategories();
@@ -973,7 +993,11 @@ const SC_DEFAULTS = {
     game: {
         gameTime: 60, evalTimePerQuestion: 30, collectTime: 1.2,
         pointsRouteCorrect: 300, pointsRandomCorrect: 50, pointsWrong: -100,
-        pvTotalPlanets: 10, pvPointsPerVisit: 100, pvPointsCorrect: 200, pvPointsWrong: -50
+        pvTotalPlanets: 10, pvPointsPerVisit: 100, pvPointsCorrect: 200, pvPointsWrong: -50,
+        pvStopDistance: 120, pvAutoAdvanceTime: 15, pvInfoFontSize: 14,
+        pvPanelTitleFontSize: 2.0, pvPanelDescFontSize: 1.15,
+        pvMobileTitleFontSize: 1.2, pvMobileDescFontSize: 1.3, pvMobileOptionFontSize: 1.4,
+        pvMobileQuestionFontSize: 0.95, pvMobileAnswerFontSize: 0.95
     },
     ship: {
         maxSpeed: 3000, acceleration: 1000, drag: 0.97,
@@ -981,7 +1005,8 @@ const SC_DEFAULTS = {
     },
     scene: { fogColor: 0x06060e, fogDensity: 0.00015, ambientColor: 0x111122, ambientIntensity: 0.5 },
     stars: { count: 25000, minDistance: 3000, maxDistance: 30000, baseSize: 4 },
-    connections: { traceDuration: 5.5, traceSphereRadius: 10, traceSphereGlowMult: 2.5 }
+    connections: { traceDuration: 5.5, traceSphereRadius: 10, traceSphereGlowMult: 2.5 },
+    planetTexture: { size: 512, noiseScale: 4.5, octaves: 8, darkBase: 0.0, brightRange: 3.0, contrast: 1.4 }
 };
 
 const SC_FIELD_MAP = [
@@ -995,6 +1020,16 @@ const SC_FIELD_MAP = [
     { id: 'sc-game-pvPointsPerVisit',     path: ['game', 'pvPointsPerVisit'] },
     { id: 'sc-game-pvPointsCorrect',      path: ['game', 'pvPointsCorrect'] },
     { id: 'sc-game-pvPointsWrong',        path: ['game', 'pvPointsWrong'] },
+    { id: 'sc-game-pvStopDistance',       path: ['game', 'pvStopDistance'] },
+    { id: 'sc-game-pvAutoAdvanceTime',    path: ['game', 'pvAutoAdvanceTime'] },
+    { id: 'sc-game-pvInfoFontSize',        path: ['game', 'pvInfoFontSize'] },
+    { id: 'sc-game-pvPanelTitleFontSize', path: ['game', 'pvPanelTitleFontSize'] },
+    { id: 'sc-game-pvPanelDescFontSize',  path: ['game', 'pvPanelDescFontSize'] },
+    { id: 'sc-game-pvMobileTitleFontSize',    path: ['game', 'pvMobileTitleFontSize'] },
+    { id: 'sc-game-pvMobileDescFontSize',     path: ['game', 'pvMobileDescFontSize'] },
+    { id: 'sc-game-pvMobileOptionFontSize',   path: ['game', 'pvMobileOptionFontSize'] },
+    { id: 'sc-game-pvMobileQuestionFontSize', path: ['game', 'pvMobileQuestionFontSize'] },
+    { id: 'sc-game-pvMobileAnswerFontSize',   path: ['game', 'pvMobileAnswerFontSize'] },
     { id: 'sc-ship-maxSpeed',             path: ['ship', 'maxSpeed'] },
     { id: 'sc-ship-acceleration',         path: ['ship', 'acceleration'] },
     { id: 'sc-ship-drag',                 path: ['ship', 'drag'] },
@@ -1012,6 +1047,12 @@ const SC_FIELD_MAP = [
     { id: 'sc-connections-traceDuration',      path: ['connections', 'traceDuration'] },
     { id: 'sc-connections-traceSphereRadius',  path: ['connections', 'traceSphereRadius'] },
     { id: 'sc-connections-traceSphereGlowMult', path: ['connections', 'traceSphereGlowMult'] },
+    { id: 'sc-planetTexture-size',        path: ['planetTexture', 'size'] },
+    { id: 'sc-planetTexture-noiseScale',  path: ['planetTexture', 'noiseScale'] },
+    { id: 'sc-planetTexture-octaves',     path: ['planetTexture', 'octaves'] },
+    { id: 'sc-planetTexture-darkBase',    path: ['planetTexture', 'darkBase'] },
+    { id: 'sc-planetTexture-brightRange', path: ['planetTexture', 'brightRange'] },
+    { id: 'sc-planetTexture-contrast',    path: ['planetTexture', 'contrast'] },
 ];
 
 const SC_CAT_COLOR_DEFAULTS = {
@@ -1050,13 +1091,23 @@ function _scGetDefault(path) {
 
 function renderSpaceConfig() {
     const saved = spaceConfigData || {};
+    console.log('Rendering space config with data:', saved);
 
     SC_FIELD_MAP.forEach(f => {
         const el = document.getElementById(f.id);
-        if (!el) return;
+        if (!el) {
+            console.warn(`Element not found: ${f.id}`);
+            return;
+        }
         const val = _scGet(saved, f.path);
         const def = _scGetDefault(f.path);
         const v = (val !== undefined) ? val : def;
+        
+        // Log específico para las variables de fuente
+        if (f.path.includes('pvMobile') || f.path.includes('pvInfoFontSize')) {
+            console.log(`Font field ${f.id}: path=${f.path.join('.')}, value=${v}, default=${def}, saved=${val}`);
+        }
+        
         if (f.hex) {
             el.value = _scHexStr(v);
         } else {
@@ -1073,8 +1124,8 @@ function _renderScCategoryList(saved) {
     const nodes = nodesData.nodes || {};
     const rawConfig = nodesData.config || {};
     const mapConfig = {
-        categoryDistancesMain: { ...DEFAULT_CONFIG.categoryDistancesMain, ...(rawConfig.categoryDistancesMain || {}) },
-        categoryDistances: { ...DEFAULT_CONFIG.categoryDistances, ...(rawConfig.categoryDistances || {}) }
+        categoryDistancesMain: { ...DEFAULT_CONFIG.categoryDistancesMain, ...(rawConfig.categoryDistancesMain || {}), ...(saved.categoryDistancesMain || {}) },
+        categoryDistances: { ...DEFAULT_CONFIG.categoryDistances, ...(rawConfig.categoryDistances || {}), ...(saved.categoryDistances || {}) }
     };
     const savedColors = (saved.categoryColors) || {};
 
@@ -1145,6 +1196,9 @@ async function saveSpaceConfig() {
     document.querySelectorAll('.sc-cat-sub').forEach(input => {
         catDistSub[input.dataset.cat] = Number(input.value);
     });
+
+    config.categoryDistancesMain = catDistMain;
+    config.categoryDistances = catDistSub;
 
     const mapConfig = { ...DEFAULT_CONFIG, ...(nodesData.config || {}) };
     mapConfig.categoryDistancesMain = { ...DEFAULT_CONFIG.categoryDistancesMain, ...catDistMain };

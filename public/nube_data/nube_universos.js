@@ -50,9 +50,18 @@ class Universe {
         const resp = await fetch(CFG.dataUrl);
         this.DATA = await resp.json();
         if (this.DATA.config) {
-            // Merge per-category distances and other custom config from nodes_data.json
-            if (this.DATA.config.categoryDistancesMain) CFG.categoryDistancesMain = this.DATA.config.categoryDistancesMain;
-            if (this.DATA.config.categoryDistances) CFG.categoryDistances = this.DATA.config.categoryDistances;
+            // Merge per-category distances from nodes_data.json only if space-config didn't already set them
+            if (this.DATA.config.categoryDistancesMain && !CFG.categoryDistancesMain) {
+                CFG.categoryDistancesMain = this.DATA.config.categoryDistancesMain;
+            } else if (this.DATA.config.categoryDistancesMain) {
+                // Merge: space-config values take priority, fill missing keys from nodes_data.json
+                CFG.categoryDistancesMain = { ...this.DATA.config.categoryDistancesMain, ...CFG.categoryDistancesMain };
+            }
+            if (this.DATA.config.categoryDistances && !CFG.categoryDistances) {
+                CFG.categoryDistances = this.DATA.config.categoryDistances;
+            } else if (this.DATA.config.categoryDistances) {
+                CFG.categoryDistances = { ...this.DATA.config.categoryDistances, ...CFG.categoryDistances };
+            }
 
             // Optionally merge other global config fields if they exist
             const fields = ['rootNodeSize', 'primaryNodeSize', 'secondaryNodeSize', 'nodeFontSize', 'categoryFontSize', 'rootFontSize', 'primaryDistance', 'secondaryNodeDist'];
@@ -84,11 +93,19 @@ class Universe {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.scene.add(new THREE.AmbientLight(CFG.scene.ambientColor, CFG.scene.ambientIntensity));
+        // Directional lights so planets show 3D spherical shading
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight1.position.set(1, 1, 1).normalize();
+        this.scene.add(dirLight1);
+        const dirLight2 = new THREE.DirectionalLight(0x8899ff, 0.5);
+        dirLight2.position.set(-1, -0.5, -1).normalize();
+        this.scene.add(dirLight2);
         this.particles = new EnergyParticleSystem(this.scene);
 
         this.createStarfield();
         this.buildCentralSun();
-        this.buildUniverses();
+        Universe._buildNoisePool();
+        await this.buildUniverses();
         this.buildConnections();
         this.buildSunConnections();
         this.buildCategoryDots();
@@ -170,7 +187,7 @@ class Universe {
             planet.activate();
             this.updateSelectionIndicator(planet);
             this.updateActiveConnections(true);
-            this.particles.spawn(planet);
+            if (!this.pvGame || this.pvGame.state === 'idle') this.particles.spawn(planet);
         } else {
             this.hideSelectionIndicator();
             this.updateActiveConnections();
@@ -315,13 +332,14 @@ class Universe {
     }
 
     // ── Build Universes ──
-    buildUniverses() {
+    async buildUniverses() {
         const catCount = this.categories.length;
         const N = CFG.nucleus; const P = CFG.planet; const O = CFG.orbit;
         const ringRadius = CFG.layout.ringRadius;
 
-        this.categories.forEach((catId, i) => {
-            const node = this.DATA.nodes[catId]; if (!node) return;
+        for (let i = 0; i < this.categories.length; i++) {
+            const catId = this.categories[i];
+            const node = this.DATA.nodes[catId]; if (!node) continue;
             const angle = (i / catCount) * Math.PI * 2 - Math.PI / 2;
 
             // Use per-category distance from sun if available, else fallback to global ringRadius
@@ -373,9 +391,11 @@ class Universe {
                 const py = Math.cos(phi) * orbitRadius;
                 const pz = Math.sin(phi) * Math.sin(theta) * orbitRadius;
 
-                const pGeo = new THREE.SphereGeometry(P.radius, 24, 24);
+                const pGeo = new THREE.SphereGeometry(P.radius, 32, 32);
                 const pColor = color.clone().lerp(new THREE.Color(0xffffff), P.colorLerpToWhite);
-                const pMat = new THREE.MeshStandardMaterial({ color: pColor, emissive: pColor, emissiveIntensity: P.emissiveIntensity, roughness: 0.5, metalness: 0.3, transparent: true, opacity: 0.9 });
+                const texSeed = Math.abs((childId.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 2654435761) | 0);
+                const pTex = this._makePlanetTexture(pColor, texSeed);
+                const pMat = new THREE.MeshStandardMaterial({ map: pTex, emissive: pColor, emissiveIntensity: P.emissiveIntensity * 0.25, roughness: 0.6, metalness: 0.05, transparent: true, opacity: 0.95 });
                 const planetMesh = new THREE.Mesh(pGeo, pMat); planetMesh.position.set(px, py, pz);
                 group.add(planetMesh);
                 planetMesh.add(new THREE.Mesh(new THREE.SphereGeometry(P.glowRadius, 16, 16), new THREE.MeshBasicMaterial({ color: pColor, transparent: true, opacity: 0.06, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
@@ -386,7 +406,7 @@ class Universe {
                 const hitMesh = new THREE.Mesh(hitGeo, hitMat);
                 planetMesh.add(hitMesh);
 
-                planetMesh.userData = { orbitRadius, orbitSpeed: O.speedMin + Math.random() * O.speedRandom, orbitOffset: orbitAngle, orbitTilt, parentGroup: group, categoryId: catId };
+                planetMesh.userData = { orbitRadius, orbitSpeed: O.speedMin + Math.random() * O.speedRandom, orbitOffset: orbitAngle, orbitTilt, parentGroup: group, categoryId: catId, selfRotSpeed: 0.08 + Math.random() * 0.22 };
 
                 const pLabel = this.createTextSprite(childNode.label || childId, CAT_COLORS[catId] || 0xffffff, P.labelFontSize);
                 pLabel.position.set(0, P.labelOffsetY, 0); pLabel.visible = false;
@@ -403,7 +423,121 @@ class Universe {
             const ring = new THREE.Mesh(new THREE.RingGeometry(O.ringInner, O.ringOuter, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.06, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
             ring.rotation.x = -Math.PI / 2; group.add(ring);
             this.categoryGroups[catId] = { group, nucleus, planets: planetMeshes, color };
-        });
+            if (window._loadingScreen) window._loadingScreen.setProgress(5 + Math.round((i + 1) / catCount * 85));
+            await new Promise(r => setTimeout(r, 0));
+        }
+    }
+
+    // ── Procedural Planet Texture ──
+    // Strategy: pre-generate a small pool of grayscale noise canvases (cheap, done once).
+    // Per planet: pick a pool slot by seed, then tint it with the planet color in a fast
+    // pixel-multiply pass. Total cost per planet ≈ 1 canvas draw call, not a full FBM run.
+
+    static _buildNoisePool() {
+        if (Universe._noisePool) return;   // already built
+        const T = CFG.planetTexture;
+        const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+        const size = isMobile ? 256 : (T.size || 512);
+        const oct = isMobile ? 4 : Math.round(T.octaves);
+        const scale = T.noiseScale;
+        const POOL = 6;   // number of distinct noise patterns
+        // Fixed seeds so the pool is always the same across page loads
+        const SEEDS = [0x1A2B3C, 0x4D5E6F, 0x7A8B9C, 0xABCDEF, 0x112233, 0x998877];
+
+        const lerp = (a, b, t) => a + (t * t * (3 - 2 * t)) * (b - a);
+        const makeNoise3 = (seed) => (x, y, z) => {
+            const h3 = (ix, iy, iz) => {
+                let h = (ix * 374761393 + iy * 668265263 + iz * 2147483647) ^ seed;
+                h = (h ^ (h >>> 13)) * 1274126177;
+                return ((h ^ (h >>> 16)) & 0x7fffffff) / 0x7fffffff;
+            };
+            const ix = Math.floor(x), iy = Math.floor(y), iz = Math.floor(z);
+            const fx = x - ix, fy = y - iy, fz = z - iz;
+            const ux = fx * fx * (3 - 2 * fx);
+            const uy = fy * fy * (3 - 2 * fy);
+            const uz = fz * fz * (3 - 2 * fz);
+            return lerp(
+                lerp(lerp(h3(ix, iy, iz), h3(ix + 1, iy, iz), ux), lerp(h3(ix, iy + 1, iz), h3(ix + 1, iy + 1, iz), ux), uy),
+                lerp(lerp(h3(ix, iy, iz + 1), h3(ix + 1, iy, iz + 1), ux), lerp(h3(ix, iy + 1, iz + 1), h3(ix + 1, iy + 1, iz + 1), ux), uy),
+                uz
+            );
+        };
+        const fbm3 = (noise3, x, y, z) => {
+            let v = 0, amp = 0.5, freq = 1, max = 0;
+            for (let i = 0; i < oct; i++) {
+                v += noise3(x * freq, y * freq, z * freq) * amp;
+                max += amp; amp *= 0.5; freq *= 2.1;
+            }
+            return v / max;
+        };
+
+        Universe._noisePool = [];
+        Universe._noisePoolSize = size;
+
+        for (let p = 0; p < POOL; p++) {
+            const noise3 = makeNoise3(SEEDS[p]);
+            const brightness = new Float32Array(size * size); // normalised 0-1 per pixel
+            const samples = new Float32Array(size * size);
+            for (let py = 0; py < size; py++) {
+                for (let px = 0; px < size; px++) {
+                    const u = px / size;
+                    const v = py / size;
+                    const theta = u * Math.PI * 2;
+                    const phi = v * Math.PI;
+                    const sx = Math.sin(phi) * Math.cos(theta) * scale;
+                    const sy = Math.sin(phi) * Math.sin(theta) * scale;
+                    const sz = Math.cos(phi) * scale;
+                    samples[py * size + px] = fbm3(noise3, sx, sy, sz);
+                }
+            }
+            let nMin = Infinity, nMax = -Infinity;
+            for (let i = 0; i < samples.length; i++) {
+                if (samples[i] < nMin) nMin = samples[i];
+                if (samples[i] > nMax) nMax = samples[i];
+            }
+            const nRange = nMax - nMin || 1;
+            const contrast = T.contrast;
+            for (let i = 0; i < samples.length; i++) {
+                const n01 = (samples[i] - nMin) / nRange;
+                const nc = n01 * n01 * (3 - 2 * n01);
+                brightness[i] = contrast !== 1.0 ? Math.pow(nc, 1.0 / contrast) : nc;
+            }
+            Universe._noisePool.push(brightness);
+        }
+    }
+
+    _makePlanetTexture(baseColor, seed) {
+        const T = CFG.planetTexture;
+        const cacheKey = `${baseColor.getHexString()}_${seed % 6}`; // slot 0-5 + color
+        if (Universe._texCache.has(cacheKey)) return Universe._texCache.get(cacheKey);
+
+        Universe._buildNoisePool();
+        const size = Universe._noisePoolSize;
+        const brightness = Universe._noisePool[seed % 6];
+        const darkBase = T.darkBase;
+        const brightRange = T.brightRange;
+        const r = baseColor.r, g = baseColor.g, b = baseColor.b;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const imgData = ctx.createImageData(size, size);
+        const d = imgData.data;
+
+        for (let i = 0; i < brightness.length; i++) {
+            const bright = darkBase + brightness[i] * brightRange;
+            const pi = i * 4;
+            d[pi] = Math.min(255, Math.max(0, Math.round(r * 255 * bright)));
+            d[pi + 1] = Math.min(255, Math.max(0, Math.round(g * 255 * bright)));
+            d[pi + 2] = Math.min(255, Math.max(0, Math.round(b * 255 * bright)));
+            d[pi + 3] = 255;
+        }
+        ctx.putImageData(imgData, 0, 0);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        Universe._texCache.set(cacheKey, tex);
+        return tex;
     }
 
     // ── Connections ──
@@ -778,9 +912,9 @@ class Universe {
         window.addEventListener('keyup', (e) => this.onKeyUp(e));
         this.renderer.domElement.addEventListener('click', (e) => this.onClick(e));
         this.renderer.domElement.addEventListener('dblclick', (e) => this.onDoubleClick(e));
-        this.renderer.domElement.addEventListener('mousemove', (e) => this.onMouseMove(e));
-        this.renderer.domElement.addEventListener('mousedown', (e) => this.onMouseDown(e));
-        this.renderer.domElement.addEventListener('mouseup', () => this.onMouseUp());
+        window.addEventListener('mousemove', (e) => this.onMouseMove(e));
+        window.addEventListener('mousedown', (e) => this.onMouseDown(e));
+        window.addEventListener('mouseup', () => this.onMouseUp());
 
         document.getElementById('btn-prev').addEventListener('click', (e) => { e.stopPropagation(); this.navigateToCategory(this.currentCatIndex - 1); });
         document.getElementById('btn-next').addEventListener('click', (e) => { e.stopPropagation(); this.navigateToCategory(this.currentCatIndex + 1); });
@@ -788,6 +922,11 @@ class Universe {
         document.getElementById('btn-zout').addEventListener('click', (e) => { e.stopPropagation(); this.adjustZoom(CFG.camera.zoomStep); });
         document.getElementById('info-close').addEventListener('click', () => this.closeInfoPanel());
 
+        document.getElementById('btn-view-home').addEventListener('click', () => {
+            this.setViewMode('global');
+            const splash = document.getElementById('splash-screen');
+            if (splash) splash.classList.add('visible');
+        });
         document.getElementById('btn-view-global').addEventListener('click', () => this.setViewMode('global'));
         document.getElementById('btn-view-camera').addEventListener('click', () => this.setViewMode('camera'));
         document.getElementById('btn-view-ship').addEventListener('click', () => this.setViewMode('ship'));
@@ -895,6 +1034,11 @@ class Universe {
     }
 
     _handleSingleClick(clientX, clientY) {
+        // Prevent planet changes when in Planet Visitor mode
+        if (this.pvGame && this.pvGame.state !== 'idle') {
+            return;
+        }
+        
         this.mouse.x = (clientX / innerWidth) * 2 - 1;
         this.mouse.y = -(clientY / innerHeight) * 2 + 1;
         this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -907,7 +1051,7 @@ class Universe {
 
             if (this.currentView === 'camera') {
                 // ORBITAL MODE: always warp to clicked planet (even if same)
-                this.setActivePlanet(planet);
+                if (this.activePlanet !== planet) this.clearActivePlanet();
                 this.showInfoPanel(planet.node);
                 const targetPos = planet.getWorldPosition();
                 const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
@@ -916,8 +1060,9 @@ class Universe {
                 this._orbitalWarping = true;
                 this.cam.startWarp(targetPos, stopDist, () => {
                     this._orbitalWarping = false;
+                    this.setActivePlanet(planet);
                     this.cam.initFollowFrom(planet.getWorldPosition());
-                    this.particles.spawn(planet);
+                    if (!this.pvGame || this.pvGame.state === 'idle') this.particles.spawn(planet);
                 });
             } else if (this.currentView === 'global') {
                 // GLOBAL MODE: select planet, show info, move camera close
@@ -940,6 +1085,11 @@ class Universe {
         // Cancel pending single-click so it doesn't interfere
         if (this._clickTimer) { clearTimeout(this._clickTimer); this._clickTimer = null; }
 
+        // Prevent planet changes when in Planet Visitor mode
+        if (this.pvGame && this.pvGame.state !== 'idle') {
+            return;
+        }
+
         if (this.isShipMode()) {
             // Ship mode: warp to aimed planet
             this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
@@ -952,14 +1102,16 @@ class Universe {
                 if (isGameMode) {
                     this.game.showGameInfoPanel(planet.node);
                 } else {
-                    this.setActivePlanet(planet);
+                    if (this.activePlanet !== planet) this.clearActivePlanet();
                     this.showInfoPanel(planet.node);
                 }
                 const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
                 const stopDist = Math.max(pRadius * 5, 60);
                 this.showWarpFlash();
                 this.cam.startWarp(targetPos, stopDist, () => {
-                    if (!isGameMode) this.particles.spawn(planet);
+                    if (!isGameMode) this.setActivePlanet(planet);
+                    const isPvMode = this.pvGame && this.pvGame.state !== 'idle';
+                    if (!isGameMode && !isPvMode) this.particles.spawn(planet);
                     if (isGameMode) {
                         this.game.onPlanetReached(planet);
                     }
@@ -977,7 +1129,7 @@ class Universe {
             if (hits.length > 0) {
                 const planet = this.getPlanetByMesh(hits[0].object);
                 if (!planet) return;
-                this.setActivePlanet(planet);
+                if (this.activePlanet !== planet) this.clearActivePlanet();
                 this.showInfoPanel(planet.node);
                 const targetPos = planet.getWorldPosition();
                 const pRadius = planet.mesh.geometry?.parameters?.radius || CFG.planet.radius;
@@ -986,6 +1138,7 @@ class Universe {
                 this._orbitalWarping = true;
                 this.cam.startWarp(targetPos, stopDist, () => {
                     this._orbitalWarping = false;
+                    this.setActivePlanet(planet);
                     this.cam.initFollowFrom(planet.getWorldPosition());
                     this.particles.spawn(planet);
                 });
@@ -1037,9 +1190,13 @@ class Universe {
         this._mouseDownPos = { x: e.clientX, y: e.clientY };
         this._isDrag = false;
         if (this.currentView === 'camera') {
-            this.cam.mouseDown = true;
-            this.cam.lastMouseX = e.clientX;
-            this.cam.lastMouseY = e.clientY;
+            const tag = e.target.tagName;
+            const isUI = tag === 'BUTTON' || tag === 'INPUT' || tag === 'A' || e.target.closest('button, input, a, .pv-screen-content, #pv-planet-info, #info-panel, #game-info-panel');
+            if (!isUI) {
+                this.cam.mouseDown = true;
+                this.cam.lastMouseX = e.clientX;
+                this.cam.lastMouseY = e.clientY;
+            }
         }
     }
 
@@ -1149,9 +1306,13 @@ class Universe {
 
     // ── Splash Screen ──
     showSplash() {
+        if (window._loadingScreen) {
+            window._loadingScreen.complete();
+        } else {
+            const el = document.getElementById('loading');
+            if (el) { el.classList.add('hidden'); setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 1000); }
+        }
         setTimeout(() => {
-            document.getElementById('loading').classList.add('hidden');
-            setTimeout(() => { const el = document.getElementById('loading'); if (el) el.remove(); }, 800);
             const splash = document.getElementById('splash-screen');
             if (splash) {
                 splash.classList.add('visible');
@@ -1203,6 +1364,7 @@ class Universe {
                 pm.position.x = Math.sin(phi) * Math.cos(theta) * r;
                 pm.position.y = Math.cos(phi) * r;
                 pm.position.z = Math.sin(phi) * Math.sin(theta) * r;
+                pm.rotation.y = this.animTime * (u.selfRotSpeed || 0.18);
             });
             const pulse = 0.92 + Math.sin(this.animTime * 1.5) * 0.05;
             catObj.nucleus.material.opacity = pulse;
@@ -1303,10 +1465,97 @@ class Universe {
     }
 }
 
+Universe._texCache = new Map();
+Universe._noisePool = null;
+Universe._noisePoolSize = 512;
+
+// ═══════════════════════════════════════════════
+//  APPLY CONFIGURABLE FONT SIZES
+// ═══════════════════════════════════════════════
+function applyPlanetVisitorFontSizes() {
+    const game = CONFIG.game || {};
+    
+    // Remove existing font size styles to prevent conflicts
+    const existingStyle = document.getElementById('pv-font-styles');
+    if (existingStyle) {
+        existingStyle.remove();
+    }
+    
+    const style = document.createElement('style');
+    style.id = 'pv-font-styles';
+    style.textContent = `
+        /* Desktop font sizes for Planet Visitor */
+        #pv-planet-info-content {
+            font-size: ${game.pvInfoFontSize || 14}px !important;
+        }
+        #pv-planet-info-content h3 {
+            font-size: ${(game.pvInfoFontSize || 14) * 1.2}px !important;
+        }
+        #pv-planet-info-content p {
+            font-size: ${game.pvInfoFontSize || 14}px !important;
+            line-height: 1.6 !important;
+        }
+        #pv-planet-info-content a {
+            font-size: ${(game.pvInfoFontSize || 14) * 0.9}px !important;
+        }
+        
+        /* Planet Visitor Panel font sizes (overrides CSS) */
+        #pv-planet-info h3 {
+            font-size: ${game.pvPanelTitleFontSize || 2.0}rem !important;
+        }
+        #pv-planet-info p {
+            font-size: ${game.pvPanelDescFontSize || 1.15}rem !important;
+        }
+        
+        /* Mobile font sizes for Planet Visitor */
+        @media (max-width: 768px) {
+            #pv-planet-info h3 {
+                font-size: ${game.pvMobileTitleFontSize || 1.2}rem !important;
+            }
+            #pv-planet-info p {
+                font-size: ${game.pvMobileDescFontSize || 1.3}rem !important;
+            }
+            .pv-option-btn {
+                font-size: ${game.pvMobileOptionFontSize || 1.4}rem !important;
+            }
+            .pv-option-name {
+                font-size: ${game.pvMobileOptionFontSize || 1.4}rem !important;
+            }
+            #pv-eval-description {
+                font-size: ${game.pvMobileQuestionFontSize || 0.95}rem !important;
+            }
+            #pv-eval-options .eval-option-btn {
+                font-size: ${game.pvMobileAnswerFontSize || 0.95}rem !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Log para verificar que los valores se están aplicando correctamente
+    console.log('Font sizes applied:', {
+        pvInfoFontSize: game.pvInfoFontSize,
+        pvPanelTitleFontSize: game.pvPanelTitleFontSize,
+        pvPanelDescFontSize: game.pvPanelDescFontSize,
+        pvMobileTitleFontSize: game.pvMobileTitleFontSize,
+        pvMobileDescFontSize: game.pvMobileDescFontSize,
+        pvMobileOptionFontSize: game.pvMobileOptionFontSize,
+        pvMobileQuestionFontSize: game.pvMobileQuestionFontSize,
+        pvMobileAnswerFontSize: game.pvMobileAnswerFontSize,
+        source: 'CONFIG.game'
+    });
+}
+
+// Función para recargar estilos si la configuración cambia dinámicamente
+function reloadPlanetVisitorFontSizes() {
+    console.log('Reloading Planet Visitor font sizes...');
+    applyPlanetVisitorFontSizes();
+}
+
 // ═══════════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════════
 loadSpaceConfig().then(() => {
+    applyPlanetVisitorFontSizes();
     const universe = new Universe();
     universe.init().catch(err => {
         console.error('Error loading:', err);
