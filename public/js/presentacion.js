@@ -145,7 +145,7 @@ function renderSlide(index, direction = 1) {
 
         // Agregar la imagen del nodo
         if (!els.desc.innerHTML.includes('img src="img/nodes/')) {
-            els.desc.innerHTML += `<div style="text-align:center; margin-top: 25px;"><img src="img/nodes/${node.id}.png" style="max-height: 250px; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4);" onerror="this.style.display='none'"></div>`;
+            els.desc.innerHTML += `<div style="text-align:center; margin-top: 25px;"><img src="img/nodes/${node.id}.png" style="width: 100%; max-width: 400px; height: 350px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4); padding: 15px; background: rgba(0,0,0,0.2);" onerror="this.style.display='none'"></div>`;
         }
 
         // Category & Color
