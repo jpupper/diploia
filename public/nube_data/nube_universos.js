@@ -395,7 +395,15 @@ class Universe {
                 const pColor = color.clone().lerp(new THREE.Color(0xffffff), P.colorLerpToWhite);
                 const texSeed = Math.abs((childId.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 2654435761) | 0);
                 const pTex = this._makePlanetTexture(pColor, texSeed);
-                const pMat = new THREE.MeshStandardMaterial({ map: pTex, emissive: pColor, emissiveIntensity: P.emissiveIntensity * 0.25, roughness: 0.6, metalness: 0.05, transparent: true, opacity: 0.95 });
+                const pMat = new THREE.MeshStandardMaterial({
+                    map: pTex,
+                    emissive: pColor,
+                    emissiveIntensity: P.emissiveIntensity * 0.25,
+                    roughness: 0.6,
+                    metalness: 0.05,
+                    transparent: true,
+                    opacity: 0.95
+                });
                 const planetMesh = new THREE.Mesh(pGeo, pMat); planetMesh.position.set(px, py, pz);
                 group.add(planetMesh);
                 planetMesh.add(new THREE.Mesh(new THREE.SphereGeometry(P.glowRadius, 16, 16), new THREE.MeshBasicMaterial({ color: pColor, transparent: true, opacity: 0.06, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false })));
@@ -763,6 +771,12 @@ class Universe {
         let html = '';
         if (node.infoHTML) html += node.infoHTML.replace(/\\n/g, '\n');
         else { html += `<h3>${node.label || node.id}</h3>`; if (node.info) html += `<p>${node.info}</p>`; }
+
+        // Agregar la imagen del nodo
+        if (!html.includes('img src="img/nodes/')) {
+            html += `<div style="text-align:center; margin-top: 15px;"><img src="img/nodes/${node.id}.png" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4);" onerror="this.style.display='none'"></div>`;
+        }
+
         if (node.url) html += `<p style="margin-top:12px"><a href="${node.url}" target="_blank">🔗 ${node.url}</a></p>`;
         const sec = node.connections?.secondary || [];
         if (sec.length > 0) {
@@ -1038,7 +1052,7 @@ class Universe {
         if (this.pvGame && this.pvGame.state !== 'idle') {
             return;
         }
-        
+
         this.mouse.x = (clientX / innerWidth) * 2 - 1;
         this.mouse.y = -(clientY / innerHeight) * 2 + 1;
         this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -1474,13 +1488,13 @@ Universe._noisePoolSize = 512;
 // ═══════════════════════════════════════════════
 function applyPlanetVisitorFontSizes() {
     const game = CONFIG.game || {};
-    
+
     // Remove existing font size styles to prevent conflicts
     const existingStyle = document.getElementById('pv-font-styles');
     if (existingStyle) {
         existingStyle.remove();
     }
-    
+
     const style = document.createElement('style');
     style.id = 'pv-font-styles';
     style.textContent = `
@@ -1530,7 +1544,7 @@ function applyPlanetVisitorFontSizes() {
         }
     `;
     document.head.appendChild(style);
-    
+
     // Log para verificar que los valores se están aplicando correctamente
     console.log('Font sizes applied:', {
         pvInfoFontSize: game.pvInfoFontSize,

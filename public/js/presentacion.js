@@ -5,6 +5,8 @@ import { CONFIG } from '../nube_data/config.js';
 const state = {
     nodes: [],
     categories: [],
+    categoryData: {},
+    categoryChildren: {},
     currentIndex: 0,
     currentCategory: 'ALL',
     filteredNodes: [],
@@ -45,52 +47,42 @@ async function loadData() {
         const res = await fetch(url);
         const data = await res.json();
 
+        // Store all data
+        state.nodes = Object.values(data.nodes || {});
+        state.categories = data.categories || [];
+        state.categoryChildren = data.categoryChildren || {};
+        state.categoryData = data.nodes || {};
+
+        console.log('Datos cargados:', {
+            nodes: state.nodes.length,
+            categories: state.categories.length,
+            categoryChildren: Object.keys(state.categoryChildren).length
+        });
+
         // Build category mapping: id -> categoryName
         const idToCategory = {};
         if (data.categoryChildren) {
-            for (const [catName, children] of Object.entries(data.categoryChildren)) {
+            Object.entries(data.categoryChildren).forEach(([cat, children]) => {
+                // Category maps to itself
+                idToCategory[cat] = cat;
+                // Children map to parent
                 children.forEach(childId => {
-                    idToCategory[childId] = catName;
+                    idToCategory[childId] = cat;
                 });
-                // Also map the category itself? Usually categories are nodes too.
-                idToCategory[catName] = catName;
-            }
-        }
-
-        let nodesList = [];
-
-        if (data.nodes) {
-            nodesList = Object.values(data.nodes);
-        } else if (Array.isArray(data)) {
-            nodesList = data;
-        }
-
-        // Filter out structural nodes if any (like 'root')
-        // And Assign Categories
-        state.nodes = nodesList
-            .filter(n => n.type !== 'root' && n.label)
-            .map(n => {
-                // If category is already set, keep it. If not, use our map.
-                if (!n.category) {
-                    n.category = idToCategory[n.id] || 'GENERAL';
-                }
-                return n;
             });
+        }
 
-        // Filter out nodes that are actually categories (if they are in the children map keys)
-        // Wait, "engines" is a node too. But in presentation mode, maybe we want to show them?
-        // Let's keep them for now.
+        console.log('Mapeo de categorías:', idToCategory);
 
-        // Sort by category then name
-        state.nodes.sort((a, b) => {
-            if (a.category === b.category) return a.label.localeCompare(b.label);
-            return (a.category || '').localeCompare(b.category || '');
+        // Attach category info to each node
+        state.nodes.forEach(node => {
+            node.category = idToCategory[node.id] || 'GENERAL';
         });
 
-        state.filteredNodes = [...state.nodes];
-        state.categories = [...new Set(state.nodes.map(n => n.category).filter(Boolean))];
+        console.log('Nodos con categorías:', state.nodes.map(n => ({ id: n.id, label: n.label, category: n.category })));
 
-        // Ensure we only have valid categories in the list (remove 'GENERAL' if undesired, but it handles uncategorized)
+        // Initial filter
+        filterCategory('ALL');
 
     } catch (e) {
         console.error("Failed to load data", e);
@@ -151,6 +143,11 @@ function renderSlide(index, direction = 1) {
             els.desc.textContent = "Sin descripción disponible.";
         }
 
+        // Agregar la imagen del nodo
+        if (!els.desc.innerHTML.includes('img src="img/nodes/')) {
+            els.desc.innerHTML += `<div style="text-align:center; margin-top: 25px;"><img src="img/nodes/${node.id}.png" style="max-height: 250px; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4);" onerror="this.style.display='none'"></div>`;
+        }
+
         // Category & Color
         const catColorHex = CONFIG.categoryColors[node.category] || 0xffffff;
         const color = '#' + new THREE.Color(catColorHex).getHexString();
@@ -188,26 +185,16 @@ function setupFilters() {
     label.textContent = 'SELECCIONAR CATEGORÍA';
     header.appendChild(label);
 
-    // Category Nav Dots
-    const dotsContainer = document.createElement('div');
-    dotsContainer.className = 'cat-nav-dots';
-    dotsContainer.id = 'cat-nav-dots';
-    header.appendChild(dotsContainer);
-
-    // All option
-    createCatDot('ALL', 0xffffff, dotsContainer);
-
-    state.categories.forEach(cat => {
-        if (cat === 'GENERAL') return;
-        createCatDot(cat, CONFIG.categoryColors[cat] || 0xffffff, dotsContainer);
-    });
-
-    const title = document.createElement('div');
-    title.className = 'cat-title';
-    title.id = 'sidebar-cat-title';
-    header.appendChild(title);
-
     els.filters.appendChild(header);
+
+    // Categories List Container
+    const categoriesContainer = document.createElement('div');
+    categoriesContainer.className = 'categories-container';
+    categoriesContainer.id = 'categories-container';
+    els.filters.appendChild(categoriesContainer);
+
+    // Render main categories with subcategories
+    renderHierarchicalCategories(categoriesContainer);
 
     // Node List Container
     const listContainer = document.createElement('div');
@@ -216,48 +203,159 @@ function setupFilters() {
     els.filters.appendChild(listContainer);
 }
 
-function createCatDot(cat, colorHex, container) {
-    const dot = document.createElement('div');
-    dot.className = 'cat-dot';
-    const color = '#' + new THREE.Color(colorHex).getHexString();
-    dot.style.setProperty('--dot-color', color);
+function renderHierarchicalCategories(container) {
+    container.innerHTML = '';
 
-    // Tooltip / Meta
-    dot.title = cat;
-    dot.dataset.cat = cat;
+    // ALL option
+    const allItem = createCategoryItem('ALL', 'TODOS', null, 0xffffff);
+    container.appendChild(allItem);
 
-    dot.addEventListener('click', () => filterCategory(cat));
+    // Main categories with their subcategories
+    state.categories.forEach(catId => {
+        if (catId === 'GENERAL') return;
 
-    container.appendChild(dot);
+        const categoryData = state.categoryData[catId];
+        const label = categoryData?.label || catId;
+        const color = CONFIG.categoryColors[catId] || 0xffffff;
+        const subcategories = state.categoryChildren[catId] || [];
+
+        const mainItem = createCategoryItem(catId, label, subcategories, color);
+        container.appendChild(mainItem);
+    });
+}
+
+function createCategoryItem(catId, label, subcategories, color) {
+    console.log('Creando categoría:', { catId, label, subcategories: subcategories?.length || 0 });
+    const item = document.createElement('div');
+    item.className = 'category-item';
+    item.dataset.cat = catId;
+
+    const header = document.createElement('div');
+    header.className = 'category-header';
+
+    const colorDot = document.createElement('div');
+    colorDot.className = 'category-color-dot';
+    const colorHex = '#' + new THREE.Color(color).getHexString();
+    colorDot.style.backgroundColor = colorHex;
+
+    const labelText = document.createElement('span');
+    labelText.className = 'category-label';
+    labelText.textContent = label;
+
+    header.appendChild(colorDot);
+    header.appendChild(labelText);
+
+    if (subcategories && subcategories.length > 0) {
+        const arrow = document.createElement('div');
+        arrow.className = 'category-arrow';
+        arrow.innerHTML = '▼';
+        header.appendChild(arrow);
+
+        header.addEventListener('click', () => {
+            console.log('Click en categoría con subcategorías:', catId);
+            toggleCategory(catId);
+            filterCategory(catId);
+        });
+
+        const subContainer = document.createElement('div');
+        subContainer.className = 'subcategories-container';
+        subContainer.id = `sub-${catId}`;
+        subContainer.style.display = 'none';
+
+        subcategories.forEach(subId => {
+            const subData = state.categoryData[subId];
+            const subLabel = subData?.label || subId;
+            console.log('Creando subcategoría:', { subId, subLabel, parent: catId });
+            const subItem = createSubcategoryItem(subId, subLabel, catId);
+            subContainer.appendChild(subItem);
+        });
+
+        item.appendChild(header);
+        item.appendChild(subContainer);
+    } else {
+        header.addEventListener('click', () => {
+            console.log('Click en categoría sin subcategorías:', catId);
+            filterCategory(catId);
+        });
+        item.appendChild(header);
+    }
+
+    return item;
+}
+
+function createSubcategoryItem(subId, label, parentCat) {
+    console.log('Creando subcategoría item:', { subId, label, parentCat });
+    const item = document.createElement('div');
+    item.className = 'subcategory-item';
+    item.dataset.nodeId = subId;
+    item.dataset.parent = parentCat;
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'subcategory-label';
+    labelSpan.textContent = label;
+
+    item.appendChild(labelSpan);
+
+    item.addEventListener('click', () => {
+        console.log('Click en nodo:', subId);
+        // Si el filtro actual no es el padre ni 'ALL', filtramos por el padre
+        if (state.currentCategory !== parentCat && state.currentCategory !== 'ALL') {
+            filterCategory(parentCat);
+        }
+
+        const idx = state.filteredNodes.findIndex(n => n.id === subId);
+        if (idx !== -1) {
+            renderSlide(idx);
+        } else {
+            console.warn('Nodo no encontrado en state.filteredNodes:', subId);
+        }
+    });
+
+    return item;
+}
+
+function toggleCategory(catId) {
+    const subContainer = document.getElementById(`sub-${catId}`);
+    const arrow = document.querySelector(`[data-cat="${catId}"] .category-arrow`);
+
+    if (subContainer) {
+        const isVisible = subContainer.style.display !== 'none';
+        subContainer.style.display = isVisible ? 'none' : 'block';
+        if (arrow) {
+            arrow.innerHTML = isVisible ? '▼' : '▲';
+        }
+    }
 }
 
 function updateSidebar(node) {
-    const titleEl = document.getElementById('sidebar-cat-title');
-    const listEl = document.getElementById('sidebar-node-list');
-    const dots = document.querySelectorAll('.cat-dot');
+    const categoryItems = document.querySelectorAll('.category-item');
+    const nodeItems = document.querySelectorAll('.subcategory-item');
 
-    if (!titleEl || !listEl) return;
-
-    // Update Category Title & List if changed
-    const currentCat = node.category || 'GENERAL';
-    if (titleEl.textContent !== currentCat) {
-        titleEl.textContent = currentCat;
-        renderNodeList(node.category, listEl);
-    }
-
-    // Highlight Category Dot
-    dots.forEach(dot => {
-        dot.classList.remove('active');
-        if (dot.dataset.cat === state.currentCategory) dot.classList.add('active');
+    // Highlight Active Category
+    categoryItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.cat === state.currentCategory) {
+            item.classList.add('active');
+        }
     });
 
-    // Highlight Active Node
-    const items = listEl.querySelectorAll('.node-item');
-    items.forEach(item => {
+    // Highlight Active Node in the accordion
+    nodeItems.forEach(item => {
         item.classList.remove('active');
         if (item.dataset.nodeId === node.id) {
             item.classList.add('active');
             item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Expand parent if it's hidden
+            const parentId = item.dataset.parent;
+            if (parentId) {
+                const parentContainer = document.getElementById(`sub-${parentId}`);
+                const parentArrow = document.querySelector(`[data-cat="${parentId}"] .category-arrow`);
+                if (parentContainer && parentContainer.style.display === 'none') {
+                    parentContainer.style.display = 'block';
+                    if (parentArrow) parentArrow.innerHTML = '▲';
+                }
+            }
         }
     });
 }
@@ -294,12 +392,16 @@ function renderNodeList(category, container) {
 
 
 function filterCategory(cat) {
+    console.log('Filtrando por categoría:', cat);
     state.currentCategory = cat;
 
-    // Update active dot in sidebar
-    document.querySelectorAll('.cat-dot').forEach(d => {
-        d.classList.remove('active');
-        if (d.dataset.cat === cat) d.classList.add('active');
+    // Update active category in sidebar
+    document.querySelectorAll('.category-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.cat === cat) {
+            item.classList.add('active');
+            console.log('Activando item:', item.dataset.cat);
+        }
     });
 
     // Filter nodes
@@ -309,8 +411,17 @@ function filterCategory(cat) {
         state.filteredNodes = state.nodes.filter(n => n.category === cat);
     }
 
+    console.log('Nodos filtrados:', state.filteredNodes.length, 'para categoría:', cat);
+    console.log('Nodos encontrados:', state.filteredNodes.map(n => ({ id: n.id, label: n.label, category: n.category })));
+
     // Reset index to start of filtered set
-    renderSlide(0);
+    if (state.filteredNodes.length > 0) {
+        renderSlide(0);
+    } else {
+        console.warn('No se encontraron nodos para la categoría:', cat);
+        els.title.textContent = 'No hay contenido para esta categoría';
+        els.desc.textContent = '';
+    }
 }
 
 // ── Interaction ──────────────────────────────────────────────────────────────

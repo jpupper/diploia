@@ -297,9 +297,12 @@ function renderNodes(filter = '', catFilter = '') {
     list.innerHTML = entries.map(n => {
         const isCategory = n.type === 'category';
         const parentCat = findParentCategory(n.id);
+        const imgUrl = n.image ? `${BASE_PATH}/${n.image}` : null;
+        const icon = imgUrl ? `<img src="${imgUrl}" class="node-list-img" onerror="this.src='img/node-placeholder.png';this.onerror=null;">` : (isCategory ? '📁' : '🔵');
+
         return `
       <div class="list-item">
-        <div class="list-item-icon">${isCategory ? '📁' : '🔵'}</div>
+        <div class="list-item-icon">${icon}</div>
         <div class="list-item-content">
           <div class="list-item-title">${n.label || n.id}</div>
           <div class="list-item-sub">${n.id}${n.url ? ' • <a href="' + n.url + '" target="_blank" style="color:var(--accent-secondary)">' + n.url + '</a>' : ''}${parentCat ? ' • Cat: ' + parentCat : ''}</div>

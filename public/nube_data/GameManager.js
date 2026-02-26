@@ -1128,6 +1128,12 @@ export class GameManager {
         let html = '';
         if (node.infoHTML) html += node.infoHTML.replace(/\\n/g, '\n');
         else { html += `<h3>${node.label || node.id}</h3>`; if (node.info) html += `<p>${node.info}</p>`; }
+
+        // Agregar la imagen del nodo
+        if (!html.includes('img src="img/nodes/')) {
+            html += `<div style="text-align:center; margin-top: 15px;"><img src="img/nodes/${node.id}.png" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4);" onerror="this.style.display='none'"></div>`;
+        }
+
         if (node.url) html += `<p style="margin-top:12px"><a href="${node.url}" target="_blank">${node.url}</a></p>`;
         this.dom.gameInfoContent.innerHTML = html;
         this.dom.gameInfoPanel.classList.add('visible');
@@ -1155,6 +1161,12 @@ export class GameManager {
             } else if (node.info) {
                 bodyHTML = `<p>${node.info}</p>`;
             }
+
+            // Agregar la imagen del nodo al final del body
+            if (!bodyHTML.includes('img src="img/nodes/')) {
+                bodyHTML += `<div style="text-align:center; margin-top: 20px;"><img src="img/nodes/${node.id}.png" style="max-height: 200px; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4);" onerror="this.style.display='none'"></div>`;
+            }
+
             this.dom.discoveryModalBody.innerHTML = bodyHTML;
         }
         // Set link

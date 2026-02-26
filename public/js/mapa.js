@@ -354,6 +354,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (url && url !== '#') {
             info = info.replace(/<h3>(.*?)<\/h3>/, '<h3><a href="' + url + '" target="_blank" style="color: #ff69b4; text-decoration: underline; cursor: pointer; pointer-events: auto;">$1 🔗</a></h3>');
         }
+
+        // Agregar la imagen del nodo
+        if (!info.includes('img src="img/nodes/')) {
+            info += `<div style="text-align:center; margin-top: 15px;"><img src="img/nodes/${nodeId}.png" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4);" onerror="this.style.display='none'"></div>`;
+        }
+
         return info;
     }
 

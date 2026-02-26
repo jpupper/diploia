@@ -139,7 +139,7 @@ export class PlanetVisitorManager {
         document.getElementById('info-panel').classList.remove('visible');
         const navArrows = document.getElementById('nav-arrows');
         if (navArrows) navArrows.style.display = 'none';
-        
+
         // Hide category interface in PLANET VISITOR mode
         const universeIndicator = document.getElementById('universe-indicator');
         const catDots = document.getElementById('cat-dots');
@@ -314,11 +314,17 @@ export class PlanetVisitorManager {
             html += `<h3>${node.label || node.id}</h3>`;
             if (node.info) html += `<p>${node.info}</p>`;
         }
+
+        // Agregar la imagen del nodo
+        if (!html.includes('img src="img/nodes/')) {
+            html += `<div style="text-align:center; margin-top: 15px;"><img src="img/nodes/${node.id}.png" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4);" onerror="this.style.display='none'"></div>`;
+        }
+
         if (node.url) {
             html += `<p style="margin-top:12px"><a href="${node.url}" target="_blank">${node.url}</a></p>`;
         }
         this.dom.pvPlanetInfoContent.innerHTML = html;
-        
+
         // Don't apply inline styles - let CSS handle everything through applyPlanetVisitorFontSizes()
         this.dom.pvPlanetInfo.classList.add('visible');
     }
@@ -643,7 +649,7 @@ export class PlanetVisitorManager {
         document.getElementById('connections-toggle').style.display = '';
         const navArrows = document.getElementById('nav-arrows');
         if (navArrows) navArrows.style.display = '';
-        
+
         // Restore category interface when exiting PLANET VISITOR mode
         const universeIndicator = document.getElementById('universe-indicator');
         const catDots = document.getElementById('cat-dots');

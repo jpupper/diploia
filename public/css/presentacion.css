@@ -274,28 +274,106 @@ body {
     margin-bottom: 5px;
 }
 
-.cat-nav-dots {
+.categories-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-direction: column;
+    gap: 4px;
     margin-top: 10px;
 }
 
-.cat-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.15);
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 1px solid transparent;
+.category-item {
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-.cat-dot:hover,
-.cat-dot.active {
-    background: var(--dot-color, #fff);
-    box-shadow: 0 0 8px var(--dot-color, #fff);
-    transform: scale(1.2);
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.category-header:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.category-item.active .category-header {
+    background: rgba(0, 255, 255, 0.15);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.category-color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.category-label {
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0.2px;
+    flex: 1;
+}
+
+.category-arrow {
+    font-size: 0.6rem;
+    transition: transform 0.3s ease;
+    opacity: 0.7;
+}
+
+.subcategories-container {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    margin-left: 20px;
+    margin-top: 0;
+    padding-left: 8px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.subcategories-container[style*="block"] {
+    display: flex;
+    margin-top: 4px;
+}
+
+.subcategory-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-size: 0.7rem;
+}
+
+.subcategory-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.subcategory-item.active {
+    background: rgba(0, 255, 255, 0.1);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.subcategory-label {
+    font-weight: 400;
+    text-transform: capitalize;
 }
 
 .cat-title {
