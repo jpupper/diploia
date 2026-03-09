@@ -25,7 +25,8 @@ const els = {
     nextBtn: document.getElementById('next-btn'),
     progress: document.getElementById('progress-fill'),
     filters: document.getElementById('category-filter'),
-    loading: document.getElementById('loading-overlay')
+    loading: document.getElementById('loading-overlay'),
+    visual: document.getElementById('slide-visual')
 };
 
 // ── Initialization ───────────────────────────────────────────────────────────
@@ -36,7 +37,28 @@ async function init() {
     await loadData();
     setupFilters();
     bindEvents();
-    renderSlide(0);
+
+    // Check for node parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const nodeParam = urlParams.get('node');
+
+    if (nodeParam) {
+        const node = state.nodes.find(n => n.id === nodeParam);
+        if (node) {
+            // Apply a special filter to show only this node
+            state.filteredNodes = [node];
+            renderSlide(0);
+
+            // Highlight in sidebar if possible
+            state.currentCategory = node.category || 'GENERAL';
+            updateSidebar(node);
+        } else {
+            renderSlide(0);
+        }
+    } else {
+        renderSlide(0);
+    }
+
     els.loading.classList.add('hidden');
 }
 
@@ -48,8 +70,11 @@ async function loadData() {
         const res = await fetch(url);
         const data = await res.json();
 
-        // Store all data
-        state.nodes = Object.values(data.nodes || {});
+        // Store all data with IDs injected
+        state.nodes = Object.entries(data.nodes || {}).map(([id, node]) => ({
+            id,
+            ...node
+        }));
         state.categories = data.categories || [];
         state.categoryChildren = data.categoryChildren || {};
         state.categoryData = data.nodes || {};
@@ -102,10 +127,18 @@ function renderSlide(index, direction = 1) {
     state.currentIndex = index;
     const node = state.filteredNodes[index];
 
+    // Update URL with current node ID
+    if (node && node.id) {
+        const url = new URL(window.location);
+        url.searchParams.set('node', node.id);
+        window.history.replaceState({}, '', url);
+    }
+
     updateShaderParams(node, state.currentIndex);
 
     // Animate Out
     els.content.classList.remove('visible');
+    if (els.visual) els.visual.classList.remove('visible');
 
     setTimeout(() => {
         // Update Content
@@ -134,9 +167,11 @@ function renderSlide(index, direction = 1) {
             els.desc.textContent = "Sin descripción disponible.";
         }
 
-        // Agregar la imagen del nodo
-        if (!els.desc.innerHTML.includes('img src="img/nodes/')) {
-            els.desc.innerHTML += `<div style="text-align:center; margin-top: 25px;"><img src="img/nodes/${node.id}.png" style="width: 100%; max-width: 400px; height: 350px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255, 105, 180, 0.4); padding: 15px; background: rgba(0,0,0,0.2);" onerror="this.style.display='none'"></div>`;
+        // Actualizar Imagen
+        if (els.visual) {
+            els.visual.style.display = 'flex'; // Reset in case it was hidden
+            const imageId = (node.id || '').toLowerCase();
+            els.visual.innerHTML = `<img src="img/nodes/${imageId}.png" alt="${node.label}" onerror="this.style.display='none'">`;
         }
 
         // Category & Color
@@ -156,6 +191,7 @@ function renderSlide(index, direction = 1) {
 
         // Animate In
         els.content.classList.add('visible');
+        if (els.visual) els.visual.classList.add('visible');
 
         // Update Sidebar
         updateSidebar(node);
@@ -289,16 +325,15 @@ function createSubcategoryItem(subId, label, parentCat) {
 
     item.addEventListener('click', () => {
         console.log('Click en nodo:', subId);
-        // Si el filtro actual no es el padre ni 'ALL', filtramos por el padre
-        if (state.currentCategory !== parentCat && state.currentCategory !== 'ALL') {
-            filterCategory(parentCat);
-        }
 
+        // If the node is already in the filtered list, just jump to it
         const idx = state.filteredNodes.findIndex(n => n.id === subId);
         if (idx !== -1) {
             renderSlide(idx);
         } else {
-            console.warn('Nodo no encontrado en state.filteredNodes:', subId);
+            // If not in the filtered list (could be because of "?node=" initial filter or different category)
+            // Force a filter change to the parent category and jump to the node
+            filterCategory(parentCat || 'ALL', subId);
         }
     });
 
@@ -382,7 +417,7 @@ function renderNodeList(category, container) {
 }
 
 
-function filterCategory(cat) {
+function filterCategory(cat, targetNodeId = null) {
     console.log('Filtrando por categoría:', cat);
     state.currentCategory = cat;
 
@@ -405,9 +440,14 @@ function filterCategory(cat) {
     console.log('Nodos filtrados:', state.filteredNodes.length, 'para categoría:', cat);
     console.log('Nodos encontrados:', state.filteredNodes.map(n => ({ id: n.id, label: n.label, category: n.category })));
 
-    // Reset index to start of filtered set
+    // Reset index to start of filtered set or jump to target node
     if (state.filteredNodes.length > 0) {
-        renderSlide(0);
+        if (targetNodeId) {
+            const idx = state.filteredNodes.findIndex(n => n.id === targetNodeId);
+            renderSlide(idx !== -1 ? idx : 0);
+        } else {
+            renderSlide(0);
+        }
     } else {
         console.warn('No se encontraron nodos para la categoría:', cat);
         els.title.textContent = 'No hay contenido para esta categoría';
