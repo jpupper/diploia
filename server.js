@@ -190,12 +190,56 @@ app.put(`/${APP_PATH}/api/nodes/:id`, (req, res) => {
         const nodeId = req.params.id;
         const updates = req.body;
 
-        if (!data.nodes[nodeId]) {
-            return res.status(404).json({ error: 'Nodo no encontrado' });
-        }
+        // Get old node to compare parent
+        const oldNode = data.nodes[nodeId];
+        const oldParent = oldNode.parentCategory;
+        const newParent = updates.parentCategory;
 
         // Update node properties
-        data.nodes[nodeId] = { ...data.nodes[nodeId], ...updates, id: nodeId };
+        data.nodes[nodeId] = { ...oldNode, ...updates, id: nodeId };
+
+        // Handle category list if type changed to category
+        if (updates.type === 'category' && !data.categories.includes(nodeId) && nodeId !== 'root') {
+            data.categories.push(nodeId);
+            if (!data.categoryChildren[nodeId]) {
+                data.categoryChildren[nodeId] = [];
+            }
+        }
+
+        // Handle parent relationship sync
+        if (oldParent !== newParent) {
+            // 1. Remove from old parent's children list
+            if (oldParent && data.categoryChildren[oldParent]) {
+                data.categoryChildren[oldParent] = data.categoryChildren[oldParent].filter(id => id !== nodeId);
+            }
+            if (oldParent && data.nodes[oldParent] && data.nodes[oldParent].connections) {
+                data.nodes[oldParent].connections.children = (data.nodes[oldParent].connections.children || []).filter(c => c.id !== nodeId);
+            }
+
+            // 2. Add to new parent's children list
+            if (newParent) {
+                // Ensure categoryChildren entry exists
+                if (!data.categoryChildren[newParent]) {
+                    data.categoryChildren[newParent] = [];
+                }
+                if (!data.categoryChildren[newParent].includes(nodeId)) {
+                    data.categoryChildren[newParent].push(nodeId);
+                }
+
+                // Update parent node connections.children
+                if (data.nodes[newParent]) {
+                    if (!data.nodes[newParent].connections) {
+                        data.nodes[newParent].connections = { parent: [], children: [], secondary: [] };
+                    }
+                    if (!data.nodes[newParent].connections.children) {
+                        data.nodes[newParent].connections.children = [];
+                    }
+                    if (!data.nodes[newParent].connections.children.some(c => c.id === nodeId)) {
+                        data.nodes[newParent].connections.children.push({ id: nodeId, type: 'primary' });
+                    }
+                }
+            }
+        }
 
         writeJSON(NODES_FILE, data);
         res.json({ success: true, node: data.nodes[nodeId] });

@@ -88,13 +88,14 @@ function switchSection(sectionId) {
         'ranking': 'Ranking',
         'config': 'Configuración Mapa',
         'space-config': 'Configuración Espacio',
+        'presentation-config': 'Configuración Presentación',
         'import-export': 'Importar / Exportar'
     };
     document.getElementById('topbar-title').textContent = titles[sectionId] || sectionId;
 
     // Show/hide header save button based on section
     const headerSaveBtn = document.getElementById('btn-save-current-section');
-    const sectionsWithSave = ['config', 'space-config'];
+    const sectionsWithSave = ['config', 'space-config', 'presentation-config'];
 
     if (sectionsWithSave.includes(sectionId)) {
         headerSaveBtn.style.display = 'block';
@@ -103,6 +104,8 @@ function switchSection(sectionId) {
                 saveConfig();
             } else if (sectionId === 'space-config') {
                 saveSpaceConfig();
+            } else if (sectionId === 'presentation-config') {
+                savePresentationConfig();
             }
         };
     } else {
@@ -193,6 +196,7 @@ async function loadAllData() {
         renderRanking();
         renderConfig();
         renderSpaceConfig();
+        renderPresentationConfig();
         populateSelects();
 
         showToast('Datos cargados correctamente', 'success');
@@ -593,6 +597,9 @@ function initButtons() {
 
     // Save Space Config
     document.getElementById('btn-save-space-config').addEventListener('click', saveSpaceConfig);
+
+    // Save Presentation Config
+    document.getElementById('btn-save-presentation-config').addEventListener('click', savePresentationConfig);
 
     // Sync HTML from text
     document.getElementById('btn-sync-html').addEventListener('click', () => {
@@ -1246,6 +1253,92 @@ async function saveSpaceConfig() {
         showToast(scOk ? 'Configuración de espacio guardada' : 'Distancias guardadas (space-config no disponible)', 'success');
     } else {
         showToast('Error al guardar configuración', 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PRESENTATION CONFIGURATION
+// ═══════════════════════════════════════════════════════════════
+
+const PRES_DEFAULTS = {
+    autoRandomShader: true,
+    shaderColor1: 0x00ffff,
+    shaderColor2: 0x9900ff,
+    shaderSpeed: 0.1,
+    shaderScale: 3.0,
+    shaderDistortion: 0.1,
+    shaderBrightness: 0.8
+};
+
+const PRES_FIELD_MAP = [
+    { id: 'pres-autoRandomShader', path: ['presentation', 'autoRandomShader'], type: 'checkbox' },
+    { id: 'pres-shaderColor1', path: ['presentation', 'shaderColor1'], hex: true },
+    { id: 'pres-shaderColor2', path: ['presentation', 'shaderColor2'], hex: true },
+    { id: 'pres-shaderSpeed', path: ['presentation', 'shaderSpeed'] },
+    { id: 'pres-shaderScale', path: ['presentation', 'shaderScale'] },
+    { id: 'pres-shaderDistortion', path: ['presentation', 'shaderDistortion'] },
+    { id: 'pres-shaderBrightness', path: ['presentation', 'shaderBrightness'] }
+];
+
+function renderPresentationConfig() {
+    const saved = spaceConfigData || {};
+    console.log('Rendering presentation config with data:', saved.presentation);
+
+    PRES_FIELD_MAP.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (!el) return;
+
+        const val = _scGet(saved, f.path);
+        const def = _scGet(PRES_DEFAULTS, [f.path[1]]);
+        const v = (val !== undefined) ? val : def;
+
+        if (f.type === 'checkbox') {
+            el.checked = !!v;
+        } else if (f.hex) {
+            el.value = _scHexStr(v);
+        } else {
+            el.value = (v !== undefined && v !== null) ? v : '';
+        }
+    });
+}
+
+async function savePresentationConfig() {
+    // We merge with existing spaceConfigData to avoid overwriting other fields
+    const config = { ...spaceConfigData };
+    if (!config.presentation) config.presentation = {};
+
+    PRES_FIELD_MAP.forEach(f => {
+        const el = document.getElementById(f.id);
+        if (!el) return;
+
+        const key = f.path[1];
+        if (f.type === 'checkbox') {
+            config.presentation[key] = el.checked;
+        } else if (f.hex) {
+            config.presentation[key] = _scParseHex(el.value);
+        } else {
+            config.presentation[key] = Number(el.value);
+        }
+    });
+
+    try {
+        const res = await fetch(API + '/space-config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success) {
+                spaceConfigData = config;
+                showToast('Configuración de presentación guardada', 'success');
+            } else {
+                showToast(data.error || 'Error al guardar', 'error');
+            }
+        }
+    } catch (e) {
+        showToast('Error de conexión', 'error');
     }
 }
 

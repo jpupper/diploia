@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CONFIG } from '../nube_data/config.js';
+import { CONFIG, loadSpaceConfig } from '../nube_data/config.js';
 
 // Global State
 const state = {
@@ -31,6 +31,7 @@ const els = {
 // ── Initialization ───────────────────────────────────────────────────────────
 
 async function init() {
+    await loadSpaceConfig();
     initBackgroundShader();
     await loadData();
     setupFilters();
@@ -43,7 +44,7 @@ async function init() {
 
 async function loadData() {
     try {
-        const url = '/diploia/api/nodes';
+        const url = CONFIG.dataUrl;
         const res = await fetch(url);
         const data = await res.json();
 
@@ -113,16 +114,6 @@ function renderSlide(index, direction = 1) {
 
         if (node.customHtml) {
             els.desc.innerHTML = node.customHtml;
-            if (node.customCss) {
-                const styleId = `custom-style-${node.id}`;
-                let style = document.getElementById(styleId);
-                if (!style) {
-                    style = document.createElement('style');
-                    style.id = styleId;
-                    document.head.appendChild(style);
-                }
-                style.textContent = node.customCss;
-            }
         } else if (node.infoHTML) {
             els.desc.innerHTML = node.infoHTML;
         } else if (node.description || node.info) {
@@ -452,21 +443,23 @@ function initBackgroundShader() {
     const uniforms = {
         uTime: { value: 0 },
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        uColor1: { value: new THREE.Color(0.0, 1.0, 1.0) },
-        uColor2: { value: new THREE.Color(0.6, 0.0, 1.0) },
-        uSpeed: { value: 0.1 },
-        uScale: { value: 3.0 },
-        uDistortion: { value: 0.1 }
+        uColor1: { value: new THREE.Color(CONFIG.presentation?.shaderColor1 || 0x00ffff) },
+        uColor2: { value: new THREE.Color(CONFIG.presentation?.shaderColor2 || 0x9900ff) },
+        uSpeed: { value: CONFIG.presentation?.shaderSpeed || 0.1 },
+        uScale: { value: CONFIG.presentation?.shaderScale || 3.0 },
+        uDistortion: { value: CONFIG.presentation?.shaderDistortion || 0.1 },
+        uBrightness: { value: CONFIG.presentation?.shaderBrightness || 0.8 }
     };
 
     // Store in state for access
     state.shaderUniforms = uniforms;
     state.shaderTargets = {
-        color1: new THREE.Color(0.0, 1.0, 1.0),
-        color2: new THREE.Color(0.6, 0.0, 1.0),
-        speed: 0.1,
-        scale: 3.0,
-        distortion: 0.1
+        color1: new THREE.Color(CONFIG.presentation?.shaderColor1 || 0x00ffff),
+        color2: new THREE.Color(CONFIG.presentation?.shaderColor2 || 0x9900ff),
+        speed: CONFIG.presentation?.shaderSpeed || 0.1,
+        scale: CONFIG.presentation?.shaderScale || 3.0,
+        distortion: CONFIG.presentation?.shaderDistortion || 0.1,
+        brightness: CONFIG.presentation?.shaderBrightness || 0.8
     };
 
     const material = new THREE.ShaderMaterial({
@@ -486,6 +479,7 @@ function initBackgroundShader() {
             uniform float uSpeed;
             uniform float uScale;
             uniform float uDistortion;
+            uniform float uBrightness;
             varying vec2 vUv;
 
             // Simplex noise function
@@ -525,17 +519,21 @@ function initBackgroundShader() {
                 vec2 distUV = uv + vec2(noise * 0.1, noise2 * 0.1) * uDistortion;
                 float noise3 = snoise(distUV * 1.5 + uTime * 0.05);
 
-                vec3 bg = vec3(0.02, 0.02, 0.05); 
+                vec3 bg = vec3(0.005, 0.005, 0.01); 
                 
                 float n = smoothstep(0.2, 0.8, noise + noise3 * 0.5);
                 
-                vec3 finalColor = bg + n * uColor1 * 0.15 + noise2 * uColor2 * 0.1;
+                // Darken the colors significantly for contrast
+                vec3 finalColor = bg + n * uColor1 * 0.1 + noise2 * uColor2 * 0.05;
                 
+                // Extra darkening to ensure text pop
+                finalColor *= 0.8;
+
                 // Scanline
-                float scan = sin(gl_FragCoord.y * 0.2 - uTime * 2.0) * 0.02;
+                float scan = sin(gl_FragCoord.y * 0.2 - uTime * 2.0) * 0.015;
                 finalColor += scan;
 
-                gl_FragColor = vec4(finalColor, 1.0);
+                gl_FragColor = vec4(finalColor * uBrightness, 1.0);
             }
         `
     });
@@ -555,6 +553,7 @@ function initBackgroundShader() {
             uniforms.uSpeed.value += (state.shaderTargets.speed - uniforms.uSpeed.value) * lerpFactor;
             uniforms.uScale.value += (state.shaderTargets.scale - uniforms.uScale.value) * lerpFactor;
             uniforms.uDistortion.value += (state.shaderTargets.distortion - uniforms.uDistortion.value) * lerpFactor;
+            uniforms.uBrightness.value += (state.shaderTargets.brightness - uniforms.uBrightness.value) * lerpFactor;
         }
 
         renderer.render(scene, camera);
@@ -574,6 +573,17 @@ init();
 
 function updateShaderParams(node, index) {
     if (!state.shaderTargets) return;
+
+    // Use Admin config if autoRandom is disabled
+    if (!CONFIG.presentation?.autoRandomShader) {
+        state.shaderTargets.color1.set(CONFIG.presentation?.shaderColor1 || 0x00ffff);
+        state.shaderTargets.color2.set(CONFIG.presentation?.shaderColor2 || 0x9900ff);
+        state.shaderTargets.speed = CONFIG.presentation?.shaderSpeed || 0.1;
+        state.shaderTargets.scale = CONFIG.presentation?.shaderScale || 3.0;
+        state.shaderTargets.distortion = CONFIG.presentation?.shaderDistortion || 0.1;
+        state.shaderTargets.brightness = CONFIG.presentation?.shaderBrightness || 0.8;
+        return;
+    }
 
     // Create a seed based on unique ID or index if ID is missing.
     // Use index + ID hash to ensure it's stable for this specific item.

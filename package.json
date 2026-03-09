@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/jpupper/diploia#readme",
   "dependencies": {
+    "basic-ftp": "^5.2.0",
     "cors": "^2.8.6",
     "express": "^5.2.1"
   }

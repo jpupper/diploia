@@ -1,4 +1,4 @@
- // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 //  CONFIG — All configurable variables for Nube de Universos
 //  Edit this file to tweak the experience without touching logic.
 //  Values can be overridden from the Admin Panel (space-config API).
@@ -20,15 +20,18 @@ export async function loadSpaceConfig() {
     try {
         const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        let basePath = '/diploia';
+
+        let url = '';
         if (isLocal) {
             const path = window.location.pathname;
             const match = path.match(/^(\/[^\/]+)\//);
-            basePath = match ? match[1] : '/diploia';
+            const basePath = match ? match[1] : '/diploia';
+            url = `${basePath}/api/space-config`;
         } else {
-            basePath = API_BASE_URL;
+            url = `${API_BASE_URL}/api/space-config`;
         }
-        const res = await fetch(`${basePath}/api/space-config`);
+
+        const res = await fetch(url);
         if (!res.ok) return;
         const saved = await res.json();
         if (saved && typeof saved === 'object' && Object.keys(saved).length > 0) {
@@ -47,15 +50,13 @@ export const CONFIG = {
         const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-        let basePath = '/diploia';
         if (isLocal) {
             const path = window.location.pathname;
             const match = path.match(/^(\/[^\/]+)\//);
-            basePath = match ? match[1] : '/diploia';
-        } else {
-            basePath = API_BASE_URL;
+            return match ? match[1] : '/diploia';
         }
-        return `${basePath}/api/nodes`;
+
+        return `${API_BASE_URL}/api/nodes`;
     })(),
 
     // ── Category Colors (hex) ────────────────────────────────
@@ -243,14 +244,15 @@ export const CONFIG = {
         pvArrivalDelay: 1000,     // ms to wait after arriving at a planet before showing the selection screen
     },
 
-    // ── Selection Visual ─────────────────────────────────────
-    selection: {
-        emissiveIntensity: 0.08,
-        scaleFactor: 1.3,
-        hoverEmissive: 0.18,
-        hoverScale: 1.15,
-        hoverSelectedEmissive: 0.12,
-        hoverSelectedScale: 1.35,
+    // ── Presentation ──────────────────────────────────────────
+    presentation: {
+        autoRandomShader: true,
+        shaderColor1: 0x00ffff,
+        shaderColor2: 0x9900ff,
+        shaderSpeed: 0.1,
+        shaderScale: 3.0,
+        shaderDistortion: 0.1,
+        shaderBrightness: 0.8,
     },
 
     // ── Energy Field (selected planet aura) ─────────────────
