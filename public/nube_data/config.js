@@ -17,9 +17,12 @@ function _deepMerge(target, source) {
 }
 
 export async function loadSpaceConfig() {
+    // Last update: 2026-03-09T13:38:00
     try {
         const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const isLocal = window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname.includes('192.168.');
 
         let url = '';
         if (isLocal) {
@@ -46,14 +49,18 @@ export const CONFIG = {
 
     // ── Data ──────────────────────────────────────────────────
     // URL dinámica: usa la API del servidor en vez del archivo estático
+    // Generated at: 2026-03-09T13:38:00
     dataUrl: (() => {
         const API_BASE_URL = 'https://vps-4455523-x.dattaweb.com/diploia';
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const isLocal = window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname.includes('192.168.');
 
         if (isLocal) {
             const path = window.location.pathname;
             const match = path.match(/^(\/[^\/]+)\//);
-            return match ? match[1] : '/diploia';
+            const basePath = match ? match[1] : '/diploia';
+            return `${basePath}/api/nodes`;
         }
 
         return `${API_BASE_URL}/api/nodes`;
