@@ -26,8 +26,12 @@ const els = {
     progress: document.getElementById('progress-fill'),
     filters: document.getElementById('category-filter'),
     loading: document.getElementById('loading-overlay'),
-    visual: document.getElementById('slide-visual')
+    visual: document.getElementById('slide-visual'),
+    mobileMenuBtn: document.getElementById('mobile-menu-btn'),
+    sidebarToggle: document.getElementById('sidebar-toggle'),
+    sidebar: document.getElementById('category-filter')
 };
+
 
 // ── Initialization ───────────────────────────────────────────────────────────
 
@@ -335,7 +339,13 @@ function createSubcategoryItem(subId, label, parentCat) {
             // Force a filter change to the parent category and jump to the node
             filterCategory(parentCat || 'ALL', subId);
         }
+
+        // Close sidebar on mobile after selection
+        if (window.innerWidth <= 1024) {
+            els.sidebar.classList.remove('mobile-visible');
+        }
     });
+
 
     return item;
 }
@@ -465,7 +475,20 @@ function bindEvents() {
         if (e.key === 'ArrowRight') renderSlide(state.currentIndex + 1, 1);
         if (e.key === 'ArrowLeft') renderSlide(state.currentIndex - 1, -1);
     });
+
+    if (els.mobileMenuBtn) {
+        els.mobileMenuBtn.addEventListener('click', () => {
+            els.sidebar.classList.add('mobile-visible');
+        });
+    }
+
+    if (els.sidebarToggle) {
+        els.sidebarToggle.addEventListener('click', () => {
+            els.sidebar.classList.remove('mobile-visible');
+        });
+    }
 }
+
 
 // ── Background Shader ────────────────────────────────────────────────────────
 
@@ -603,8 +626,14 @@ function initBackgroundShader() {
     window.addEventListener('resize', () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
         uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+
+        // Clean up mobile sidebar classes if we go back to desktop
+        if (window.innerWidth > 1024) {
+            els.sidebar.classList.remove('mobile-visible');
+        }
     });
 }
+
 
 // start
 init();
