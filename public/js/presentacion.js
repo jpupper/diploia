@@ -188,8 +188,18 @@ function renderSlide(index, direction = 1) {
         if (els.visual) {
             els.visual.style.display = 'flex'; // Reset in case it was hidden
             const imageId = (node.id || '').toLowerCase();
-            els.visual.innerHTML = `<img src="img/nodes/${imageId}.png" alt="${node.label}" onerror="this.style.display='none'">`;
+            let imagePath = node.image || `img/nodes/${imageId}.png`;
+
+            // Si es solo un nombre de archivo (no tiene barras ni es una URL), 
+            // asumimos que está en img/nodes/
+            if (node.image && !node.image.includes('/') && !node.image.startsWith('http')) {
+                imagePath = `img/nodes/${node.image}`;
+            }
+
+            els.visual.innerHTML = `<img src="${imagePath}" alt="${node.label}" onerror="this.style.display='none'">`;
+
         }
+
 
         // Category & Color
         const catColorHex = CONFIG.categoryColors[node.category] || 0xffffff;

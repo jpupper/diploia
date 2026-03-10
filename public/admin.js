@@ -681,7 +681,12 @@ function editNode(nodeId) {
     document.getElementById('node-type').value = node.type || 'tool';
     document.getElementById('node-parent').value = findParentCategory(nodeId) || '';
     document.getElementById('node-url').value = node.url || '';
+    const imageInput = document.getElementById('node-image');
+    imageInput.value = node.image || '';
+    imageInput.placeholder = `Por defecto: img/nodes/${nodeId.toLowerCase()}.png`;
+
     document.getElementById('node-info').value = node.info || '';
+
     document.getElementById('node-infohtml').value = node.infoHTML || '';
 
     // Secondary connections
@@ -698,6 +703,7 @@ async function saveNode() {
     const type = document.getElementById('node-type').value;
     const parentCategory = document.getElementById('node-parent').value;
     const url = document.getElementById('node-url').value.trim();
+    const image = document.getElementById('node-image').value.trim();
     const info = document.getElementById('node-info').value.trim();
     const infoHTML = document.getElementById('node-infohtml').value.trim();
     const secondaryStr = document.getElementById('node-secondary').value.trim();
@@ -713,6 +719,7 @@ async function saveNode() {
         label,
         type,
         url: url || null,
+        image: image || null,
         info: info || label,
         infoHTML: infoHTML || `<h3>${label}</h3><p>${info || ''}</p>`,
         parentCategory: parentCategory || null,

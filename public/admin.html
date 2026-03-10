@@ -199,10 +199,19 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>URL</label>
-                                    <input type="text" id="node-url" placeholder="https://ejemplo.com">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>URL</label>
+                                        <input type="text" id="node-url" placeholder="https://ejemplo.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Imagen Personalizada (opcional)</label>
+                                        <input type="text" id="node-image" placeholder="ej: img/nodes/mi-imagen.png">
+                                        <small style="color:var(--text-muted); font-size:11px;">Por defecto usa:
+                                            img/nodes/{ID}.png</small>
+                                    </div>
                                 </div>
+
                                 <div class="form-group">
                                     <label>Descripción (texto plano)</label>
                                     <textarea id="node-info" rows="8" placeholder="Descripción breve..."></textarea>
