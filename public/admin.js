@@ -744,8 +744,17 @@ async function saveNode() {
         const data = await res.json();
         if (data.success) {
             showToast(`Nodo "${label}" ${isEditing ? 'actualizado' : 'creado'}`, 'success');
-            closeModal('modal-node');
-            editingNodeId = null;
+            // closeModal('modal-node'); // Pedido por usuario: no cerrar el modal al guardar
+
+            if (!isEditing) {
+                // Si era nuevo, ahora pasa a modo edición para que sucesivos guardados sean PUT
+                editingNodeId = id;
+                const titleEl = document.getElementById('modal-node-title');
+                if (titleEl) titleEl.textContent = 'Editar: ' + label;
+                const idInput = document.getElementById('node-id');
+                if (idInput) idInput.disabled = true;
+            }
+
             loadAllData();
         } else {
             showToast(data.error || 'Error', 'error');
