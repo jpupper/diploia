@@ -152,7 +152,19 @@ function renderSlide(index, direction = 1) {
         if (node.customHtml) {
             els.desc.innerHTML = node.customHtml;
         } else if (node.infoHTML) {
-            els.desc.innerHTML = node.infoHTML;
+            // Remove duplicate title if it exists in infoHTML
+            const temp = document.createElement('div');
+            temp.innerHTML = node.infoHTML;
+
+            const firstChild = temp.firstElementChild;
+            if (firstChild && (firstChild.tagName === 'H1' || firstChild.tagName === 'H2' || firstChild.tagName === 'H3')) {
+                const headText = firstChild.textContent.trim().toLowerCase();
+                const labelText = node.label.trim().toLowerCase();
+                if (headText === labelText) {
+                    firstChild.remove();
+                }
+            }
+            els.desc.innerHTML = temp.innerHTML;
         } else if (node.description || node.info) {
             const text = node.description || node.info;
             const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
@@ -170,6 +182,7 @@ function renderSlide(index, direction = 1) {
         } else {
             els.desc.textContent = "Sin descripción disponible.";
         }
+
 
         // Actualizar Imagen
         if (els.visual) {

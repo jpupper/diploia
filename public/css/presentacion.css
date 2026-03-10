@@ -189,13 +189,14 @@ body {
 
 .slide-visual img {
     width: 100%;
-    max-width: 380px;
+    max-width: 272px;
     height: auto;
     max-height: 70vh;
     object-fit: contain;
     filter: drop-shadow(0 0 50px rgba(0, 0, 0, 0.8));
     border-radius: 12px;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, transparent 75%);
+    margin-right: 270px;
 }
 
 
