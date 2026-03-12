@@ -86,35 +86,40 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             },
             {
+                selector: 'node:selected',
+                style: {
+                    'background-color': '#ff1493',
+                    'border-color': '#ffffff',
+                    'border-width': 3
+                }
+            },
+            {
                 selector: 'edge',
                 style: {
-                    'width': 2,
-                    'line-color': 'rgba(255, 105, 180, 0.6)',
+                    'display': 'none', // Ocultar todos los edges en Cytoscape por defecto
                     'curve-style': 'bezier',
-                    'target-arrow-color': '#ff69b4',
                     'target-arrow-shape': 'triangle',
                     'arrow-scale': 0.8
                 }
             },
             {
-                selector: 'edge[type="secondary"]',
+                selector: 'edge.highlighted',
                 style: {
-                    'line-style': 'dashed',
-                    'line-dash-pattern': [6, 3],
-                    'line-color': 'rgba(138, 43, 226, 0.6)',
-                    'target-arrow-color': '#8a2be2',
-                    'transition-property': 'line-color, target-arrow-color, width, opacity',
-                    'transition-duration': '0.3s'
+                    'display': 'element', // Solo mostrar los resaltados
+                    'opacity': 1,
+                    'width': 3,
+                    'line-color': '#00ffff',
+                    'target-arrow-color': '#00ffff',
+                    'z-index': 999
                 }
             },
             {
-                selector: ':selected',
+                selector: 'edge.dash-animated.highlighted',
                 style: {
-                    'background-color': '#ff1493',
-                    'line-color': '#ff1493',
-                    'border-color': '#ffffff',
-                    'border-width': 3,
-                    'target-arrow-color': '#ff1493'
+                    'line-style': 'dashed',
+                    'line-dash-pattern': [6, 3],
+                    'line-color': 'rgba(138, 43, 226, 1)',
+                    'target-arrow-color': '#8a2be2'
                 }
             }
         ],
@@ -267,6 +272,91 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     document.getElementById('cy').appendChild(infoBox);
 
+    // ============================================================
+    // OPTIMIZACIÓN DE RENDERIZADO: BUFFER DE LÍNEAS ESTÁTICAS
+    // ============================================================
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.id = 'static-edges-canvas';
+    bgCanvas.style.position = 'absolute';
+    bgCanvas.style.top = '0';
+    bgCanvas.style.left = '0';
+    bgCanvas.style.width = '100%';
+    bgCanvas.style.height = '100%';
+    bgCanvas.style.zIndex = '0';
+    bgCanvas.style.pointerEvents = 'none';
+    cyContainer.insertBefore(bgCanvas, cyContainer.firstChild);
+
+    const bgCtx = bgCanvas.getContext('2d');
+    const offscreenCanvas = document.createElement('canvas');
+    const offCtx = offscreenCanvas.getContext('2d');
+    let bufferReady = false;
+    let graphExtent = null;
+
+    function updateStaticBuffer() {
+        const edges = cy.edges();
+        if (edges.length === 0) return;
+
+        graphExtent = cy.elements().boundingBox();
+        const padding = 200;
+        
+        // Ajustar tamaño del buffer offscreen
+        offscreenCanvas.width = (graphExtent.w + padding * 2);
+        offscreenCanvas.height = (graphExtent.h + padding * 2);
+
+        offCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+        offCtx.strokeStyle = 'rgba(255, 105, 180, 0.25)'; // Líneas estáticas tenues
+        offCtx.lineWidth = 1;
+        offCtx.beginPath();
+
+        edges.forEach(edge => {
+            const src = edge.source().position();
+            const tgt = edge.target().position();
+            if (src && tgt) {
+                offCtx.moveTo(src.x - graphExtent.x1 + padding, src.y - graphExtent.y1 + padding);
+                offCtx.lineTo(tgt.x - graphExtent.x1 + padding, tgt.y - graphExtent.y1 + padding);
+            }
+        });
+        offCtx.stroke();
+        bufferReady = true;
+    }
+
+    function renderStaticBuffer() {
+        if (!bufferReady) return;
+
+        const width = cyContainer.clientWidth;
+        const height = cyContainer.clientHeight;
+        
+        if (bgCanvas.width !== width || bgCanvas.height !== height) {
+            bgCanvas.width = width;
+            bgCanvas.height = height;
+        }
+
+        bgCtx.clearRect(0, 0, width, height);
+        
+        const zoom = cy.zoom();
+        const pan = cy.pan();
+        const padding = 200;
+
+        // Dibujar el buffer transformado según el viewport de Cytoscape
+        bgCtx.drawImage(
+            offscreenCanvas,
+            (graphExtent.x1 - padding) * zoom + pan.x,
+            (graphExtent.y1 - padding) * zoom + pan.y,
+            offscreenCanvas.width * zoom,
+            offscreenCanvas.height * zoom
+        );
+    }
+
+    // Actualizar el buffer cuando el layout termine o los nodos se muevan
+    cy.on('layoutstop', updateStaticBuffer);
+    cy.on('dragfree', updateStaticBuffer);
+    
+    // Renderizar el buffer en cada cambio de vista
+    cy.on('render', renderStaticBuffer);
+
+    // Inicializar el buffer después de un pequeño delay para asegurar que el layout preset se aplicó
+    setTimeout(updateStaticBuffer, 500);
+
     // Variables para la animación de líneas discontinuas
     let dashOffset = 0;
     let animationActive = true;
@@ -276,11 +366,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     function animateDashLines() {
         if (!animationActive) return;
 
+        const highlightedEdges = cy.$('.dash-animated.highlighted');
+        
+        // Si no hay elementos resaltados, no necesitamos animar este frame
+        if (highlightedEdges.length === 0) {
+            dashAnimationId = requestAnimationFrame(animateDashLines);
+            return;
+        }
+
         // Incrementar el offset
         dashOffset = (dashOffset + 1) % 12;
 
-        // Aplicar el nuevo offset SOLO a los elementos con la clase dash-animated que también están destacados
-        cy.$('.dash-animated.highlighted').style('line-dash-offset', dashOffset);
+        // Aplicar el nuevo offset SOLO a los elementos que lo necesitan
+        highlightedEdges.style('line-dash-offset', dashOffset);
 
         // Programar la próxima animación
         dashAnimationId = requestAnimationFrame(animateDashLines);
@@ -339,6 +437,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Resaltar nodos conectados y bordes
         connectedNodes.addClass('highlighted');
         connectedEdges.addClass('highlighted');
+        
+        // El resto se gestiona por el CSS condicional (display: element para highlighted)
     }
 
     // Variable para rastrear el nodo seleccionado (click)
@@ -419,15 +519,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Obtener todas las conexiones entrantes y salientes
         var connectedEdges = node.connectedEdges();
-        connectedEdges.style({
-            'width': '4px',
-            'line-color': '#00ffff',
-            'target-arrow-color': '#00ffff',
-            'opacity': 1,
-            'z-index': 999
-        });
-
-        // Agregar clase highlighted para que se active la animación
+        // Agregar clase highlighted para que se activen en Cytoscape y muestren animación
         connectedEdges.addClass('highlighted');
 
         // Resaltar nodos conectados
@@ -459,11 +551,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Restaurar estilos originales
         node.removeStyle('border-width border-color background-color z-index');
 
-        // Restaurar estilos de bordes
+        // Quitar la clase highlighted para ocultar de nuevo en Cytoscape y detener animación
         var connectedEdges = node.connectedEdges();
-        connectedEdges.removeStyle('width line-color target-arrow-color opacity z-index');
-
-        // Quitar la clase highlighted para detener la animación
         connectedEdges.removeClass('highlighted');
 
         // Restaurar estilos de nodos conectados
@@ -1215,4 +1304,60 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
     }
+
+    // =============================================
+    // DEBUG MODAL & FPS COUNTER
+    // =============================================
+    let showDebug = false;
+    let lastTime = performance.now();
+    let frameCount = 0;
+    let fps = 0;
+
+    const debugModal = document.createElement('div');
+    debugModal.id = 'debug-modal';
+    debugModal.innerHTML = `
+        <h4>Debug Info</h4>
+        <div class="debug-item"><span>FPS:</span> <span id="debug-fps" class="debug-value">0</span></div>
+        <div class="debug-item"><span>Nodos:</span> <span class="debug-value">${cy.nodes().length}</span></div>
+        <div class="debug-item"><span>Edges:</span> <span class="debug-value">${cy.edges().length}</span></div>
+    `;
+    document.body.appendChild(debugModal);
+
+    const fpsDisplay = document.getElementById('debug-fps');
+
+    function updateFPS() {
+        const now = performance.now();
+        frameCount++;
+        
+        if (now - lastTime >= 1000) {
+            fps = Math.round((frameCount * 1000) / (now - lastTime));
+            if (showDebug && fpsDisplay) {
+                fpsDisplay.textContent = fps;
+                // Color coding for performance
+                if (fps < 30) fpsDisplay.style.color = '#ff4444';
+                else if (fps < 50) fpsDisplay.style.color = '#ffff00';
+                else fpsDisplay.style.color = '#00ff00';
+            }
+            frameCount = 0;
+            lastTime = now;
+        }
+        
+        requestAnimationFrame(updateFPS);
+    }
+
+    updateFPS();
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key.toLowerCase() === 'd' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            // No activar si el foco está en un input
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            showDebug = !showDebug;
+            debugModal.style.display = showDebug ? 'block' : 'none';
+        }
+    });
+
+    // Ya no es necesario ocultarlos manualmente, está en el stylesheet
 });
