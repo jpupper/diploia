@@ -733,7 +733,8 @@ async function saveNode() {
     try {
         const isEditing = editingNodeId !== null;
         const method = isEditing ? 'PUT' : 'POST';
-        const endpoint = isEditing ? API + '/nodes/' + editingNodeId : API + '/nodes';
+        const finalId = id; // use the current id for the endpoint
+        const endpoint = isEditing ? API + '/nodes/' + encodeURIComponent(editingNodeId) : API + '/nodes';
 
         const res = await fetch(endpoint, {
             method,
@@ -744,18 +745,31 @@ async function saveNode() {
         const data = await res.json();
         if (data.success) {
             showToast(`Nodo "${label}" ${isEditing ? 'actualizado' : 'creado'}`, 'success');
-            // closeModal('modal-node'); // Pedido por usuario: no cerrar el modal al guardar
 
-            if (!isEditing) {
-                // Si era nuevo, ahora pasa a modo edición para que sucesivos guardados sean PUT
-                editingNodeId = id;
+            // Actualizar localmente antes de recargar para respuesta instantánea
+            if (isEditing) {
+                nodesData.nodes[editingNodeId] = data.node;
+            } else {
+                nodesData.nodes[id] = data.node;
+                editingNodeId = finalId;
+
+                // Actualizar UI del modal para modo edición
                 const titleEl = document.getElementById('modal-node-title');
                 if (titleEl) titleEl.textContent = 'Editar: ' + label;
                 const idInput = document.getElementById('node-id');
                 if (idInput) idInput.disabled = true;
             }
 
-            loadAllData();
+            // Recargar todo para asegurar consistencia (especialmente categoryChildren)
+            await loadAllData();
+
+            // MUY IMPORTANTE: Después de loadAllData, el selector de categoría padre
+            // puede haberse reseteado porque se repueblan los selects.
+            // Lo volvemos a poner como estaba.
+            document.getElementById('node-parent').value = parentCategory;
+
+            // Refrescar el editingNodeId con el ID final
+            editingNodeId = finalId;
         } else {
             showToast(data.error || 'Error', 'error');
         }
@@ -769,7 +783,7 @@ async function deleteNode(nodeId) {
     if (!confirm(`¿Eliminar el nodo "${nodesData.nodes[nodeId]?.label || nodeId}"?`)) return;
 
     try {
-        const res = await fetch(API + '/nodes/' + nodeId, { method: 'DELETE' });
+        const res = await fetch(API + '/nodes/' + encodeURIComponent(nodeId), { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
             showToast('Nodo eliminado', 'success');
@@ -788,7 +802,7 @@ async function deleteCategory(catId) {
     if (!confirm(`¿Eliminar la categoría "${nodesData.nodes[catId]?.label || catId}" y sus ${childCount} nodos hijos?`)) return;
 
     try {
-        const res = await fetch(API + '/categories/' + catId, { method: 'DELETE' });
+        const res = await fetch(API + '/categories/' + encodeURIComponent(catId), { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
             showToast('Categoría eliminada', 'success');

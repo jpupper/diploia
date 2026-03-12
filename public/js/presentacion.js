@@ -29,7 +29,11 @@ const els = {
     visual: document.getElementById('slide-visual'),
     mobileMenuBtn: document.getElementById('mobile-menu-btn'),
     sidebarToggle: document.getElementById('sidebar-toggle'),
-    sidebar: document.getElementById('category-filter')
+    sidebar: document.getElementById('category-filter'),
+    imageModal: document.getElementById('image-modal'),
+    modalImg: document.getElementById('modal-img'),
+    modalClose: document.getElementById('modal-close'),
+    modalCaption: document.getElementById('modal-caption')
 };
 
 
@@ -41,27 +45,6 @@ async function init() {
     await loadData();
     setupFilters();
     bindEvents();
-
-    // Check for node parameter in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const nodeParam = urlParams.get('node');
-
-    if (nodeParam) {
-        const node = state.nodes.find(n => n.id === nodeParam);
-        if (node) {
-            // Apply a special filter to show only this node
-            state.filteredNodes = [node];
-            renderSlide(0);
-
-            // Highlight in sidebar if possible
-            state.currentCategory = node.category || 'GENERAL';
-            updateSidebar(node);
-        } else {
-            renderSlide(0);
-        }
-    } else {
-        renderSlide(0);
-    }
 
     els.loading.classList.add('hidden');
 }
@@ -83,36 +66,37 @@ async function loadData() {
         state.categoryChildren = data.categoryChildren || {};
         state.categoryData = data.nodes || {};
 
-        console.log('Datos cargados:', {
-            nodes: state.nodes.length,
-            categories: state.categories.length,
-            categoryChildren: Object.keys(state.categoryChildren).length
-        });
-
         // Build category mapping: id -> categoryName
         const idToCategory = {};
         if (data.categoryChildren) {
             Object.entries(data.categoryChildren).forEach(([cat, children]) => {
-                // Category maps to itself
                 idToCategory[cat] = cat;
-                // Children map to parent
                 children.forEach(childId => {
                     idToCategory[childId] = cat;
                 });
             });
         }
 
-        console.log('Mapeo de categorías:', idToCategory);
-
         // Attach category info to each node
         state.nodes.forEach(node => {
             node.category = idToCategory[node.id] || 'GENERAL';
         });
 
-        console.log('Nodos con categorías:', state.nodes.map(n => ({ id: n.id, label: n.label, category: n.category })));
+        // Check for node parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const nodeParam = urlParams.get('node');
 
-        // Initial filter
-        filterCategory('ALL');
+        if (nodeParam) {
+            const targetNode = state.nodes.find(n => n.id === nodeParam);
+            if (targetNode) {
+                // If we have a target node, switch to its category and select the node
+                filterCategory(targetNode.category, targetNode.id);
+            } else {
+                filterCategory('ALL');
+            }
+        } else {
+            filterCategory('ALL');
+        }
 
     } catch (e) {
         console.error("Failed to load data", e);
@@ -510,6 +494,45 @@ function bindEvents() {
             els.sidebar.classList.remove('mobile-visible');
         });
     }
+
+    // Modal Image Events
+    if (els.visual) {
+        els.visual.addEventListener('click', (e) => {
+            if (e.target.tagName === 'IMG') {
+                openImageModal(e.target.src, e.target.alt);
+            }
+        });
+    }
+
+    if (els.modalClose) {
+        els.modalClose.addEventListener('click', closeImageModal);
+    }
+
+    if (els.imageModal) {
+        els.imageModal.addEventListener('click', (e) => {
+            if (e.target === els.imageModal || e.target.id === 'modal-close') {
+                closeImageModal();
+            }
+        });
+    }
+
+    // Close modal on Escape
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeImageModal();
+    });
+}
+
+function openImageModal(src, caption) {
+    if (!els.imageModal || !els.modalImg) return;
+    els.modalImg.src = src;
+    els.modalCaption.textContent = caption || '';
+    els.imageModal.classList.add('active');
+    // We don't need to change overflow because body is already hidden
+}
+
+function closeImageModal() {
+    if (!els.imageModal) return;
+    els.imageModal.classList.remove('active');
 }
 
 
